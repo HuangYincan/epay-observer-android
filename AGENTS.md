@@ -5,7 +5,7 @@
 - 仓库归 HuangYincan，公开；本地位于 `/Users/acccan/Repos/huangyincan/epay-observer-android`。
 - 微信和支付宝均为必需；目标是对接 epay-go → New API 自动充值。
 - 先使用安卓模拟器。
-- 当前授权是建立仓库、规划、文档和 Issues；开始功能开发需用户明确启动后续任务。不要把规划或问题讨论理解成开工指令。
+- 当前授权已扩展到 M0 源码调研、必要的临时实验、规格／文档更新和对应 Issue 维护；功能开发仍需用户在 M0 汇报后明确确认。不得安装额外工具、部署服务或操作真实支付账号。
 
 ## Spec / Issue workflow
 
