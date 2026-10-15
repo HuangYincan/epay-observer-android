@@ -22,7 +22,7 @@ class FoundationInstrumentedTest {
     @Test fun isolatedClientLaunchesWithHonestInitialState() {
         assertEquals("dev.epay.observer.fixtureclient.debug", context.packageName)
         val activity = instrumentation.startActivitySync(
-            Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK),
         )
         try {
             instrumentation.runOnMainSync {

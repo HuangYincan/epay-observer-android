@@ -38,7 +38,8 @@ class ObserverListener : NotificationListenerService() {
     }
 
     private fun capture(sbn: StatusBarNotification, restored: Boolean) {
-        val source = try { SourcePolicy.resolve(this, sbn) } catch (_: RuntimeException) { null }
+        val source = try { SourcePolicy.resolve(this, sbn) } catch (_: android.content.pm.PackageManager.NameNotFoundException) { null }
+            catch (_: RuntimeException) { null }
         if (source == null) { CaptureState.reject(); return }
         val fields = extractFields(sbn.notification)
         CaptureState.journal.record(ObservationInput(

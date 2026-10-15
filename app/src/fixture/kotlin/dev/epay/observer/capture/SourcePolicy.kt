@@ -27,6 +27,6 @@ object SourcePolicy {
         val signers = digests(sender)
         if (!SourceBoundary.allows(sbn.packageName, sbn.opPkg, user,
                 user, PACKAGE, signers, digests(self))) return null
-        return SourceIdentity(PACKAGE, user, sender.longVersionCode, signers)
+        return SourceIdentity(PACKAGE, user, sender.longVersionCode, signers, sbn.opPkg)
     }
 }

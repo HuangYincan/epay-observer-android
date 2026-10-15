@@ -1,7 +1,7 @@
 package dev.epay.observer.capture
 
 /** Diagnostic snapshots only. No payment/event identity or persistent delivery semantics. */
-data class SourceIdentity(val packageName: String, val user: Long, val version: Long, val signers: Set<String>)
+data class SourceIdentity(val packageName: String, val user: Long, val version: Long, val signers: Set<String>, val opPackage: String = packageName)
 data class NotificationFields(
     val title: String?, val text: String?, val bigText: String?,
     val channel: String?, val category: String?, val flags: Int, val group: String?,

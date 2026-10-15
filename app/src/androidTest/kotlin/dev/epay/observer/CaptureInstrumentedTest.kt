@@ -34,7 +34,7 @@ class CaptureInstrumentedTest {
         shell("cmd notification ${if (allowed) "allow_listener" else "disallow_listener"} ${component.flattenToString()}")
         await("access $allowed") { context.getSystemService(NotificationManager::class.java).isNotificationListenerAccessGranted(component) == allowed }
         await("connection $allowed") { CaptureState.connected == allowed }
-        val activity = instrumentation.startActivitySync(Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        val activity = instrumentation.startActivitySync(Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
         try {
             instrumentation.runOnMainSync {
                 assertEquals(if (allowed) "已授权" else "未授权", activity.findViewById<android.widget.TextView>(R.id.permission_status).text.toString())
