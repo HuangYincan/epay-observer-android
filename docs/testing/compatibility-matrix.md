@@ -1,11 +1,11 @@
 # 兼容性矩阵
 
-当前没有实测结果。不得把候选支持版本填成 Passed。
+产品场景没有实测结果。宿主工具/AVD 元数据已核对，用户报告 AVD 启动已通过；不等于观察器或支付 App 兼容性通过。
 
 | 层次 | 来源 | Android / 镜像 | 设备 / ABI | 支付 App 版本 | 结果 | 样本与报告 |
 | --- | --- | --- | --- | --- | --- | --- |
-| 模拟器夹具 | 微信形态 | TBD | TBD | 不适用 | Not run | TBD |
-| 模拟器夹具 | 支付宝形态 | TBD | TBD | 不适用 | Not run | TBD |
+| 模拟器夹具 | 微信形态 | API 37.0 Google Play rev 6 | Medium_Phone / arm64-v8a | 不适用 | Not run | ADR-0004 环境记录 |
+| 模拟器夹具 | 支付宝形态 | API 37.0 Google Play rev 6 | Medium_Phone / arm64-v8a | 不适用 | Not run | ADR-0004 环境记录 |
 | 模拟器真实 App | 微信 | TBD | TBD | TBD | Not run | TBD |
 | 模拟器真实 App | 支付宝 | TBD | TBD | TBD | Not run | TBD |
 | 实体真机 | 微信 | 待后续设备 | TBD | TBD | Not run | TBD |

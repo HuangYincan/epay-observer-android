@@ -9,6 +9,11 @@
 | provider_transaction_id | 支付平台交易流水；只有真实取得时才存在，不能用 event_id 冒充 |
 | receiver_id | 网关定义的收款账户绑定；不等于手机型号或设备 ID |
 | device_id | 网关登记的观察器实例；重装需重新绑定，不能接管旧身份 |
+| binding_version | receiver 授权绑定代次；换账号/设备不能沿用旧事件授权 |
+| identity_confidence | 候选观察身份的 distinct/uncertain 分类，不是平台交易真实性 |
+| frozen body | ReceiptEvent 首次落盘的不可变发送字节；重试只重建认证封套 |
+| amount claim | receiver/provider/金额到原订单的持久占用；测试 v1 不按 TTL 释放 |
+| observer evidence | 通知观察型确认依据，独立于真实 provider_transaction_id |
 | MatchingDecision | 事件到订单的唯一匹配、无匹配或歧义结果 |
 | CreditConfirmation | 网关在事务内完成支付状态、余额、流水与事件消费 |
 | MerchantNotification | 网关向 New API 发送易支付结果；和 APK 上报是不同方向 |

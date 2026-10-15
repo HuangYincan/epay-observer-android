@@ -1,12 +1,14 @@
 # Issue 驱动任务索引
 
-日期：2026-10-15。以下均为已建立的规划任务，未开始实现。依赖、验收标准与证据要求在各 Issue 正文。
+日期：2026-10-15。功能尚未实现；M0 研究已交付评审候选，见 [M0 报告](../research/M0-review.md)。现有 42 个观察器 Issues 全部保留，不重复创建。验收和依赖在各 Issue 正文；M0 研究交付不等于产品任务完成。
 
 开发顺序：需求／研究／关键规格 → 模拟器采集 → 可靠上报 → 自动充值测试闭环 → 真机兼容性与发布准备。自动充值是首版目标；未知或歧义事件不能强行入账。
 
 ## M0 · 规格与研究
 
 需求、许可证、通知身份、协议与匹配策略收敛。规划完成不等于授权开始实现。
+
+研究结果：#1/#2/#3/#4/#6/#7 已有评审材料与证据，#8/#10 的范围／集成准入仍需决策；不因 M0 报告存在就关闭下游实现任务。跨库映射：#15/#20/#25 → epay-go #6；#8/#18/#22/#32 → epay-go #7；#26/#27/#28 → epay-go #8；#10/#27/#29 → epay-go #9。具体链接见 [M0 报告](../research/M0-review.md)。
 
 Epic：[[Epic] 规格、研究与跨仓库开发基线](https://github.com/HuangYincan/epay-observer-android/issues/38)
 
@@ -22,6 +24,8 @@ Epic：[[Epic] 规格、研究与跨仓库开发基线](https://github.com/Huang
 | [#10 固定 epay-go 与 New API 集成版本及跨仓库任务边界](https://github.com/HuangYincan/epay-observer-android/issues/10) | spec / integration | [#1](https://github.com/HuangYincan/epay-observer-android/issues/1)、[#7](https://github.com/HuangYincan/epay-observer-android/issues/7) |
 
 ## M1 · 模拟器双通道采集
+
+M0 建议的首个实现切片为 #9 + #5，确认后再 #11/#12；不会在研究任务中提前创建 Gradle 工程。
 
 建立Android测试工程、AVD和独立夹具，分别验证微信／支付宝合成通知。
 

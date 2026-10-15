@@ -10,7 +10,7 @@
 - 首个可用版本的目标是自动充值，不把人工确认当作最终主流程。
 - 先用安卓模拟器开发和验证完整链路。
 - 本仓库承载 APK 与协议规格；网关变更在 epay-go 中交付，通过跨仓库 Issue／PR 关联。
-- 本轮只创建文档和 Issues，不开始功能开发。
+- 本轮完成 M0 调研、离线协议实验和规格评审稿；功能开发等待明确确认。
 
 ```mermaid
 flowchart LR
@@ -36,6 +36,7 @@ flowchart LR
 | 全部开发任务 | [Issue 索引](docs/issues/BACKLOG.md) |
 | 第一阶段怎么验收 | [模拟器测试计划](docs/testing/emulator-plan.md) |
 | 尚未决定的问题 | [待决问题](docs/OPEN-QUESTIONS.md) |
+| M0 具体结论、证据与阻塞 | [M0 评审报告](docs/research/M0-review.md) |
 
 开发方式为 **Spec + Issue 驱动**：先定位需求与规格，再完成一个有独立验收标准的 Issue，最后提交关联 PR 和证据。详见 [贡献流程](CONTRIBUTING.md)。规格改动须与实现同步，Issue 不能仅因文档写完或代码编译通过就关闭。
 
@@ -43,4 +44,4 @@ flowchart LR
 
 约定本地路径：`/Users/acccan/Repos/huangyincan/epay-observer-android`。相关网关：相邻目录 `epay-go`。本仓库不复制网关源码，不包含用户收款码、通知原文、密钥、测试资金账号或 APK 签名私钥。
 
-许可证尚未选择；公开仓库不代表已有开源授权。参考项目的许可证审计必须在复制任何实现前完成，见 [参考资料](docs/research/references.md)。
+本仓库采用 [MIT 许可证](LICENSE)，用户于 2026-10-15 确认。业务流程可以参考 vmqApk 及 V免签系列，旧代码仅供研究。旧 vmqApk 的 MIT 与内嵌 ZXing Apache-2.0 已分别检查，本轮未复制第三方实现；系列其他仓库仍需各自审计，见 [源码与许可证审计](docs/research/M0-source-audit.md)。真实通知尚不能安全证明订单归属；严格隔离的合成测试策略与生产准入门槛分开记录，不能把测试闭环当作真实自动收款可用。
