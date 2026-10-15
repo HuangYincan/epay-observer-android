@@ -13,7 +13,14 @@ parser.add_argument('apk', type=Path)
 parser.add_argument('--variant', choices=['productionRelease', 'fixtureDebug'], required=True)
 args = parser.parse_args()
 sdk = Path(os.environ.get('ANDROID_HOME') or os.environ['ANDROID_SDK_ROOT'])
-analyzer = sdk / 'cmdline-tools/latest/bin/apkanalyzer'
+analyzers = []
+for properties in sorted((sdk / 'cmdline-tools').glob('*/source.properties')):
+    values = dict(line.split('=', 1) for line in properties.read_text().splitlines() if '=' in line)
+    candidate = properties.parent / 'bin/apkanalyzer'
+    if values.get('Pkg.Revision', '').strip() == '23.0' and candidate.is_file():
+        analyzers.append(candidate)
+assert analyzers, 'Command-line Tools 23.0 is required; a directory named latest may contain an older version'
+analyzer = analyzers[0]
 manifest = ET.fromstring(subprocess.check_output([str(analyzer), 'manifest', 'print', str(args.apk)], text=True))
 android = '{http://schemas.android.com/apk/res/android}'
 application = manifest.find('application')

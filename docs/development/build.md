@@ -32,7 +32,7 @@ python3 scripts/verify_apk.py app/build/outputs/apk/fixture/debug/app-fixture-de
 ./gradlew --no-daemon :app:tasks --all
 ```
 
-APK 检查解析最终 manifest 与经资源压缩后的网络／备份 XML，核对包名、SDK、组件、无 debug/TLS 绕过及无 fixture 标记。任务表应有 assembleProductionRelease、assembleFixtureDebug，没有 assembleFixtureRelease。该检查覆盖当前骨架；未来添加监听／上传等必须修改预期和证据，不能默认沿用通过结论。
+APK 检查按 source.properties 选择 Command-line Tools23.0（不能假定 latest 目录就是该版本），解析最终 manifest 与经资源压缩后的网络／备份 XML，核对包名、SDK、组件、无 debug/TLS 绕过及无 fixture 标记。解码 XML 存入 app/build/reports/apk-inspection。任务表应有 assembleProductionRelease、assembleFixtureDebug，没有 assembleFixtureRelease。该检查覆盖当前骨架；未来添加监听／上传等必须修改预期和证据，不能默认沿用通过结论。
 
 ## 现有模拟器
 

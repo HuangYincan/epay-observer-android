@@ -48,6 +48,7 @@ sh scripts/reset_fixture_client.sh emulator-5554
 4. 首次 CI 在 JDK 获取阶段失败：setup-java 的发行 API 标识为 25.0.3+9.0.LTS，与 GitHub release tag 的 25.0.3+9 不同。改用精确标识和维护中的 setup-java v5；特性分支只跑 PR workflow，避免 push/PR 重复构建。
 5. 下一次 CI 发现托管 runner 没有 sdkmanager。加入固定 commit 的 Android setup action，明确使用与本机同代的 Command-line Tools23.0/build16111833 及平台/Build Tools 包；没有修改本机工具安装。
 6. CI 冷缓存解析额外读取 guava-parent 33.3.1-jre POM 与 JUnit BOM 5.11.0-M2 module，最初校验清单未包含它们。单独从 Maven Central 获取并核对发布校验值，补入 SHA-256；没有关闭 strict verification 或接受任意校验值。
+7. CI 的 cmdline-tools/latest 目录实际预装 12.0，而 setup action 把固定 23.0 安装在 16111833 目录。旧分析器省略 XML 文本，导致网络域名断言失败；检查脚本改为核对 source.properties 选择 23.0，同时保留全部 5 条域名断言并保存解码证据，不以“目录叫 latest”推断工具版本。
 
 ## 证据与限制
 
