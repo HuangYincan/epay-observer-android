@@ -10,7 +10,7 @@ import zipfile
 
 parser = argparse.ArgumentParser()
 parser.add_argument('apk', type=Path)
-parser.add_argument('--variant', choices=['productionRelease', 'fixtureDebug'], required=True)
+parser.add_argument('--variant', choices=['productionRelease', 'fixtureDebug', 'fixtureSender'], required=True)
 args = parser.parse_args()
 sdk = Path(os.environ.get('ANDROID_HOME') or os.environ['ANDROID_SDK_ROOT'])
 analyzers = []
@@ -26,25 +26,38 @@ android = '{http://schemas.android.com/apk/res/android}'
 application = manifest.find('application')
 assert application is not None
 production = args.variant == 'productionRelease'
-expected_id = 'dev.epay.observer' if production else 'dev.epay.observer.fixtureclient.debug'
+sender = args.variant == 'fixtureSender'
+expected_id = 'dev.epay.observer.fixture' if sender else ('dev.epay.observer' if production else 'dev.epay.observer.fixtureclient.debug')
 assert manifest.attrib['package'] == expected_id
 assert application.get(android + 'allowBackup') == 'false'
 assert application.get(android + 'fullBackupContent') == 'false'
 assert application.get(android + 'usesCleartextTraffic') == 'false'
-assert application.get(android + 'networkSecurityConfig')
+assert bool(application.get(android + 'networkSecurityConfig')) == (not sender)
 assert application.get(android + 'dataExtractionRules')
 assert (application.get(android + 'debuggable', 'false') == 'true') == (not production)
 sdk_element = manifest.find('uses-sdk')
 assert sdk_element.get(android + 'minSdkVersion') == '29'
 assert sdk_element.get(android + 'targetSdkVersion') == '37'
 permissions = {p.get(android + 'name') for p in manifest.findall('uses-permission')}
-assert permissions == {'android.permission.INTERNET'}, permissions
-assert not application.findall('service')
+assert permissions == ({'android.permission.POST_NOTIFICATIONS'} if sender else {'android.permission.INTERNET'}), permissions
+services = application.findall('service')
+if sender:
+    assert not services
+else:
+    assert len(services) == 1
+    assert services[0].get(android + 'name') == 'dev.epay.observer.capture.ObserverListener'
+    assert services[0].get(android + 'exported') == 'true'
+    assert services[0].get(android + 'permission') == 'android.permission.BIND_NOTIFICATION_LISTENER_SERVICE'
+    assert services[0].find('intent-filter/action').get(android + 'name') == 'android.service.notification.NotificationListenerService'
+queries = {p.get(android + 'name') for p in manifest.findall('queries/package')}
+assert queries == (set() if production or sender else {'dev.epay.observer.fixture'})
 assert not application.findall('receiver')
 assert not application.findall('provider')
 activities = application.findall('activity')
 assert len(activities) == 1
-assert activities[0].get(android + 'name') == 'dev.epay.observer.MainActivity'
+assert activities[0].get(android + 'name') == ('dev.epay.observer.fixture.FixtureActivity' if sender else 'dev.epay.observer.MainActivity')
+if sender:
+    assert activities[0].get(android + 'launchMode') == '1' # singleTop in apkanalyzer output
 assert activities[0].get(android + 'exported') == 'true'
 
 # Release resource shrinking renames res/xml files; resolve the manifest's IDs.
@@ -64,15 +77,16 @@ def packaged_xml(attribute):
     (evidence / f'{attribute}.xml').write_text(decoded)
     return ET.fromstring(decoded)
 
-network = packaged_xml('networkSecurityConfig')
-assert not network.findall('debug-overrides')
-assert network.find('base-config').get('cleartextTrafficPermitted') == 'false'
-assert [node.get('src') for node in network.findall('.//certificates')] == ['system']
-for config in network.findall('.//domain-config'):
-    assert config.get('cleartextTrafficPermitted') == 'false'
-domains = {''.join(node.itertext()).strip() for node in network.findall('.//domain')}
-assert domains == {'localhost', 'ip6-localhost', '127.0.0.1', '::1', '[::1]'}, \
-    f'Packaged domain rules changed or could not be decoded: {ET.tostring(network, encoding="unicode")}'
+if not sender:
+    network = packaged_xml('networkSecurityConfig')
+    assert not network.findall('debug-overrides')
+    assert network.find('base-config').get('cleartextTrafficPermitted') == 'false'
+    assert [node.get('src') for node in network.findall('.//certificates')] == ['system']
+    for config in network.findall('.//domain-config'):
+        assert config.get('cleartextTrafficPermitted') == 'false'
+    domains = {''.join(node.itertext()).strip() for node in network.findall('.//domain')}
+    assert domains == {'localhost', 'ip6-localhost', '127.0.0.1', '::1', '[::1]'}, \
+        f'Packaged domain rules changed or could not be decoded: {ET.tostring(network, encoding="unicode")}'
 backup = packaged_xml('dataExtractionRules')
 for section in ['cloud-backup', 'device-transfer']:
     rules = backup.find(section)
@@ -86,10 +100,10 @@ for section in ['cloud-backup', 'device-transfer']:
 with zipfile.ZipFile(args.apk) as apk:
     contents = b''.join(apk.read(name) for name in apk.namelist())
     if production:
-        for marker in ['dev.epay.observer.fixture', 'fixture-key-a', 'fixture-wx-v1', '隔离测试环境', '合成流水-仅用于字节验证']:
+        for marker in ['dev.epay.observer.fixture', 'fixture-key-a', 'fixture-wx-v1', '隔离测试环境', '合成流水-仅用于字节验证', 'synthetic-v1', 'identical-pair', 'fixture-key', 'synthetic-group']:
             for encoding in ['utf-8', 'utf-16-le']:
                 assert marker.encode(encoding) not in contents, f'Production contains {marker}'
-    else:
+    elif not sender:
         assert any('隔离测试环境'.encode(encoding) in contents for encoding in ['utf-8', 'utf-16-le'])
 
-print(f'{args.variant}: packaged ID, SDK, components, backup rules, system TLS trust, localhost cleartext denial, debug flag and source-set isolation OK')
+print(f'{args.variant}: packaged ID, SDK, components, permissions, backup rules, network boundary, debug flag and source-set isolation OK')

@@ -12,6 +12,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Observer"
         android:usesCleartextTraffic="false">
+        <service android:name=".capture.ObserverListener"
+            android:label="@string/app_name" android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter><action android:name="android.service.notification.NotificationListenerService" /></intent-filter>
+        </service>
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
