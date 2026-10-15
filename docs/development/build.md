@@ -55,4 +55,4 @@ AVD 的 10.0.2.2 是宿主访问路由，不会被本工程当作生产回调地
 
 ## CI
 
-Android foundation workflow 使用 ubuntu-24.04、Temurin 25.0.3+9（setup-java 使用发行 API 的精确标识 25.0.3+9.0.LTS）、固定 commit 的 GitHub Actions，安装明确 SDK package，再严格校验构建／JUnit／lint／APK。CI 只上传报告，不上传 APK 或签名材料。macOS/arm64 AVD 验证另记；CI 构建不证明模拟器或真实支付 App 兼容。
+Android foundation workflow 使用 ubuntu-24.04、Temurin 25.0.3+9（setup-java 使用发行 API 的精确标识 25.0.3+9.0.LTS）、固定 commit 的 GitHub Actions，在临时 runner 上用 Command-line Tools 23.0（下载 build 16111833）安装明确 SDK package，再严格校验构建／JUnit／lint／APK。不能假定托管 runner 已有 sdkmanager；这不涉及重新安装用户本机 SDK。CI 只上传报告，不上传 APK 或签名材料。macOS/arm64 AVD 验证另记；CI 构建不证明模拟器或真实支付 App 兼容。

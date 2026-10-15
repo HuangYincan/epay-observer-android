@@ -26,8 +26,12 @@ jobs:
       - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
         with:
           cache-read-only: ${{ github.event_name == 'pull_request' }}
-      - name: Install pinned SDK packages on CI runner
-        run: sdkmanager 'platforms;android-37.0' 'build-tools;36.0.0'
+      - name: Provision pinned SDK packages on the CI runner
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          cmdline-tools-version: '16111833' # Command-line Tools 23.0, Google repository metadata
+          packages: 'platforms;android-37.0 build-tools;36.0.0'
+          log-accepted-android-sdk-licenses: false
       - name: Build, JVM contract tests and lint
         run: >-
           ./gradlew --no-daemon --dependency-verification strict
