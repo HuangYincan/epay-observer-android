@@ -20,12 +20,20 @@
 | API37 AVD | 6/6 Pass，31.301 秒 | 包括既有 5 项及新增实际投递解析／开关测试；本轮未重启或清除 AVD |
 | 最终 APK | 三种均 Pass | fixture 文案／规则版本不进入 Release；无额外权限／网络旁路 |
 | lint | 0 errors | 正式 0 warnings；夹具保留已有 1 条测试 UI 国际化 warning |
-| GitHub CI | 待运行 | 后续记录本 PR run |
+| GitHub CI | Pass | 实现提交 b8941af，run 38823578072；含两变体 JVM、lint、APK 隔离检查 |
 | API29、真实 App、真机、自动充值 | Not run | 不主张真实收款兼容或完整 M1／M3 完成 |
 
 AVD 正例验证 provider、1000 分、CNY 和独立规则版本。16 个新负例分别覆盖双通道金额冲突、外币、退款、聊天伪装、推广、Inbox 聚合、三位小数与 subText 隐藏金额；既有摘要／支出／畸形字段测试及 116 例语料共同补足边界。授权、来源签名过滤继续走真实系统回调，无订单号注入。
 
 测试最后撤下夹具通知并撤销监听，恢复测试前两个解析开关。只触及本项目测试 App；无服务部署、真实支付账号操作、APK 发布或网关变更。
+
+## 固定证据
+
+- 实现提交：`b8941afa761f5d41821a7f6abffbe84cebda4a70`。
+- [仪器测试完整输出](evidence/parsing/instrumentation.txt)。
+- [APK SHA-256 与两变体 JVM 汇总](evidence/parsing/summary.json)；不包含通知原文、真实账号或证书私钥。
+- [Linux CI 运行记录](evidence/parsing/ci-run.json)。
+- [合成语料说明](parsing-v1/README.md) 与 `synthetic-cases.json`。
 
 ## 下一步与限制
 

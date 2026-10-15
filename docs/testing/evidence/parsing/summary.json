@@ -1,0 +1,93 @@
+{
+  "source_commit": "b8941afa761f5d41821a7f6abffbe84cebda4a70",
+  "layer": "synthetic only; API37 Google Play arm64 AVD",
+  "instrumentation": {
+    "passed": 6,
+    "total": 6,
+    "seconds": 31.301
+  },
+  "parser_corpus": {
+    "total": 116,
+    "wxpay": 58,
+    "alipay": 58
+  },
+  "artifacts": [
+    {
+      "path": "fixture/build/outputs/apk/debug/fixture-debug.apk",
+      "sha256": "3284de8d1d06c8b28f5212d3608c8af47cbc599d76499820c352dd85ba7e9c65",
+      "bytes": 2556754
+    },
+    {
+      "path": "app/build/outputs/apk/fixture/debug/app-fixture-debug.apk",
+      "sha256": "e2f5284b8ed2057e7fc67e1a9d92c1d958a18f9c027c9d0c86f47efcc6cad4ab",
+      "bytes": 2651974
+    },
+    {
+      "path": "app/build/outputs/apk/production/release/app-production-release-unsigned.apk",
+      "sha256": "2699a157d38adfe08f4f92747cf5c28ea3a3ae83b8a69388b497a67a97bb919f",
+      "bytes": 48418
+    },
+    {
+      "path": "app/build/outputs/apk/androidTest/fixture/debug/app-fixture-debug-androidTest.apk",
+      "sha256": "b3850ae7a941a24f3d6191e336633d41d3e9a177f34424bc706653d4284b5b4a",
+      "bytes": 2314632
+    }
+  ],
+  "jvm": {
+    "testProductionDebugUnitTest": [
+      {
+        "name": "dev.epay.observer.ObservationJournalTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.epay.observer.ProductionParserIsolationTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.epay.observer.ProtocolGoldenVectorsTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "testFixtureDebugUnitTest": [
+      {
+        "name": "dev.epay.observer.FixtureParserCorpusTest",
+        "tests": "116",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.epay.observer.ObservationJournalTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.epay.observer.ProtocolGoldenVectorsTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ]
+  },
+  "not_run": [
+    "API29",
+    "real WeChat",
+    "real Alipay",
+    "physical devices",
+    "persistent identity",
+    "delivery queue",
+    "gateway/New API integration"
+  ]
+}
