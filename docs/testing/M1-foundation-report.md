@@ -4,18 +4,22 @@
 
 这是 **模拟器基础应用** 验证，还不是“模拟器通知夹具”或真实微信／支付宝验证。应用目前只显示真实的未启用／未绑定／暂无事件状态，没有监听 service、配对、解析、队列、上传或充值能力。
 
+本批实现与验证已完成，待 PR #44 代码评审／合并。CI 证据固定到 `e6caee1d75fc782888e1ef18c9899ff643be8a42`；其后证据回填提交只改文档。
+
 ## 结果
 
 | 验收 | 已执行检查 | 结果 |
 | --- | --- | --- |
 | BUILD-01 本机构建 | Gradle 9.4.1 wrapper、AGP9.2.1、JBR25、SDK37、Build Tools36；严格依赖校验及 offline 重建 | Passed；fixtureDebug、productionRelease unsigned、AndroidTest APK 生成 |
-| BUILD-01 GitHub CI | 托管 Linux runner，同版本工具和严格制品校验 | Pending，运行后补齐链接和结果 |
+| BUILD-01 GitHub CI | 托管 Linux runner，同版本工具和严格制品校验 | Passed；[运行 38796002995](https://github.com/HuangYincan/epay-observer-android/actions/runs/38796002995)，提交 e6caee1 |
 | BUILD-02 JVM | Kotlin/JCA 重算 3 组 SPEC-002 golden；12 个格式/篡改对比、重试 body 不变 | 3 个 JUnit 测试，0 failure/error |
 | BUILD-03 产物隔离 | 最终 APK manifest、资源压缩后的网络/备份 XML、包名/组件/标记检查 | 两个 APK Passed；fixtureRelease 任务不存在 |
 | AVD-01 环境 | 复用已在线的 API37 Google Play arm64 AVD | Passed；未重新安装 SDK 或 wipe AVD |
 | AVD-02 状态页 | 测试包启动，环境/监听/绑定/事件状态断言 | Passed；截图已目视核对，无遮挡或截断 |
 | AVD-03 网络 | 默认系统 TLS 访问 example.com，禁全局/localhost/IPv4及IPv6环回/宿主映射的明文策略 | Passed；没有测试 CA 或 trust-all |
 | AVD-04 重置 | 只 pm clear 本项目 fixture client，再启动 | Passed；COLD，状态重新显示未配置 |
+
+GitHub CI 全部步骤 Passed（2 分 44 秒）；平台提示部分固定 Actions 声明 Node20、实际按 Node24 执行，当前成功，后续动作升级仍需固定 commit 并重新验证。
 
 仪器测试合计 3/3 Passed。lint 0 error、3 个版本更新提示 warning（两项 AndroidGradlePluginVersion、一项 NewerVersionAvailable），本批保持审查过的固定版本，未压制 lint。productionDebug 可构建源码配置已由单测编译，未宣称单独安装验收；正式 Release 未签名、未安装或发布。
 

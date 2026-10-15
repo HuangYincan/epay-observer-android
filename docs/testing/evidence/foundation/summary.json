@@ -20,7 +20,63 @@
     "architecture": "arm64",
     "macos": "27.0.1"
   },
-  "ci": "pending",
+  "ci": {
+    "databaseId": 38796002995,
+    "status": "completed",
+    "conclusion": "success",
+    "headSha": "e6caee1d75fc782888e1ef18c9899ff643be8a42",
+    "url": "https://github.com/HuangYincan/epay-observer-android/actions/runs/38796002995",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a",
+        "conclusion": "success"
+      },
+      {
+        "name": "Provision pinned SDK packages on the CI runner",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build, JVM contract tests and lint",
+        "conclusion": "success"
+      },
+      {
+        "name": "Check packaged build isolation",
+        "conclusion": "success"
+      },
+      {
+        "name": "Save verification reports",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
   "not_run": [
     "API 29",
     "notification fixtures",
