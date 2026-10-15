@@ -64,7 +64,8 @@ assert [node.get('src') for node in network.findall('.//certificates')] == ['sys
 for config in network.findall('.//domain-config'):
     assert config.get('cleartextTrafficPermitted') == 'false'
 domains = {''.join(node.itertext()).strip() for node in network.findall('.//domain')}
-assert 'localhost' in domains, f'Packaged localhost rule missing: {ET.tostring(network, encoding="unicode")}'
+assert domains == {'localhost', 'ip6-localhost', '127.0.0.1', '::1', '[::1]'}, \
+    f'Packaged domain rules changed or could not be decoded: {ET.tostring(network, encoding="unicode")}'
 backup = packaged_xml('dataExtractionRules')
 for section in ['cloud-backup', 'device-transfer']:
     rules = backup.find(section)
