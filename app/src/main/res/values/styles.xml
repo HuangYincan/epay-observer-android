@@ -1,0 +1,22 @@
+<resources>
+    <style name="Theme.Observer" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#147D73</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowBackground">#F4F6F8</item>
+    </style>
+    <style name="StatusLabel">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textColor">#475569</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+    <style name="StatusValue">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#172C34</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+</resources>

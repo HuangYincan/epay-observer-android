@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">收款观察器</string>
+    <string name="page_title">收款观察器</string>
+    <string name="page_subtitle">微信与支付宝 · 运行状态</string>
+    <string name="preparing">等待配置</string>
+    <string name="listener_label">通知监听</string>
+    <string name="listener_idle">未启用</string>
+    <string name="binding_label">设备绑定</string>
+    <string name="binding_idle">未绑定</string>
+    <string name="events_label">事件记录</string>
+    <string name="events_empty">暂无事件</string>
+    <string name="empty_title">还没有收款事件</string>
+    <string name="empty_description">当前版本尚未提供通知采集与上报。\n运行状态将在功能启用后显示。</string>
+    <string name="privacy_note">通知是观察证据，充值结果以网关记录为准。</string>
+</resources>

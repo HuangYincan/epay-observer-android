@@ -1,0 +1,4 @@
+<resources>
+    <string name="environment_name">正式环境</string>
+    <string name="environment_description">设备尚未连接收款服务</string>
+</resources>
