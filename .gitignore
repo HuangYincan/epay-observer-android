@@ -1,0 +1,20 @@
+# Local secrets / device data
+.env
+.env.*
+!.env.example
+local.properties
+*.jks
+*.keystore
+*.pem
+*.key
+captures/
+diagnostics/
+real-notifications/
+
+# Android and IDE artifacts (future implementation)
+.gradle/
+**/build/
+*.apk
+*.aab
+.idea/
+.DS_Store

@@ -1,0 +1,24 @@
+name: 研究 / 决策
+description: 为未知兼容性、许可证、协议或匹配策略形成可核对的结论
+title: "[Research] "
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: 需要回答的问题与影响
+    validations:
+      required: true
+  - type: textarea
+    id: method
+    attributes:
+      label: 主来源、实验方法与反例
+      description: 写明来源提交、是否实测、环境层次与不能推断的部分。
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: 预期文档与退出条件
+      description: 指向目标 Spec / ADR，不能只交付一串链接。
+    validations:
+      required: true

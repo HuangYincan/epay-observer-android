@@ -1,0 +1,23 @@
+name: 缺陷 / 兼容性问题
+description: 报告可复现故障；资金或密钥漏洞请先阅读 SECURITY.md
+title: "[Bug] "
+body:
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境与证据层次
+      description: Android / AVD 镜像 / ABI、观察器版本、支付 App 版本、网关与 New API 提交；不要写真实设备 ID。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤、预期与实际
+      description: 说明是监听、解析、队列、匹配、记账还是商户通知；优先使用合成样本。
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 脱敏证据与相关场景
+      description: 不要上传真实通知、二维码、密钥、付款人身份或原始生产日志。

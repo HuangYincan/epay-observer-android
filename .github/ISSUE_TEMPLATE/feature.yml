@@ -1,0 +1,32 @@
+name: 开发任务 / 规格变更
+description: 按 Spec 与验收标准定义一项可独立交付的工作
+title: "[Task] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 问题、范围与非目标
+      description: 说明具体触发场景、要改变的行为及所属仓库。
+    validations:
+      required: true
+  - type: textarea
+    id: trace
+    attributes:
+      label: 需求、Spec、ADR 与依赖
+      description: 填写 FR / SPEC / 场景编号及依赖 Issue，区分已确认和 Proposed。
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 验收标准
+      description: 用可执行、可判定的清单描述成功与异常行为。
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 验证方式与证据层次
+      description: 区分纯样本、模拟器夹具、模拟器真实 App、实体真机；禁止上传敏感数据。
+    validations:
+      required: true
