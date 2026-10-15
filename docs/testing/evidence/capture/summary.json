@@ -1,0 +1,29 @@
+{
+  "source_commit": "0bbc4b9e057e7c1c859658d28d1d92691eb7b81c",
+  "layer": "API37 AVD synthetic notifications; not real payment apps",
+  "jvm_tests": {
+    "passed": 8,
+    "total": 8
+  },
+  "instrumentation": {
+    "passed": 5,
+    "total": 5,
+    "seconds": 23.374
+  },
+  "installed_apks_match_local_sha256": true,
+  "packaged_apk_checks": [
+    "productionRelease",
+    "fixtureDebug",
+    "fixtureSender"
+  ],
+  "not_run": [
+    "API29",
+    "real WeChat",
+    "real Alipay",
+    "physical devices",
+    "payment matching",
+    "persistent queue",
+    "gateway/New API integration"
+  ],
+  "recovery": "Existing AVD cold-started with -no-snapshot-load -no-snapshot-save; no wipe, no AVD configuration changes; all application data retained."
+}

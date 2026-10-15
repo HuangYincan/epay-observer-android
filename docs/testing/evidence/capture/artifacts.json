@@ -1,0 +1,50 @@
+{
+  "source_commit": "0bbc4b9e057e7c1c859658d28d1d92691eb7b81c",
+  "artifacts": [
+    {
+      "path": "fixture/build/outputs/apk/debug/fixture-debug.apk",
+      "sha256": "ed6e2ca9a1d2cd68de872453cf9aa27937ef01251105956911283c85a6b32eab",
+      "bytes": 2553650
+    },
+    {
+      "path": "app/build/outputs/apk/fixture/debug/app-fixture-debug.apk",
+      "sha256": "f805bbf5a4af20f9615787baca0461567b8874ef46bbe5b6e26922d61ae75a6d",
+      "bytes": 2615652
+    },
+    {
+      "path": "app/build/outputs/apk/production/release/app-production-release-unsigned.apk",
+      "sha256": "dd599b13ea01d8db11e884b885f4591b10eaf8dd6e6d47fa90a6146b602da540",
+      "bytes": 34030
+    },
+    {
+      "path": "app/build/outputs/apk/androidTest/fixture/debug/app-fixture-debug-androidTest.apk",
+      "sha256": "d668bcddc9a6a4414cf59d681d2231915bf15f783d73ff25281222e5aef5272f",
+      "bytes": 2301468
+    }
+  ],
+  "environment": {
+    "avd": "Medium_Phone_API_37.0",
+    "api": 37,
+    "abi": "arm64-v8a",
+    "image": "Google Play",
+    "ram_mib": 4096,
+    "cpu_cores": 1,
+    "layer": "synthetic fixtures only"
+  },
+  "jvm": [
+    {
+      "name": "dev.epay.observer.ObservationJournalTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.epay.observer.ProtocolGoldenVectorsTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ]
+}

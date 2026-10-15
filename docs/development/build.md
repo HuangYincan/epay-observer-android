@@ -51,6 +51,8 @@ sh scripts/reset_fixture_client.sh emulator-5554
 
 smoke helper 安装独立夹具、测试客户端及 runner；只给夹具授予通知发送权限，测试期间授权／撤销本客户端监听。检查合成场景、来源过滤、重连恢复、权限 UI、备份／明文策略和 `https://example.com/` 默认 TLS 连通。即使 adb 命令退出码为零，也必须检查 JUnit 成功结果。HTTPS probe 不是 epay-go/New API 联调，不运行服务器或导入测试 CA。
 
+若系统进程接入／窗口同步超时，先保留失败证据并检查系统状态；不能靠调大超时或删数据把失败当通过。本轮使用同一 AVD 冷启动（不加载／保存快照，不 wipe）恢复后通过；见采集报告。smoke helper 将仪器输出实时写入报告，240 秒超时也保留已输出部分。
+
 reset helper 只清除 `dev.epay.observer.fixtureclient.debug` 的数据，再启动它。严禁拿 `-wipe-data` 或删除 AVD 代替日常重置，也不清理微信/支付宝/其他应用。冷启动可用 -no-snapshot-load；完整 AVD 重建应另用新名称并单独授权，不能破坏已有实例。
 
 AVD 的 10.0.2.2 是宿主访问路由，不会被本工程当作生产回调地址。API 37 的 localhost 明文默认例外已通过显式域规则禁用；所有测试沿用系统证书校验。safehttp 与受控回调链路仍属于后续 #29。

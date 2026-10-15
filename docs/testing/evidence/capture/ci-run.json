@@ -1,0 +1,117 @@
+{
+  "conclusion": "success",
+  "createdAt": "2026-10-15T22:47:18Z",
+  "databaseId": 38819456437,
+  "headSha": "0bbc4b9e057e7c1c859658d28d1d92691eb7b81c",
+  "jobs": [
+    {
+      "completedAt": "2026-10-15T22:49:13Z",
+      "conclusion": "success",
+      "databaseId": 116712181726,
+      "name": "build",
+      "startedAt": "2026-10-15T22:47:22Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-15T22:47:25Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-15T22:47:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T22:47:26Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-15T22:47:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T22:47:30Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961",
+          "number": 3,
+          "startedAt": "2026-10-15T22:47:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T22:47:37Z",
+          "conclusion": "success",
+          "name": "Run gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a",
+          "number": 4,
+          "startedAt": "2026-10-15T22:47:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T22:47:43Z",
+          "conclusion": "success",
+          "name": "Provision pinned SDK packages on the CI runner",
+          "number": 5,
+          "startedAt": "2026-10-15T22:47:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T22:48:40Z",
+          "conclusion": "success",
+          "name": "Build, JVM contract tests and lint",
+          "number": 6,
+          "startedAt": "2026-10-15T22:47:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T22:49:08Z",
+          "conclusion": "success",
+          "name": "Check packaged build isolation",
+          "number": 7,
+          "startedAt": "2026-10-15T22:48:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T22:49:09Z",
+          "conclusion": "success",
+          "name": "Save verification reports",
+          "number": 8,
+          "startedAt": "2026-10-15T22:49:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T22:49:10Z",
+          "conclusion": "success",
+          "name": "Post Run gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a",
+          "number": 14,
+          "startedAt": "2026-10-15T22:49:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T22:49:10Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961",
+          "number": 15,
+          "startedAt": "2026-10-15T22:49:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T22:49:10Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 16,
+          "startedAt": "2026-10-15T22:49:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T22:49:10Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-10-15T22:49:10Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/HuangYincan/epay-observer-android/actions/runs/38819456437/job/116712181726"
+    }
+  ],
+  "updatedAt": "2026-10-15T22:49:14Z",
+  "url": "https://github.com/HuangYincan/epay-observer-android/actions/runs/38819456437"
+}

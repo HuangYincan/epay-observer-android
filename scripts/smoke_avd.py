@@ -20,12 +20,16 @@ for relative in [
     'app/build/outputs/apk/androidTest/fixture/debug/app-fixture-debug-androidTest.apk',
 ]:
     subprocess.run(adb + ['install', '-r', str(root / relative)], check=True, timeout=180)
-result = subprocess.run(adb + ['shell', 'am', 'instrument', '-w', '-r',
-    'dev.epay.observer.fixtureclient.debug.test/androidx.test.runner.AndroidJUnitRunner'],
-    capture_output=True, text=True, check=True, timeout=240)
 args.report.parent.mkdir(parents=True, exist_ok=True)
-args.report.write_text(result.stdout + result.stderr)
+with args.report.open('w') as report:
+    try:
+        subprocess.run(adb + ['shell', 'am', 'instrument', '-w', '-r',
+            'dev.epay.observer.fixtureclient.debug.test/androidx.test.runner.AndroidJUnitRunner'],
+            stdout=report, stderr=subprocess.STDOUT, text=True, check=True, timeout=240)
+    except subprocess.TimeoutExpired:
+        raise SystemExit(f'Instrumentation timed out; partial report: {args.report}')
+output = args.report.read_text()
 # Android's shell command can exit zero even if JUnit fails.
-if 'OK (5 tests)' not in result.stdout or 'FAILURES!!!' in result.stdout or 'INSTRUMENTATION_FAILED' in result.stdout:
+if 'OK (5 tests)' not in output or 'FAILURES!!!' in output or 'INSTRUMENTATION_FAILED' in output:
     raise SystemExit(f'Instrumentation did not pass; inspect {args.report}')
 print(f'AVD capture + foundation: 5/5 tests passed; report {args.report}')
