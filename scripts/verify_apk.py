@@ -49,9 +49,13 @@ def packaged_xml(attribute):
     reference = application.get(android + attribute).split('/')[-1]
     match = re.search(r'resource ' + re.escape(reference) + r'\b[^\n]*\n\s+\(\) \(file\) (\S+)', resource_table)
     assert match, f'Cannot resolve {attribute} from packaged manifest'
-    return ET.fromstring(subprocess.check_output(
+    decoded = subprocess.check_output(
         [str(analyzer), 'resources', 'xml', '--file', match[1], str(args.apk)], text=True,
-    ))
+    )
+    evidence = Path('app/build/reports/apk-inspection') / args.variant
+    evidence.mkdir(parents=True, exist_ok=True)
+    (evidence / f'{attribute}.xml').write_text(decoded)
+    return ET.fromstring(decoded)
 
 network = packaged_xml('networkSecurityConfig')
 assert not network.findall('debug-overrides')
@@ -59,7 +63,8 @@ assert network.find('base-config').get('cleartextTrafficPermitted') == 'false'
 assert [node.get('src') for node in network.findall('.//certificates')] == ['system']
 for config in network.findall('.//domain-config'):
     assert config.get('cleartextTrafficPermitted') == 'false'
-assert 'localhost' in {node.text.strip() for node in network.findall('.//domain')}
+domains = {''.join(node.itertext()).strip() for node in network.findall('.//domain')}
+assert 'localhost' in domains, f'Packaged localhost rule missing: {ET.tostring(network, encoding="unicode")}'
 backup = packaged_xml('dataExtractionRules')
 for section in ['cloud-backup', 'device-transfer']:
     rules = backup.find(section)
