@@ -1,0 +1,23 @@
+{
+  "evidence_layer": "AVD foundation application, not notification fixtures",
+  "artifacts": [
+    {
+      "variant": "fixtureDebug",
+      "path": "app/build/outputs/apk/fixture/debug/app-fixture-debug.apk",
+      "size_bytes": 2545568,
+      "sha256": "032fc9d79051d818f159ed240f82f11585e993a13d37795935be02a4bc05796e"
+    },
+    {
+      "variant": "productionReleaseUnsigned",
+      "path": "app/build/outputs/apk/production/release/app-production-release-unsigned.apk",
+      "size_bytes": 23950,
+      "sha256": "7a3fe51339e62c02e6e4de92d421a3bcadaaf39ab1338c697713c8391a25487f"
+    },
+    {
+      "variant": "fixtureDebugAndroidTest",
+      "path": "app/build/outputs/apk/androidTest/fixture/debug/app-fixture-debug-androidTest.apk",
+      "size_bytes": 2283532,
+      "sha256": "2a0fda2b53d2991cf922a323586e334d2cbc076cf4eb24f60d7da8f406137aed"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "jvm_tests": {
+    "tests": 3,
+    "failures": 0,
+    "errors": 0
+  },
+  "instrumentation": {
+    "tests": 3,
+    "failures": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": [
+      "AndroidGradlePluginVersion",
+      "AndroidGradlePluginVersion",
+      "NewerVersionAvailable"
+    ]
+  },
+  "host": {
+    "architecture": "arm64",
+    "macos": "27.0.1"
+  },
+  "ci": "pending",
+  "not_run": [
+    "API 29",
+    "notification fixtures",
+    "real payment apps",
+    "physical devices",
+    "gateway integration",
+    "real payments"
+  ]
+}

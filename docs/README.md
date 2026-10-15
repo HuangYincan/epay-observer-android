@@ -1,6 +1,6 @@
 # 文档索引
 
-更新日期：2026-10-15。M0 研究已形成评审稿，Spec 为 **M0 review candidate / 待实现**；不代表全部决策已批准。先读 [M0 汇报](research/M0-review.md)，再查各规格。#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
+更新日期：2026-10-15。M0 研究已交付，用户批准 #9/#5 首批工程与 AVD 验证；[SPEC-007](specs/SPEC-007-build-baseline.md) 是本批实现范围。其余 Spec 仍为评审候选／待实现；#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
 
 ## 建议阅读顺序
 
@@ -22,6 +22,8 @@
 - [固定源码与许可证审计](research/M0-source-audit.md)
 - [威胁—防护—残余风险](research/M0-threat-model.md)
 - [协议黄金向量与复现命令](testing/protocol-v1/README.md)
+- [构建与模拟器开发指南](development/build.md)
+- [首批工程基线验证报告](testing/M1-foundation-report.md)
 
 ## 架构决策
 
