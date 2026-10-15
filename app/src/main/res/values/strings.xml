@@ -10,6 +10,17 @@
     <string name="events_label">事件记录</string>
     <string name="events_empty">暂无事件</string>
     <string name="empty_title">还没有收款事件</string>
-    <string name="empty_description">当前版本尚未提供通知采集与上报。\n运行状态将在功能启用后显示。</string>
+    <string name="empty_description">当前仅观察已验证测试来源的通知。\n尚无收款解析、持久保存或上报能力。</string>
     <string name="privacy_note">通知是观察证据，充值结果以网关记录为准。</string>
+    <string name="permission_label">通知读取权限</string>
+    <string name="permission_granted">已授权</string>
+    <string name="permission_missing">未授权</string>
+    <string name="listener_connected">已连接</string>
+    <string name="listener_disconnected">未连接</string>
+    <string name="open_permission">打开通知读取授权设置</string>
+    <string name="reconnect">重新连接监听服务</string>
+    <string name="observation_count">本次进程：%1$d 条通知观察 · %2$d 次来源拒绝</string>
+    <string name="capture_memory_only">观察记录仅在内存，进程退出即丢失；不是收款事件。</string>
+    <string name="capture_full">观察容量已满，已暂停接收新通知；后续需持久队列支持。</string>
+    <string name="capture_error">无法读取活动通知，请检查授权并重新连接。</string>
 </resources>

@@ -2,6 +2,8 @@
 
 状态：M0 review candidate。#4；FR-01、FR-02、FR-07；依赖 SPEC-006、SPEC-005。
 
+本批 #11/#12 的监听与合成输入已细化为 [SPEC-008](SPEC-008-notification-fixture-listener.md)；本规格的真实解析和 ReceiptEvent 输出仍待 #13/#14/#16。
+
 ## 输入与输出
 
 输入为系统投递的通知快照：package、user/profile 范围、notification key、postTime、channelId、flags、title、text、bigText、可用的结构化 extras。具体字段可用性须按 Android 官方文档核对。

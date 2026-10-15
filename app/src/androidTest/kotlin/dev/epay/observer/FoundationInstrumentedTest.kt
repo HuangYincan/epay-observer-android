@@ -22,12 +22,13 @@ class FoundationInstrumentedTest {
     @Test fun isolatedClientLaunchesWithHonestInitialState() {
         assertEquals("dev.epay.observer.fixtureclient.debug", context.packageName)
         val activity = instrumentation.startActivitySync(
-            Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK),
         )
         try {
             instrumentation.runOnMainSync {
                 assertEquals("隔离测试环境", activity.findViewById<TextView>(R.id.environment).text.toString())
-                assertEquals("未启用", activity.findViewById<TextView>(R.id.listener_status).text.toString())
+                val connected = dev.epay.observer.capture.CaptureState.connected
+                assertEquals(if (connected) "已连接" else "未连接", activity.findViewById<TextView>(R.id.listener_status).text.toString())
                 assertEquals("未绑定", activity.findViewById<TextView>(R.id.binding_status).text.toString())
                 assertEquals("暂无事件", activity.findViewById<TextView>(R.id.events_status).text.toString())
             }

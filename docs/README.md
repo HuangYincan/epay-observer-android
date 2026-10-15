@@ -1,6 +1,6 @@
 # 文档索引
 
-更新日期：2026-10-15。M0 研究已交付，用户批准 #9/#5 首批工程与 AVD 验证；[SPEC-007](specs/SPEC-007-build-baseline.md) 是本批实现范围。其余 Spec 仍为评审候选／待实现；#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
+更新日期：2026-10-15。M0 与 #9/#5 已合并；本批 #11/#12 按 [SPEC-008](specs/SPEC-008-notification-fixture-listener.md) 实施独立夹具与通知监听。其余 Spec 仍为评审候选／待实现；#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
 
 ## 建议阅读顺序
 
@@ -24,6 +24,7 @@
 - [协议黄金向量与复现命令](testing/protocol-v1/README.md)
 - [构建与模拟器开发指南](development/build.md)
 - [首批工程基线验证报告](testing/M1-foundation-report.md)
+- [通知采集验证报告](testing/M1-capture-report.md)
 
 ## 架构决策
 

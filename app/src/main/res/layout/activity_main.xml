@@ -46,6 +46,12 @@
                 android:textSize="18sp" android:textStyle="bold" />
             <LinearLayout
                 android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="20dp" android:orientation="horizontal">
+                <TextView style="@style/StatusLabel" android:text="@string/permission_label" />
+                <TextView android:id="@+id/permission_status" style="@style/StatusValue" android:text="@string/permission_missing" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:layout_marginTop="22dp" android:orientation="horizontal">
                 <TextView style="@style/StatusLabel" android:text="@string/listener_label" />
                 <TextView android:id="@+id/listener_status" style="@style/StatusValue" android:text="@string/listener_idle" />
@@ -64,6 +70,14 @@
             </LinearLayout>
         </LinearLayout>
 
+        <Button android:id="@+id/permission_settings" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="@string/open_permission" />
+        <Button android:id="@+id/reconnect" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="@string/reconnect" />
+        <TextView android:id="@+id/observation_status" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textColor="#172C34" />
+        <TextView android:id="@+id/capture_warning" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="@string/capture_memory_only" android:textColor="#5D6E79" />
         <LinearLayout
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginTop="18dp" android:background="@drawable/card"

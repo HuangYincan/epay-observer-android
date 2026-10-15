@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "epay-observer-android"
-include(":app")
+include(":app", ":fixture")
