@@ -1,6 +1,6 @@
-# 构建与模拟器验证（#9 / #5 / #11 / #12）
+# 构建与模拟器验证（#9 / #5 / #11 / #12 / #13 / #14）
 
-范围见 SPEC-007/008；当前有独立夹具与通知监听，尚无解析、配对、持久队列、上传、匹配或充值能力。正式／测试应用 ID 是构建隔离，不是服务端身份认证。
+范围见 SPEC-007/008/009；当前有独立夹具、通知监听和合成解析预览，尚无配对、持久事件／队列、上传、匹配或充值能力。正式／测试应用 ID 是构建隔离，不是服务端身份认证。
 
 ## 本机工具
 
@@ -12,7 +12,7 @@ export ANDROID_HOME="$HOME/Library/Android/sdk"
 ./gradlew --no-daemon --dependency-verification strict \
   :fixture:assembleDebug :fixture:lintDebug \
   :app:assembleFixtureDebug :app:assembleProductionRelease \
-  :app:testProductionDebugUnitTest :app:assembleFixtureDebugAndroidTest \
+  :app:testProductionDebugUnitTest :app:testFixtureDebugUnitTest :app:assembleFixtureDebugAndroidTest \
   :app:lintProductionRelease
 ```
 
@@ -73,3 +73,9 @@ Android verification workflow 使用 ubuntu-24.04、Temurin 25.0.3+9（setup-jav
 ```
 
 可选场景：wxpay、alipay、identical-pair、update、repost、summary、child、refund、expense、chat、malformed、oversized、clear。最后一个撤下夹具通知。命令没有订单号／匹配提示；真实来源不支持靠配置开启。观察记录最多 100 个 key，仅保留在进程内，容量满会显示告警；清数据不能充当支付去重策略。
+
+## 合成解析验证
+
+SPEC-009 定义两组独立规则，语料在 docs/testing/parsing-v1；production 单测 9 项、fixture 单测 124 项（含重复执行的共同基线 8 项），不是 133 个不同案例。AVD helper 当前要求 6/6 仪器测试，其中新增解析测试验证两通道及 16 条实际投递负例、开关保存和恢复／修订拒绝。
+
+追加夹具命令：parse-wx、parse-ali、parse-wx-update，以及 wx-/ali- 前缀的 conflict、currency、refund、chat、promotion、inbox、precision、subtext。两个独立 CheckBox 只改变当前内存观察的解析预览，偏好保存在本应用私有空间；不会创建事件、补发历史付款或使正式构建信任夹具。

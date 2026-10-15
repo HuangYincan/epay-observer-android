@@ -100,7 +100,7 @@ for section in ['cloud-backup', 'device-transfer']:
 with zipfile.ZipFile(args.apk) as apk:
     contents = b''.join(apk.read(name) for name in apk.namelist())
     if production:
-        for marker in ['dev.epay.observer.fixture', 'fixture-key-a', 'fixture-wx-v1', '隔离测试环境', '合成流水-仅用于字节验证', 'synthetic-v1', 'identical-pair', 'fixture-key', 'synthetic-group']:
+        for marker in ['dev.epay.observer.fixture', 'fixture-key-a', 'fixture-wx-v1', 'fixture-ali-v1', '微信形态 · 合成收款', '支付宝形态 · 合成到账', '隔离测试环境', '合成流水-仅用于字节验证', 'synthetic-v1', 'identical-pair', 'fixture-key', 'synthetic-group']:
             for encoding in ['utf-8', 'utf-16-le']:
                 assert marker.encode(encoding) not in contents, f'Production contains {marker}'
     elif not sender:

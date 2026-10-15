@@ -1,6 +1,6 @@
 # 文档索引
 
-更新日期：2026-10-15。M0 与 #9/#5 已合并；本批 #11/#12 按 [SPEC-008](specs/SPEC-008-notification-fixture-listener.md) 实施独立夹具与通知监听。其余 Spec 仍为评审候选／待实现；#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
+更新日期：2026-10-15。M0 与 #9/#5 已合并；#11/#12 已合并；本批 #13/#14 按 [SPEC-009](specs/SPEC-009-synthetic-receipt-parsing.md) 实施双通道合成解析。其余 Spec 仍为评审候选／待实现；#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
 
 ## 建议阅读顺序
 
@@ -25,6 +25,7 @@
 - [构建与模拟器开发指南](development/build.md)
 - [首批工程基线验证报告](testing/M1-foundation-report.md)
 - [通知采集验证报告](testing/M1-capture-report.md)
+- [双通道解析报告](testing/M1-parsing-report.md) 与 [116 例合成语料](testing/parsing-v1/README.md)
 
 ## 架构决策
 

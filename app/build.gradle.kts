@@ -40,6 +40,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     sourceSets["test"].resources.srcDir(rootProject.file("docs/testing/protocol-v1"))
+    sourceSets["test"].resources.srcDir(rootProject.file("docs/testing/parsing-v1"))
 }
 
 kotlin {

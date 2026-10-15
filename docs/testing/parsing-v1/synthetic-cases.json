@@ -1,0 +1,2224 @@
+[
+  {
+    "id": "wxpay-amount-1",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 1 元",
+      "bigText": "收款 1 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Candidate",
+    "ruleVersion": "fixture-wx-v1",
+    "amountMinor": 100
+  },
+  {
+    "id": "wxpay-amount-10.1",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.1 元",
+      "bigText": "收款 10.1 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Candidate",
+    "ruleVersion": "fixture-wx-v1",
+    "amountMinor": 1010
+  },
+  {
+    "id": "wxpay-amount-10.01",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.01 元",
+      "bigText": "收款 10.01 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Candidate",
+    "ruleVersion": "fixture-wx-v1",
+    "amountMinor": 1001
+  },
+  {
+    "id": "wxpay-amount-0.01",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 0.01 元",
+      "bigText": "收款 0.01 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Candidate",
+    "ruleVersion": "fixture-wx-v1",
+    "amountMinor": 1
+  },
+  {
+    "id": "wxpay-amount-9999999999.99",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 9999999999.99 元",
+      "bigText": "收款 9999999999.99 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Candidate",
+    "ruleVersion": "fixture-wx-v1",
+    "amountMinor": 999999999999
+  },
+  {
+    "id": "wxpay-text-only",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": null,
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Candidate",
+    "ruleVersion": "fixture-wx-v1",
+    "amountMinor": 1000
+  },
+  {
+    "id": "wxpay-big-only",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": null,
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Candidate",
+    "ruleVersion": "fixture-wx-v1",
+    "amountMinor": 1000
+  },
+  {
+    "id": "wxpay-equivalent",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Candidate",
+    "ruleVersion": "fixture-wx-v1",
+    "amountMinor": 1000
+  },
+  {
+    "id": "wxpay-invalid-0",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 0 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-invalid-1",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 0.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-invalid-2",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 -0 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-invalid-3",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 -1 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-invalid-4",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 +1 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-invalid-5",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 01 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-invalid-6",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 00.01 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-invalid-7",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 1.001 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-invalid-8",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 1e2 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-invalid-9",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 1,000 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-invalid-10",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 １.００ 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-invalid-11",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 ١.٠٠ 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-invalid-12",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款  1 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "TEXT"
+  },
+  {
+    "id": "wxpay-invalid-13",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 1\t 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-invalid-14",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 1\n 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-invalid-15",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 1​ 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-invalid-16",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10000000000 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-invalid-17",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "wxpay-conflict",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 20.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "CONFLICT"
+  },
+  {
+    "id": "wxpay-currency",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 USD",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "CURRENCY"
+  },
+  {
+    "id": "wxpay-missing",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": null,
+      "bigText": null,
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "MISSING_TEXT"
+  },
+  {
+    "id": "wxpay-empty",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "TEXT"
+  },
+  {
+    "id": "wxpay-unknown",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "您有一条新消息",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "TEXT"
+  },
+  {
+    "id": "wxpay-multiple",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元 + 20.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "TEXT"
+  },
+  {
+    "id": "wxpay-wrong-verb",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "到账 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "TEXT"
+  },
+  {
+    "id": "wxpay-title-conflict",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款 20.00 元",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "TITLE"
+  },
+  {
+    "id": "wxpay-wrong-provider-title",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "TEXT"
+  },
+  {
+    "id": "wxpay-summary",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 512,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "GROUP"
+  },
+  {
+    "id": "wxpay-group-child",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": "synthetic-group",
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "GROUP"
+  },
+  {
+    "id": "wxpay-chat",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "msg",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "CHAT"
+  },
+  {
+    "id": "wxpay-refund",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "退款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "REFUND"
+  },
+  {
+    "id": "wxpay-expense",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "付款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "EXPENSE"
+  },
+  {
+    "id": "wxpay-transfer-out",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "转出 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "EXPENSE"
+  },
+  {
+    "id": "wxpay-promotion",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "合成推广",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "PROMOTION"
+  },
+  {
+    "id": "wxpay-aggregate",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "合成聚合",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "AGGREGATE"
+  },
+  {
+    "id": "wxpay-unknown-style",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$InboxStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "STRUCTURE"
+  },
+  {
+    "id": "wxpay-missing-style",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": null,
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "STRUCTURE"
+  },
+  {
+    "id": "wxpay-unknown-channel",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "new-channel",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "STRUCTURE"
+  },
+  {
+    "id": "wxpay-unknown-category",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "promo",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "STRUCTURE"
+  },
+  {
+    "id": "wxpay-extra-text",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": true
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "ADDITIONAL_TEXT"
+  },
+  {
+    "id": "wxpay-malformed",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": true,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "reason": "MALFORMED"
+  },
+  {
+    "id": "wxpay-disabled",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-wx-v1",
+    "disabled": true,
+    "reason": "DISABLED"
+  },
+  {
+    "id": "wxpay-restored",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-wx-v1",
+    "restored": true,
+    "reason": "RESTORED"
+  },
+  {
+    "id": "wxpay-revised",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "revision": 2,
+    "reason": "REVISION"
+  },
+  {
+    "id": "wxpay-removed",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-wx-v1",
+    "removed": true,
+    "reason": "REMOVED"
+  },
+  {
+    "id": "wxpay-wrong-source",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "package": "unrelated",
+    "reason": "SOURCE"
+  },
+  {
+    "id": "wxpay-wrong-delegate",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "opPackage": "delegate",
+    "reason": "SOURCE"
+  },
+  {
+    "id": "wxpay-unknown-version",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "version": 2,
+    "reason": "SOURCE"
+  },
+  {
+    "id": "wxpay-empty-certs",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "emptyCerts": true,
+    "reason": "SOURCE"
+  },
+  {
+    "id": "wxpay-unknown-profile",
+    "provider": "WXPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "收款 10.00 元",
+      "bigText": "收款 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-wx-v1",
+    "user": -1,
+    "reason": "SOURCE"
+  },
+  {
+    "id": "alipay-amount-1",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 1 元",
+      "bigText": "到账 1 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Candidate",
+    "ruleVersion": "fixture-ali-v1",
+    "amountMinor": 100
+  },
+  {
+    "id": "alipay-amount-10.1",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.1 元",
+      "bigText": "到账 10.1 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Candidate",
+    "ruleVersion": "fixture-ali-v1",
+    "amountMinor": 1010
+  },
+  {
+    "id": "alipay-amount-10.01",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.01 元",
+      "bigText": "到账 10.01 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Candidate",
+    "ruleVersion": "fixture-ali-v1",
+    "amountMinor": 1001
+  },
+  {
+    "id": "alipay-amount-0.01",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 0.01 元",
+      "bigText": "到账 0.01 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Candidate",
+    "ruleVersion": "fixture-ali-v1",
+    "amountMinor": 1
+  },
+  {
+    "id": "alipay-amount-9999999999.99",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 9999999999.99 元",
+      "bigText": "到账 9999999999.99 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Candidate",
+    "ruleVersion": "fixture-ali-v1",
+    "amountMinor": 999999999999
+  },
+  {
+    "id": "alipay-text-only",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": null,
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Candidate",
+    "ruleVersion": "fixture-ali-v1",
+    "amountMinor": 1000
+  },
+  {
+    "id": "alipay-big-only",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": null,
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Candidate",
+    "ruleVersion": "fixture-ali-v1",
+    "amountMinor": 1000
+  },
+  {
+    "id": "alipay-equivalent",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Candidate",
+    "ruleVersion": "fixture-ali-v1",
+    "amountMinor": 1000
+  },
+  {
+    "id": "alipay-invalid-0",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 0 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-invalid-1",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 0.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-invalid-2",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 -0 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-invalid-3",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 -1 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-invalid-4",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 +1 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-invalid-5",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 01 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-invalid-6",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 00.01 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-invalid-7",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 1.001 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-invalid-8",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 1e2 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-invalid-9",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 1,000 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-invalid-10",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 １.００ 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-invalid-11",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 ١.٠٠ 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-invalid-12",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账  1 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "TEXT"
+  },
+  {
+    "id": "alipay-invalid-13",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 1\t 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-invalid-14",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 1\n 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-invalid-15",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 1​ 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-invalid-16",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10000000000 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-invalid-17",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AMOUNT"
+  },
+  {
+    "id": "alipay-conflict",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 20.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "CONFLICT"
+  },
+  {
+    "id": "alipay-currency",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 USD",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "CURRENCY"
+  },
+  {
+    "id": "alipay-missing",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": null,
+      "bigText": null,
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "MISSING_TEXT"
+  },
+  {
+    "id": "alipay-empty",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "TEXT"
+  },
+  {
+    "id": "alipay-unknown",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "您有一条新消息",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "TEXT"
+  },
+  {
+    "id": "alipay-multiple",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元 + 20.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "TEXT"
+  },
+  {
+    "id": "alipay-wrong-verb",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "收款 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "TEXT"
+  },
+  {
+    "id": "alipay-title-conflict",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账 20.00 元",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "TITLE"
+  },
+  {
+    "id": "alipay-wrong-provider-title",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "微信形态 · 合成收款",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "TEXT"
+  },
+  {
+    "id": "alipay-summary",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 512,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "GROUP"
+  },
+  {
+    "id": "alipay-group-child",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": "synthetic-group",
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "GROUP"
+  },
+  {
+    "id": "alipay-chat",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "msg",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "CHAT"
+  },
+  {
+    "id": "alipay-refund",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "退款 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "REFUND"
+  },
+  {
+    "id": "alipay-expense",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "付款 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "EXPENSE"
+  },
+  {
+    "id": "alipay-transfer-out",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "转出 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "EXPENSE"
+  },
+  {
+    "id": "alipay-promotion",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "合成推广",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "PROMOTION"
+  },
+  {
+    "id": "alipay-aggregate",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "合成聚合",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "AGGREGATE"
+  },
+  {
+    "id": "alipay-unknown-style",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$InboxStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "STRUCTURE"
+  },
+  {
+    "id": "alipay-missing-style",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": null,
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "STRUCTURE"
+  },
+  {
+    "id": "alipay-unknown-channel",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "new-channel",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "STRUCTURE"
+  },
+  {
+    "id": "alipay-unknown-category",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "promo",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "STRUCTURE"
+  },
+  {
+    "id": "alipay-extra-text",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": true
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "ADDITIONAL_TEXT"
+  },
+  {
+    "id": "alipay-malformed",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": true,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "reason": "MALFORMED"
+  },
+  {
+    "id": "alipay-disabled",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-ali-v1",
+    "disabled": true,
+    "reason": "DISABLED"
+  },
+  {
+    "id": "alipay-restored",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-ali-v1",
+    "restored": true,
+    "reason": "RESTORED"
+  },
+  {
+    "id": "alipay-revised",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "revision": 2,
+    "reason": "REVISION"
+  },
+  {
+    "id": "alipay-removed",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Ignored",
+    "ruleVersion": "fixture-ali-v1",
+    "removed": true,
+    "reason": "REMOVED"
+  },
+  {
+    "id": "alipay-wrong-source",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "package": "unrelated",
+    "reason": "SOURCE"
+  },
+  {
+    "id": "alipay-wrong-delegate",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "opPackage": "delegate",
+    "reason": "SOURCE"
+  },
+  {
+    "id": "alipay-unknown-version",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "version": 2,
+    "reason": "SOURCE"
+  },
+  {
+    "id": "alipay-empty-certs",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "emptyCerts": true,
+    "reason": "SOURCE"
+  },
+  {
+    "id": "alipay-unknown-profile",
+    "provider": "ALIPAY",
+    "fields": {
+      "title": "支付宝形态 · 合成到账",
+      "text": "到账 10.00 元",
+      "bigText": "到账 10.00 元",
+      "channel": "synthetic-v1",
+      "category": "status",
+      "template": "android.app.Notification$BigTextStyle",
+      "flags": 0,
+      "group": null,
+      "unsupported": false,
+      "hasAdditionalText": false
+    },
+    "expected": "Unsupported",
+    "ruleVersion": "fixture-ali-v1",
+    "user": -1,
+    "reason": "SOURCE"
+  }
+]

@@ -70,6 +70,18 @@
             </LinearLayout>
         </LinearLayout>
 
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="18dp" android:text="@string/parser_title" android:textColor="#172C34" />
+        <CheckBox android:id="@+id/wx_parser" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/wx_parser" />
+        <CheckBox android:id="@+id/ali_parser" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/ali_parser" />
+        <TextView android:id="@+id/parser_status" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textColor="#172C34" />
+        <TextView android:id="@+id/parser_reasons" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textColor="#5D6E79" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/parser_note" android:textColor="#5D6E79" />
         <Button android:id="@+id/permission_settings" android:layout_width="match_parent"
             android:layout_height="wrap_content" android:text="@string/open_permission" />
         <Button android:id="@+id/reconnect" android:layout_width="match_parent"

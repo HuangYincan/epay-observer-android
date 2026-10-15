@@ -10,7 +10,7 @@
     <string name="events_label">事件记录</string>
     <string name="events_empty">暂无事件</string>
     <string name="empty_title">还没有收款事件</string>
-    <string name="empty_description">当前仅观察已验证测试来源的通知。\n尚无收款解析、持久保存或上报能力。</string>
+    <string name="empty_description">当前仅观察已验证测试来源的通知。\n解析预览不创建收款事件，尚无持久保存或上报能力。</string>
     <string name="privacy_note">通知是观察证据，充值结果以网关记录为准。</string>
     <string name="permission_label">通知读取权限</string>
     <string name="permission_granted">已授权</string>
@@ -23,4 +23,11 @@
     <string name="capture_memory_only">观察记录仅在内存，进程退出即丢失；不是收款事件。</string>
     <string name="capture_full">观察容量已满，已暂停接收新通知；后续需持久队列支持。</string>
     <string name="capture_error">无法读取活动通知，请检查授权并重新连接。</string>
+    <string name="parser_title">文案解析预览</string>
+    <string name="wx_parser">微信候选解析</string>
+    <string name="ali_parser">支付宝候选解析</string>
+    <string name="parser_unavailable">尚无已验证的真实通知规则</string>
+    <string name="parser_counts">候选 %1$d · 已忽略 %2$d · 未支持 %3$d</string>
+    <string name="parser_reason_count">%1$s %2$d</string>
+    <string name="parser_note">候选不是到账证明。开关仅重算本次进程的观察，不会充值。</string>
 </resources>

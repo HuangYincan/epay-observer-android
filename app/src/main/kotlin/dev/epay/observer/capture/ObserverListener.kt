@@ -64,6 +64,8 @@ internal fun extractFields(notification: Notification): NotificationFields {
     var channel: String? = null
     var category: String? = null
     var group: String? = null
+    var template: String? = null
+    var additional = false
     try {
         // Bundle#get is used deliberately: getCharSequence can silently coerce a type mismatch to null.
         @Suppress("DEPRECATION")
@@ -72,11 +74,17 @@ internal fun extractFields(notification: Notification): NotificationFields {
         text = bounded(notification.extras.get(Notification.EXTRA_TEXT))
         @Suppress("DEPRECATION")
         bigText = bounded(notification.extras.get(Notification.EXTRA_BIG_TEXT))
+        @Suppress("DEPRECATION")
+        template = bounded(notification.extras.get(Notification.EXTRA_TEMPLATE))
+        @Suppress("DEPRECATION")
+        additional = listOf(Notification.EXTRA_SUB_TEXT, Notification.EXTRA_SUMMARY_TEXT,
+            Notification.EXTRA_TEXT_LINES, Notification.EXTRA_MESSAGES, Notification.EXTRA_HISTORIC_MESSAGES,
+            Notification.EXTRA_TITLE_BIG).any { notification.extras.get(it) != null }
         channel = bounded(notification.channelId)
         category = bounded(notification.category)
         group = bounded(notification.group)
     } catch (_: RuntimeException) {
         unsupported = true
     }
-    return NotificationFields(title, text, bigText, channel, category, notification.flags, group, unsupported)
+    return NotificationFields(title, text, bigText, channel, category, notification.flags, group, unsupported, template, additional)
 }

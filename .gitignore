@@ -13,6 +13,7 @@ real-notifications/
 
 # Android and IDE artifacts (future implementation)
 .gradle/
+.kotlin/
 **/build/
 *.apk
 *.aab

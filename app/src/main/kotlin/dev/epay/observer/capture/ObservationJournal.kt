@@ -6,6 +6,7 @@ data class NotificationFields(
     val title: String?, val text: String?, val bigText: String?,
     val channel: String?, val category: String?, val flags: Int, val group: String?,
     val unsupported: Boolean = false,
+    val template: String? = null, val hasAdditionalText: Boolean = false,
 )
 data class ObservationInput(
     val key: String, val source: SourceIdentity, val postTime: Long,

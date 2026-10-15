@@ -2,13 +2,13 @@
 
 状态：M0 review candidate。#4；FR-01、FR-02、FR-07；依赖 SPEC-006、SPEC-005。
 
-本批 #11/#12 的监听与合成输入已细化为 [SPEC-008](SPEC-008-notification-fixture-listener.md)；本规格的真实解析和 ReceiptEvent 输出仍待 #13/#14/#16。
+本批 #11/#12 的监听与合成输入已细化为 [SPEC-008](SPEC-008-notification-fixture-listener.md)；合成解析 #13/#14 见 [SPEC-009](SPEC-009-synthetic-receipt-parsing.md)；真实规则仍为空，ReceiptEvent 输出等待 #16。
 
 ## 输入与输出
 
 输入为系统投递的通知快照：package、user/profile 范围、notification key、postTime、channelId、flags、title、text、bigText、可用的结构化 extras。具体字段可用性须按 Android 官方文档核对。
 
-输出为 `ignored(reason)`、`unsupported(rule_context)` 或 ReceiptEvent 草稿。微信、支付宝解析器相互独立；解析规则有版本与测试样本，未知内容不能套用最相近规则。
+当前输出为 `Ignored(reason)`、`Unsupported(reason)` 或无交易身份的 `ParseResult.Candidate`；后续持久身份裁决后才能创建 ReceiptEvent。微信、支付宝解析器相互独立；解析规则有版本与测试样本，未知内容不能套用最相近规则。
 
 真实来源候选包名为 `com.tencent.mm` 和 `com.eg.android.AlipayGphone`，实施时通过样本与安装信息核对；包名相符仅表示应用来源，不足以证明通知是实际收款。工作资料、应用分身、多账号变化必须单独识别或明确不支持。
 

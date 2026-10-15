@@ -3,6 +3,7 @@
 | 术语 | 含义 |
 | --- | --- |
 | NotificationObservation | Android 实际投递的一次通知观察，可包含更新和摘要；不是交易 |
+| ParseResult.Candidate | 仅文案语义与金额匹配规则的候选；当前只支持 fixture，身份始终 uncertain，没有事件 ID 或支付资格 |
 | ReceiptEvent | 解析器认可的到账候选，包含金额、来源、观察时间与本地稳定身份 |
 | event_id | 同一设备持久化的逻辑事件标识；网络重试不得重建 |
 | request_id | 一次传输尝试的唯一标识；不同重试使用不同 request_id |
