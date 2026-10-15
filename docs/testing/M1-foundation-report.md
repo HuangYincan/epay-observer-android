@@ -45,6 +45,7 @@ sh scripts/reset_fixture_client.sh emulator-5554
 1. 初次 Gradle 未继承 shell 代理，依赖解析没有推进；停止本任务 daemon 后以本机 JVM proxy 参数重试，未改变仓库网络地址或 SDK。
 2. 首次 AVD 网络检查失败：全局明文为 false，但 localhost 为 true。核对 Android 官方文档后，确认 API37 隐式 localhost 配置；增加显式禁止规则和 8 个主机反例，再次执行 3 项仪器测试全部通过。
 3. 新域规则最初被 lint 指出缺少 includeSubdomains；补齐明确值后 lint 0 error。没有添加忽略证书或明文例外让测试通过。
+4. 首次 CI 在 JDK 获取阶段失败：setup-java 的发行 API 标识为 25.0.3+9.0.LTS，与 GitHub release tag 的 25.0.3+9 不同。改用精确标识和维护中的 setup-java v5；特性分支只跑 PR workflow，避免 push/PR 重复构建。
 
 ## 证据与限制
 
