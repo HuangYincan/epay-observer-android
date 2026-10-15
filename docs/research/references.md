@@ -5,6 +5,8 @@
 | 来源 | 用途 | 当前结论 |
 | --- | --- | --- |
 | [szvone/vmqApk](https://github.com/szvone/vmqApk) | 理解旧通知监听思路与历史格式 | 不直接使用旧 APK；通知格式与兼容性未由本项目实测 |
+| [szvone/Vmq](https://github.com/szvone/Vmq) | 旧系列 Java 服务端业务流程的后续研究入口 | vmqApk README 引用；尚未固定源码／审计，不推断许可证或正确性 |
+| [szvone/vmqphp](https://github.com/szvone/vmqphp) | 旧系列 PHP 服务端业务流程的后续研究入口 | vmqApk README 引用；尚未固定源码／审计，不推断许可证或正确性 |
 | [vmqApk LICENSE](https://github.com/szvone/vmqApk/blob/2867df10fedc26f9239054b9e34a83d3b0bf30dc/LICENSE) | 复用边界 | 已核对 MIT 和内嵌 ZXing Apache-2.0；本轮不复制代码，传递依赖未全量审计 |
 | [Android NotificationListenerService](https://developer.android.com/reference/android/service/notification/NotificationListenerService) | 监听权限、连接与平台 API | 实施时按选定版本核对 |
 | [Android 通知](https://developer.android.com/develop/ui/views/notifications) | extras、分组及系统行为 | 不据此推断支付 App 实际通知格式 |
@@ -17,3 +19,5 @@
 研究记录应标出：访问日期、源提交、许可证、读到的具体文件、可借鉴思想、不能直接复用的假设、是否含有复制代码。GitHub 最近更新时间、README 宣称“支持最新版”和单个成功反馈都不能代替实测。
 
 本次文档提交不含任何第三方实现。公开真实通知前需先脱敏并取得用户许可；默认合成样本。
+
+用户于 2026-10-15 明确允许参考上述旧系列业务逻辑。后续优先对照金额分配／复用、订单超时、事件匹配、回调重试与恢复；每项记录固定源码出处和当前规格反例，不能把历史设计当作现代兼容性或安全性的证据。

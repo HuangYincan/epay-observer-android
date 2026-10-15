@@ -14,7 +14,9 @@
 
 New API 该 release 发布于 2026-10-12；此处固定为研究基线，不承诺 RC 适合生产，也不使用浮动 latest 部署。测试源码已阅读不等于测试已执行。
 
-## vmqApk：借鉴架构，不复用实现
+## vmqApk：参考业务流程与架构
+
+2026-10-15 用户确认本仓库采用 MIT，并允许参考 vmqApk 及 V免签系列业务逻辑，强调旧代码仅供参考。后续研究可比较通知上报、金额分配／占用、订单过期、匹配、商户回调和恢复流程；每条规则须有固定源码出处及当前规格反例验证。此授权不表示已经审计系列所有仓库，也不以旧逻辑覆盖本项目正确性要求。
 
 [源码树](https://github.com/szvone/vmqApk/tree/2867df10fedc26f9239054b9e34a83d3b0bf30dc)。GitHub release v1.8.1 的 APK 更新时间为 2019-12-20，未下载、反编译或运行 APK；不能证明它与当前源码可重复对应。
 
@@ -27,7 +29,7 @@ New API 该 release 发布于 2026-10-12；此处固定为研究基线，不承�
 | 仓库原创部分 | [固定 LICENSE](https://github.com/szvone/vmqApk/blob/2867df10fedc26f9239054b9e34a83d3b0bf30dc/LICENSE)，MIT，copyright 2018 ahuyangdong | 授权文字允许复制／修改／分发，复制或实质部分须保留版权和许可声明；本轮选择不复制 |
 | 内嵌 `com/google/zxing` | CameraManager 等文件头为 ZXing authors、Apache-2.0 | 不能以仓库 MIT 覆盖这些文件；若未来复制，逐文件确认来源、许可、修改说明及适用 NOTICE |
 | 声明依赖 | appcompat 26.+、constraint-layout 1.0.2、ZXing 3.3.0、OkHttp 3.7.0、Okio 1.12.0、JUnit 4.12 | 没有下载并审计全部传递制品；不继承旧依赖清单；#9 为选定新版本生成依赖／许可清单 |
-| 新观察器原创成果 | 尚无 LICENSE | 建议 MIT，须用户选择后才添加；不能把建议写成已授权 |
+| 新观察器原创成果 | [MIT LICENSE](../../LICENSE) | 用户于 2026-10-15 确认，版权署名 HuangYincan；不替代第三方代码各自许可 |
 
 这是本次读取材料的工程复用结论，不是对上游所有文件版权归属的保证。旧仓库的 MIT 不自动授予整个新仓库许可证。
 
