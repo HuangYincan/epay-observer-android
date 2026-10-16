@@ -57,6 +57,9 @@ object UploadRuntime {
     private fun publishStatus() {
         val counts = database.outboxDao().counts().associate { it.state to it.count }
         val pending = listOf("READY", "RETRY", "IN_FLIGHT").sumOf { counts[it] ?: 0 }
+        val latest = database.outboxDao().latestReceipt()?.let {
+            java.text.DateFormat.getDateTimeInstance().format(java.util.Date(it))
+        } ?: "暂无"
         val holds = Provider.entries.mapNotNull { provider ->
             PairingStore(database).uploadHold(provider)?.let { reason ->
                 (if (provider == Provider.WXPAY) "微信" else "支付宝") + "发送暂停：" + when (reason) {
@@ -68,7 +71,7 @@ object UploadRuntime {
                 }
             }
         }.joinToString("\n")
-        status = "网关已收 ${counts["ACKED"] ?: 0} · 待发送 $pending · 暂停 ${counts["HELD"] ?: 0} · 拒绝 ${counts["TERMINAL"] ?: 0}\nACK 仅表示持久接收，不代表支付或充值完成\n后台由系统调度，可能延迟；强停后需重新打开应用，不补回未投递通知" + if (holds.isEmpty()) "" else "\n$holds"
+        status = "网关已收 ${counts["ACKED"] ?: 0} · 待发送 $pending · 暂停 ${counts["HELD"] ?: 0} · 拒绝 ${counts["TERMINAL"] ?: 0}\n最近持久接收时间：$latest\nACK 仅表示持久接收，不代表支付或充值完成\n后台由系统调度，可能延迟；强停后需重新打开应用，不补回未投递通知" + if (holds.isEmpty()) "" else "\n$holds"
     }
     internal fun awaitIdle() { worker.submit { }.get(60, java.util.concurrent.TimeUnit.SECONDS) }
 }

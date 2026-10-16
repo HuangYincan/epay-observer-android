@@ -16,6 +16,7 @@ data class DeliveryCount(val state: String, val count: Int)
 @Dao
 interface OutboxDao {
     @Query("SELECT state, COUNT(*) AS count FROM outbox GROUP BY state") fun counts(): List<DeliveryCount>
+    @Query("SELECT MAX(receivedAt) FROM outbox WHERE state = 'ACKED'") fun latestReceipt(): Long?
     @Insert fun insert(row: OutboxRow)
     @Query("SELECT * FROM outbox ORDER BY eventId") fun rows(): List<OutboxRow>
     @Query("SELECT COUNT(*) FROM outbox") fun count(): Int

@@ -1,0 +1,50 @@
+[
+  {
+    "layer": "emulator synthetic background HTTPS",
+    "network_policy": "fixture-local-network-v1",
+    "stage": "process",
+    "acked_events": 2,
+    "requests": 3,
+    "payment_verified": false,
+    "gateway_received_before_verify_process": true
+  },
+  {
+    "layer": "emulator synthetic background HTTPS",
+    "network_policy": "fixture-local-network-v1",
+    "stage": "reboot",
+    "acked_events": 4,
+    "requests": 5,
+    "payment_verified": false,
+    "gateway_received_before_verify_process": true
+  },
+  {
+    "layer": "emulator synthetic background HTTPS",
+    "network_policy": "fixture-local-network-v1",
+    "stage": "force",
+    "acked_events": 6,
+    "requests": 7,
+    "payment_verified": false,
+    "gateway_received_before_verify_process": true,
+    "observed_deferred_seconds": 3
+  },
+  {
+    "layer": "emulator synthetic background HTTPS",
+    "network_policy": "fixture-local-network-v1",
+    "stage": "doze",
+    "acked_events": 8,
+    "requests": 9,
+    "payment_verified": false,
+    "gateway_received_before_verify_process": true,
+    "observed_deferred_seconds": 3
+  },
+  {
+    "layer": "emulator synthetic background HTTPS",
+    "network_policy": "fixture-local-network-v1",
+    "stage": "orphan",
+    "acked_events": 10,
+    "requests": 11,
+    "payment_verified": false,
+    "test_prepared_periodic_only_recovery": true,
+    "same_test_process": true
+  }
+]

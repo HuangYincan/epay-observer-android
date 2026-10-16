@@ -19,11 +19,16 @@ class UploadDrain(private val database: ObserverDatabase, private val delivery: 
             }
             if (!work) break
         }
-        val pairing = PairingStore(database)
-        return Provider.entries.mapNotNull { provider ->
-            pairing.active(provider)?.takeIf(pairing::uploadAllowed)?.let {
-                database.outboxDao().nextDue(it.binding.scope)
-            }
-        }.minOrNull()
+        return nextDue(database)
+    }
+    companion object {
+        fun nextDue(database: ObserverDatabase): Long? {
+            val pairing = PairingStore(database)
+            return Provider.entries.mapNotNull { provider ->
+                pairing.active(provider)?.takeIf(pairing::uploadAllowed)?.let {
+                    database.outboxDao().nextDue(it.binding.scope)
+                }
+            }.minOrNull()
+        }
     }
 }

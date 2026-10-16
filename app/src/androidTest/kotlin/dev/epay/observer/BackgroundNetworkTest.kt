@@ -27,8 +27,8 @@ class BackgroundNetworkTest {
     private fun shell(command: String): String = instrumentation.uiAutomation.executeShellCommand(command).use {
         java.io.FileInputStream(it.fileDescriptor).bufferedReader().use { reader -> reader.readText() }
     }
-    private fun await(description: String, condition: () -> Boolean) {
-        val until = SystemClock.elapsedRealtime() + 15000
+    private fun await(description: String, timeout: Long = 15000, condition: () -> Boolean) {
+        val until = SystemClock.elapsedRealtime() + timeout
         while (!condition() && SystemClock.elapsedRealtime() < until) SystemClock.sleep(100)
         assertTrue(description, condition())
     }
@@ -37,7 +37,7 @@ class BackgroundNetworkTest {
     }
     @Test fun backgroundRecoveryPhase() {
         val phase = InstrumentationRegistry.getArguments().getString("backgroundPhase") ?: error("explicit backgroundPhase required")
-        val stages = listOf("process", "reboot", "force", "doze")
+        val stages = listOf("process", "reboot", "force", "doze", "orphan")
         val stage = phase.substringAfter('-')
         val index = stages.indexOf(stage); require(index >= 0)
         val target = (index + 1) * 2
@@ -66,7 +66,7 @@ class BackgroundNetworkTest {
                 post("clear")
                 shell("cmd notification allow_listener $component")
                 await("listener connected") { CaptureState.connected }
-                post("wxpay"); post("alipay")
+                post("fresh-wxpay"); post("fresh-alipay")
                 await("offline notifications committed") { db.outboxDao().count() == target }
                 DurableCapture.awaitIdle()
                 assertEquals(target - 2, db.outboxDao().rows().count { it.state == "ACKED" })
@@ -74,18 +74,43 @@ class BackgroundNetworkTest {
                 post("clear")
                 shell("cmd notification disallow_listener $component")
                 await("listener disconnected") { !CaptureState.connected }
+                if (stage == "orphan") {
+                    dev.epay.observer.protocol.UploadRuntime.awaitIdle()
+                    val manager = androidx.work.WorkManager.getInstance(context)
+                    val scheduler = dev.epay.observer.protocol.UploadScheduler
+                    for (name in listOf(scheduler.IMMEDIATE, scheduler.WAKE, scheduler.RECONCILE)) {
+                        manager.cancelUniqueWork(name).result.get()
+                        assertTrue(manager.getWorkInfosForUniqueWork(name).get().all { it.state.isFinished })
+                    }
+                    // Explicit test setup of the Room-committed/no-enqueue state.
+                    // Only a fresh periodic scanner is installed; its initial
+                    // occurrence is eligible once the host restores the network.
+                    scheduler.reconcile(context).result.get()
+                    val ready = File(context.filesDir, "avd-orphan-ready")
+                    val pid = android.os.Process.myPid()
+                    ready.writeText("periodic-only queue ready\n")
+                    try {
+                        await("periodic-only scan recovered", 120000) { db.outboxDao().rows().count { it.state == "ACKED" } == target }
+                        assertEquals(pid, android.os.Process.myPid())
+                        verify(db, target, stage)
+                    } finally { ready.delete() }
+                }
             } else {
                 require(phase.startsWith("verify-"))
                 // The host already observed durable gateway requests before
                 // launching this instrumentation process. Only await local ACK.
-                await("all durable events acknowledged") { db.outboxDao().rows().count { it.state == "ACKED" } == target }
-                assertEquals(target, db.observerDao().eventCount())
-                assertEquals(target.toLong() + 1, db.outboxDao().rows().sumOf { it.attempts })
-                val report = JSONObject().put("layer", "emulator synthetic background HTTPS")
-                    .put("stage", stage).put("acked_events", target).put("requests", target + 1)
-                    .put("payment_verified", false)
-                File(context.filesDir, "avd-background-result.json").writeText(report.toString(2))
+                verify(db, target, stage)
             }
         } finally { db.close() }
+    }
+    private fun verify(db: ObserverDatabase, target: Int, stage: String) {
+        await("all durable events acknowledged") { db.outboxDao().rows().count { it.state == "ACKED" } == target }
+        assertEquals(target, db.observerDao().eventCount())
+        assertEquals(target.toLong() + 1, db.outboxDao().rows().sumOf { it.attempts })
+        val report = JSONObject().put("layer", "emulator synthetic background HTTPS")
+            .put("network_policy", dev.epay.observer.protocol.UploadNetworkPolicy.MARKER)
+            .put("stage", stage).put("acked_events", target).put("requests", target + 1)
+            .put("payment_verified", false)
+        File(context.filesDir, "avd-background-result.json").writeText(report.toString(2))
     }
 }

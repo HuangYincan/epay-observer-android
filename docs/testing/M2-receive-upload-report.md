@@ -47,3 +47,5 @@ Android每次重新生成封套，冻结body与event_id。授权快照检查与�
 - [Android PR #51](https://github.com/HuangYincan/epay-observer-android/pull/51)，代码 `7e6da30` / `814d796`。
 - [epay-go PR #15](https://github.com/HuangYincan/epay-go/pull/15)，代码 `1135b59` / `c645f10`。
 - 实际HTTPS用修复后代码重新运行通过；恢复默认APK后再次验证system-only及Release通过。最终head远端检查以两端PR Checks为准，尚未完成的CI不写作通过。
+
+已合并：Android `8a523132026f8f6c8eff193477774d0c2a1473d3`，gateway `5e969f9dc374e3361f766b87bed09417ed6a8957`。最终PR CI Android run38854945806、gateway run38854947943/38854942446通过；合并后main CI run38855340256/38855338652也通过。

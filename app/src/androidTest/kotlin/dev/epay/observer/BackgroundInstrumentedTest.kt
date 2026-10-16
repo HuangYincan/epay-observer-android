@@ -92,7 +92,9 @@ class BackgroundInstrumentedTest {
         UploadScheduler.reconcile(context).result.get()
         val periodic = manager.getWorkInfosForUniqueWork(UploadScheduler.RECONCILE).get().filter { !it.state.isFinished }
         assertEquals(1, periodic.size)
-        assertEquals(NetworkType.CONNECTED, periodic.single().constraints.requiredNetworkType)
+        val request = periodic.single().constraints.requiredNetworkRequest!!
+        assertTrue(request.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET))
+        assertTrue(request.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_TRUSTED))
         assertEquals(900_000L, periodic.single().periodicityInfo!!.repeatIntervalMillis)
         val now = System.currentTimeMillis()
         try {
@@ -103,5 +105,32 @@ class BackgroundInstrumentedTest {
             assertEquals(60_000L, wakes.single().initialDelayMillis)
             assertEquals(UploadWakeWorker::class.java.name, wakes.single().workerClassName)
         } finally { manager.cancelUniqueWork(UploadScheduler.WAKE).result.get() }
+    }
+    @Test fun olderPlannerCannotReplaceEarlierRetryWithItsCachedDue() = fixture(1) { db, active ->
+        val store = OutboxStore(db)
+        val lease = PairingStore(db).claimUpload(active, 2000)!!
+        assertTrue(store.retry(lease, 122000))
+        val oldRead = java.util.concurrent.CountDownLatch(1)
+        val newPlan = java.util.concurrent.CountDownLatch(1)
+        val executor = java.util.concurrent.Executors.newSingleThreadExecutor()
+        val manager = WorkManager.getInstance(context)
+        try {
+            val older = executor.submit {
+                assertEquals(122000L, UploadDrain.nextDue(db))
+                oldRead.countDown()
+                check(newPlan.await(10, java.util.concurrent.TimeUnit.SECONDS))
+                UploadScheduler.replan(context, db) { 2000 }
+            }
+            check(oldRead.await(10, java.util.concurrent.TimeUnit.SECONDS))
+            db.openHelper.writableDatabase.execSQL("UPDATE outbox SET nextAttemptAt = 62000 WHERE eventId = ?", arrayOf(lease.eventId))
+            UploadScheduler.replan(context, db) { 2000 }
+            newPlan.countDown()
+            older.get(10, java.util.concurrent.TimeUnit.SECONDS)
+            val activeWake = manager.getWorkInfosForUniqueWork(UploadScheduler.WAKE).get().single { !it.state.isFinished }
+            assertEquals(60000L, activeWake.initialDelayMillis)
+        } finally {
+            newPlan.countDown(); executor.shutdownNow()
+            manager.cancelUniqueWork(UploadScheduler.WAKE).result.get()
+        }
     }
 }

@@ -39,12 +39,19 @@ def wait_for(description, predicate, timeout=120):
 def progress():
     return json.loads((args.directory / 'background-progress.json').read_text())
 
-def phase(name):
+def phase(name, during=None):
     report = args.directory / ('background-' + name + '.txt')
     with report.open('w') as output:
-        subprocess.run(adb + ['shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
+        process = subprocess.Popen(adb + ['shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
                              'dev.epay.observer.BackgroundNetworkTest', '-e', 'backgroundPhase', name, runner],
-                       stdout=output, stderr=subprocess.STDOUT, check=True, timeout=120)
+                       stdout=output, stderr=subprocess.STDOUT)
+        try:
+            if during is not None:
+                during()
+            assert process.wait(timeout=150) == 0
+        finally:
+            if process.poll() is None:
+                process.kill(); process.wait(timeout=15)
     text = report.read_text()
     assert 'OK (1 test)' in text and all(bad not in text for bad in ('FAILURES!!!', 'INSTRUMENTATION_FAILED', 'shortMsg=')), report
 
@@ -68,17 +75,38 @@ try:
                          shlex.quote('umask 077; mkdir -p no_backup; cat > no_backup/pairing-network-bootstrap.json')],
                    input=bootstrap, check=True, timeout=15)
     online()
-    for index, stage in enumerate(('process', 'reboot', 'force', 'doze')):
+    for index, stage in enumerate(('process', 'reboot', 'force', 'doze', 'orphan')):
+        if stage == 'orphan':
+            def restore_for_periodic_scan():
+                wait_for('periodic-only queue not ready',
+                         lambda: shell('run-as ' + client + ' sh -c "test -f files/avd-orphan-ready && echo ready || true"') == 'ready', 30)
+                assert progress()['events'] == 8
+                online()
+                wait_for('periodic scanner did not recover without an app restart',
+                         lambda: progress()['events'] == 10 and progress()['requests'] == 11)
+            # Keep this instrumentation alive to prevent its teardown from
+            # killing the app and masking recovery with Application.onCreate.
+            phase('prepare-orphan', during=restore_for_periodic_scan)
+            result = json.loads(run('exec-out', 'run-as', client, 'cat', 'files/avd-background-result.json'))
+            assert result['acked_events'] == 10 and result['payment_verified'] is False
+            result['test_prepared_periodic_only_recovery'] = True
+            result['same_test_process'] = True
+            evidence.append(result)
+            print('orphan: periodic-only recovery verified', flush=True)
+            continue
         phase('prepare-' + stage)
         before = index * 2
         assert progress()['events'] == before
         if stage == 'process':
-            # am kill is an ordinary background process death, not package stop.
+            # Kill only this debug app UID's process; am kill can ignore cached
+            # activities with framework importance, while force-stop changes
+            # package scheduling semantics and belongs to its separate stage.
             shell('am start -W -n ' + client + '/dev.epay.observer.MainActivity')
             shell('input keyevent KEYCODE_HOME')
-            assert shell('pidof ' + client + ' || true'), 'client not running before process fault'
-            shell('am kill ' + client)
-            wait_for('client process did not exit', lambda: shell('pidof ' + client + ' || true') == '', 15)
+            pid = shell('pidof ' + client + ' || true')
+            assert pid.isdigit(), 'exactly one client process required before process fault'
+            shell('run-as ' + client + ' kill -9 ' + pid)
+            wait_for('old client process survived', lambda: pid not in shell('pidof ' + client + ' || true').split(), 15)
             online()
         elif stage == 'reboot':
             run('reboot')
@@ -92,10 +120,10 @@ try:
             time.sleep(3)
             assert progress()['events'] == before, 'force-stopped app unexpectedly delivered'
             shell('am start -W -n ' + client + '/dev.epay.observer.MainActivity')
-        else:
+        elif stage == 'doze':
             shell('input keyevent KEYCODE_SLEEP')
-            idle = shell('dumpsys deviceidle force-idle')
-            assert 'IDLE' in idle, idle
+            shell('dumpsys deviceidle force-idle')
+            assert shell('dumpsys deviceidle get deep') == 'IDLE', 'deep idle state was not entered'
             online()
             time.sleep(3)
             assert progress()['events'] == before, 'deep idle did not defer this emulator job'
@@ -114,7 +142,7 @@ try:
         evidence.append(result)
         print(stage + ': durable background recovery verified', flush=True)
     (args.directory / 'background-android-result.json').write_text(json.dumps(evidence, indent=2) + '\n')
-    (args.directory / 'device-background').write_text('four synthetic recovery stages verified\n')
+    (args.directory / 'device-background').write_text('five synthetic recovery stages verified\n')
 finally:
     # Restore only settings changed on this explicitly selected test emulator.
     for command in ('dumpsys deviceidle unforce', 'input keyevent KEYCODE_WAKEUP',

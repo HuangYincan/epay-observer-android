@@ -11,7 +11,8 @@ object UploadScheduler {
     const val IMMEDIATE = "observer-upload-now"
     const val WAKE = "observer-upload-wake"
     const val RECONCILE = "observer-upload-reconcile"
-    private val network = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+    private val network = UploadNetworkPolicy.constraints()
+    private val planningLock = Any()
 
     fun initialize(context: Context) {
         WorkManager.initialize(context, Configuration.Builder().setMinimumLoggingLevel(android.util.Log.ERROR).build())
@@ -26,6 +27,12 @@ object UploadScheduler {
         WorkManager.getInstance(context).enqueueUniqueWork(WAKE, ExistingWorkPolicy.REPLACE,
             OneTimeWorkRequestBuilder<UploadWakeWorker>()
                 .setInitialDelay((due - now).coerceAtLeast(1_000), TimeUnit.MILLISECONDS).build())
+    /** Re-read under the planning lock: an older worker's snapshot cannot move
+     * another worker's earlier retry into the future. Never accepts a cached due. */
+    fun replan(context: Context, database: ObserverDatabase, clock: () -> Long = System::currentTimeMillis) = synchronized(planningLock) {
+        UploadDrain.nextDue(database)?.let { wake(context, it, clock()).result.get() }
+        Unit
+    }
 }
 
 class UploadWorker(context: Context, parameters: WorkerParameters) : Worker(context, parameters) {
@@ -34,8 +41,8 @@ class UploadWorker(context: Context, parameters: WorkerParameters) : Worker(cont
         return try {
             val database = ObserverDatabase.open(applicationContext)
             try {
-                val next = UploadDrain(database, OutboxDelivery(applicationContext, database)).run { isStopped }
-                if (next != null && !isStopped) UploadScheduler.wake(applicationContext, next).result.get()
+                UploadDrain(database, OutboxDelivery(applicationContext, database)).run { isStopped }
+                if (!isStopped) UploadScheduler.replan(applicationContext, database)
             } finally { database.close() }
             UploadRuntime.refresh()
             Result.success()
