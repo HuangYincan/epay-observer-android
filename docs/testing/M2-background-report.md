@@ -49,3 +49,9 @@
 ## 剩余工作
 
 #24完整状态/脱敏导出、M3永久金额claim/匹配/事务记账/持久回调/New API余额一次性验证、最终完整复现仍待实现。真实微信/支付宝、实体真机及OEM后台兼容性没有证据。Goal保持active，不因后台ACK成功而结束。
+
+## 跨库版本
+
+- Android实现 `41e5ba9` / `f8f47e4`，[PR #52](https://github.com/HuangYincan/epay-observer-android/pull/52)。
+- 网关仅测试桥 `184887b` / `2b8350d`，[PR #16](https://github.com/HuangYincan/epay-go/pull/16)。
+- 最终head CI以两端PR Checks为准；未通过的远端检查不以本地成功替代。
