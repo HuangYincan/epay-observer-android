@@ -67,6 +67,7 @@
 
 ## 人工验收与M4准备
 
+- [真实App来源与环境预检](research/M4-real-app-d0.md)：#33，官方产物核验完成；安装/登录/通知实测未运行。
 - [手动打开App、授权、轮换配对与查看状态](testing/manual-acceptance.md)
 - [真机双渠道计划与准入门槛](testing/real-device-plan.md)（计划，实测Not run）
 - [签名、产物与发布检查表](operations/release-checklist.md)（规划，未发布）
