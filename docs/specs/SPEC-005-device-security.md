@@ -1,6 +1,6 @@
 # SPEC-005 设备绑定与隐私
 
-状态：M0 review candidate。#6；FR-08。完整威胁、候选参数与残余风险见 [M0 威胁模型](../research/M0-threat-model.md)。
+状态：整体仍为M0 review candidate；Android HMAC vault子集按SPEC-015实现并通过真实KeyStore验证，完整HTTP配对与生命周期未实现。#6；FR-08。完整威胁、候选参数与残余风险见 [M0 威胁模型](../research/M0-threat-model.md)。
 
 ## 配对与权限
 
