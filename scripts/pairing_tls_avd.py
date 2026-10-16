@@ -54,6 +54,7 @@ try:
     assert parsed['historical_unbound'] == 2
     if args.upload:
         assert parsed['acked_events'] == 2 and parsed['transport_attempts'] == 3 and parsed['missing_ack_recovered'] is True
+        assert parsed['health_authorized_channels'] == 2
     else:
         assert parsed['active_credentials'] == 2 and parsed['fresh_queued'] == 2
     assert all(parsed[key] is True for key in ['unknown_ca_rejected', 'redirect_rejected', 'unexpected_origin_rejected'])

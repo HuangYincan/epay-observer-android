@@ -18,7 +18,7 @@ class JsonHttpsTransport {
             uri.rawUserInfo == null && uri.rawPath.isEmpty() && uri.rawQuery == null && uri.rawFragment == null &&
             (uri.port == -1 || uri.port in 1..65535))
         require(origin == "https://${uri.host}" + if (uri.port == -1) "" else ":${uri.port}")
-        require(path in setOf("/api/observer/v1/events", "/api/observer/v1/pairing/inspect", "/api/observer/v1/pairing/redeem", "/api/observer/v1/pairing/activate"))
+        require(path in setOf("/api/observer/v1/events", HealthProtocol.PATH, "/api/observer/v1/pairing/inspect", "/api/observer/v1/pairing/redeem", "/api/observer/v1/pairing/activate"))
         require(body.size in 1..16384)
         val connection = URL(origin + path).openConnection() as HttpsURLConnection
         try {

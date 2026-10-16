@@ -17,6 +17,7 @@ import android.view.WindowInsets
 class MainActivity : Activity() {
     private lateinit var parserPreview: dev.epay.observer.parsing.ParserPreview
     private lateinit var pairingUi: dev.epay.observer.security.PairingUi
+    private lateinit var diagnosticsUi: dev.epay.observer.status.DiagnosticsUi
     private val component get() = ComponentName(this, ObserverListener::class.java)
     private val stateChanged: () -> Unit = { runOnUiThread { render() } }
 
@@ -53,6 +54,7 @@ class MainActivity : Activity() {
         parserPreview.render()
         pairingUi.render()
         findViewById<TextView>(R.id.upload_status).text = dev.epay.observer.protocol.UploadRuntime.status
+        diagnosticsUi.refresh()
         findViewById<Button>(R.id.reconnect).isEnabled = granted && !CaptureState.connected
     }
 
@@ -61,6 +63,7 @@ class MainActivity : Activity() {
         setContentView(R.layout.activity_main)
         parserPreview = dev.epay.observer.parsing.ParserPreview(this)
         pairingUi = dev.epay.observer.security.PairingUi(this)
+        diagnosticsUi = dev.epay.observer.status.DiagnosticsUi(this)
         findViewById<Button>(R.id.upload_now).setOnClickListener { dev.epay.observer.protocol.UploadRuntime.kick() }
         findViewById<Button>(R.id.retry_upload).setOnClickListener { dev.epay.observer.protocol.UploadRuntime.kick(retryAfterRepair = true) }
 
@@ -85,5 +88,14 @@ class MainActivity : Activity() {
             insets
         }
         root.requestApplyInsets()
+    }
+    @Deprecated("Platform activity result callback")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == dev.epay.observer.status.DiagnosticsUi.EXPORT_REQUEST) diagnosticsUi.documentResult(resultCode, data?.data)
+    }
+    override fun onDestroy() {
+        diagnosticsUi.close()
+        super.onDestroy()
     }
 }

@@ -29,9 +29,13 @@ data class LocalEventRow(
 )
 
 data class StorageStats(val observations: Int, val events: Int, val conflicts: Int, val gap: Boolean, val capacityBlocked: Boolean = false)
+data class EventSummary(val eventId: String, val provider: String, val amountMinor: Long,
+    val observedAt: Long, val localState: String, val deliveryState: String?, val reason: String?)
 
 @Dao
 interface ObserverDao {
+    @Query("SELECT e.eventId,e.provider,e.amountMinor,e.observedAt,e.state AS localState,o.state AS deliveryState,o.reason FROM local_events e LEFT JOIN outbox o ON e.eventId=o.eventId ORDER BY e.observedAt DESC,e.eventId LIMIT 20")
+    fun recentEvents(): List<EventSummary>
     @Query("SELECT value FROM metadata WHERE name = :name") fun metadata(name: String): String?
     @Insert(onConflict = OnConflictStrategy.REPLACE) fun putMetadata(row: MetadataRow)
     @Query("SELECT * FROM observation_identities WHERE identityKey = :key") fun observation(key: String): ObservationRow?
