@@ -42,14 +42,30 @@ sdk_element = manifest.find('uses-sdk')
 assert sdk_element.get(android + 'minSdkVersion') == '29'
 assert sdk_element.get(android + 'targetSdkVersion') == '37'
 permissions = {p.get(android + 'name') for p in manifest.findall('uses-permission')}
-assert permissions == ({'android.permission.POST_NOTIFICATIONS'} if sender else {'android.permission.INTERNET'}), permissions
+assert permissions == ({'android.permission.POST_NOTIFICATIONS'} if sender else {
+    'android.permission.INTERNET', 'android.permission.ACCESS_NETWORK_STATE',
+    'android.permission.WAKE_LOCK', 'android.permission.RECEIVE_BOOT_COMPLETED',
+    expected_id + '.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION',
+}), permissions
+declared_permissions = manifest.findall('permission')
+if sender:
+    assert not declared_permissions
+else:
+    assert len(declared_permissions) == 1
+    assert declared_permissions[0].get(android + 'name') == expected_id + '.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+    assert declared_permissions[0].get(android + 'protectionLevel') in {'signature', '0x2'}
 services = application.findall('service')
 if sender:
     assert not services
 else:
-    assert len(services) == 2
+    assert len(services) == 3
     by_name = {s.get(android + 'name'): s for s in services}
-    assert set(by_name) == {'dev.epay.observer.capture.ObserverListener', 'androidx.room.MultiInstanceInvalidationService'}
+    assert set(by_name) == {'dev.epay.observer.capture.ObserverListener', 'androidx.room.MultiInstanceInvalidationService',
+                            'androidx.work.impl.background.systemjob.SystemJobService'}
+    job_service = by_name['androidx.work.impl.background.systemjob.SystemJobService']
+    assert job_service.get(android + 'exported') == 'true'
+    assert job_service.get(android + 'permission') == 'android.permission.BIND_JOB_SERVICE'
+    assert job_service.get(android + 'directBootAware') == 'false'
     room_service = by_name['androidx.room.MultiInstanceInvalidationService']
     assert room_service.get(android + 'exported') == 'false'
     services = [by_name['dev.epay.observer.capture.ObserverListener']]
@@ -59,7 +75,24 @@ else:
     assert services[0].find('intent-filter/action').get(android + 'name') == 'android.service.notification.NotificationListenerService'
 queries = {p.get(android + 'name') for p in manifest.findall('queries/package')}
 assert queries == (set() if production or sender else {'dev.epay.observer.fixture'})
-assert not application.findall('receiver')
+receivers = application.findall('receiver')
+if sender:
+    assert not receivers
+else:
+    by_name = {r.get(android + 'name'): r for r in receivers}
+    assert set(by_name) == {'androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver',
+                            'androidx.work.impl.background.systemalarm.RescheduleReceiver',
+                            'androidx.profileinstaller.ProfileInstallReceiver'}
+    profile = by_name['androidx.profileinstaller.ProfileInstallReceiver']
+    assert profile.get(android + 'exported') == 'true' and profile.get(android + 'permission') == 'android.permission.DUMP'
+    assert {a.get(android + 'name') for a in profile.findall('intent-filter/action')} == {
+        'androidx.profileinstaller.action.INSTALL_PROFILE', 'androidx.profileinstaller.action.SKIP_FILE',
+        'androidx.profileinstaller.action.SAVE_PROFILE', 'androidx.profileinstaller.action.BENCHMARK_OPERATION',
+    }
+    assert all(r.get(android + 'exported') == 'false' and r.get(android + 'directBootAware') == 'false'
+               for r in receivers if r is not profile)
+    reschedule = by_name['androidx.work.impl.background.systemalarm.RescheduleReceiver']
+    assert {a.get(android + 'name') for a in reschedule.findall('intent-filter/action')} == {'android.intent.action.BOOT_COMPLETED'}
 assert not application.findall('provider')
 activities = application.findall('activity')
 assert len(activities) == 1

@@ -19,6 +19,8 @@ interface OutboxDao {
     @Insert fun insert(row: OutboxRow)
     @Query("SELECT * FROM outbox ORDER BY eventId") fun rows(): List<OutboxRow>
     @Query("SELECT COUNT(*) FROM outbox") fun count(): Int
+    @Query("SELECT MIN(CASE WHEN state = 'IN_FLIGHT' THEN leaseUntil ELSE nextAttemptAt END) FROM outbox WHERE scope = :scope AND state IN ('READY','RETRY','IN_FLIGHT')")
+    fun nextDue(scope: String): Long?
     @Query("SELECT COALESCE(SUM(length(body)), 0) FROM outbox") fun payloadBytes(): Long
     @Query("SELECT * FROM outbox WHERE scope = :scope AND ((state IN ('READY','RETRY') AND nextAttemptAt <= :now) OR (state = 'IN_FLIGHT' AND leaseUntil <= :now)) ORDER BY nextAttemptAt, eventId LIMIT 1")
     fun eligible(scope: String, now: Long): OutboxRow?

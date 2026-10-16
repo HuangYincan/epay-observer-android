@@ -8,6 +8,7 @@ class ObserverApplication : Application() {
         super.onCreate()
         DurableCapture.start(this)
         dev.epay.observer.security.PairingRuntime.start(this)
+        dev.epay.observer.protocol.UploadScheduler.initialize(this)
         dev.epay.observer.protocol.UploadRuntime.start(this)
     }
 }
