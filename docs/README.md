@@ -44,3 +44,7 @@
 规格中的 MUST 表示待实现的验收要求，Proposed 表示设计建议，TBD 表示尚未决定。用户已确认双通道、自动充值、模拟器优先、公开仓库、规划先行，以及本仓库采用 MIT；允许参考旧 V免签系列业务流程，旧代码仅供研究。
 
 - [ADR-0006：稳定receiver与证据历史](decisions/ADR-0006-stable-receiver-and-evidence-history.md)
+
+- [SPEC-016：实际配对HTTP与恢复](specs/SPEC-016-pairing-http.md)：#17/#25跨库实现，激活、撤销、轮换与本地受保护日志；验收逐项跟踪。
+
+- [实际配对与恢复报告](testing/M2-pairing-report.md)、[长期原型验收账本](development/PROTOTYPE-GOAL.md)。

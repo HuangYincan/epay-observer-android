@@ -1,6 +1,6 @@
 # SPEC-015 配对恢复与设备密钥
 
-2026-10-16；#17、epay-go #6；pairing-v1-rc1设计候选，Android HMAC vault子集实施基线。HTTP配对、服务端密钥加密和本地配对日志尚未实现，不能宣称完整#17通过。
+2026-10-16；#17、epay-go #6。下文保留配对恢复设计及已验收的HMAC vault基线；实际HTTP/激活/轮换采用[SPEC-016](SPEC-016-pairing-http.md)，新实现正在验证。不得将历史vault结果当作完整#17验收。
 
 ## 候选配对契约
 

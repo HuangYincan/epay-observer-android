@@ -26,9 +26,21 @@ object PairingRuntime {
     }
     fun inspect(origin: String, token: String, success: (PairingConfirmation) -> Unit) =
         execute({ coordinator.inspect(origin, token) }, success)
-    fun confirm(confirmation: PairingConfirmation) = execute({ coordinator.confirm(confirmation) }) { }
-    fun recover() = execute({ coordinator.recover() }) { }
-    fun forget() = execute({ coordinator.forgetPending() }) { }
+    fun confirm(confirmation: PairingConfirmation) {
+        if (busy) return
+        active = active - confirmation.scope.provider
+        execute({ coordinator.confirm(confirmation) }) { }
+    }
+    fun recover() {
+        if (busy) return
+        active = emptyMap()
+        execute({ coordinator.recover() }) { }
+    }
+    fun forget() {
+        if (busy) return
+        active = emptyMap()
+        execute({ coordinator.forgetPending() }) { }
+    }
     internal fun awaitIdle() { worker.submit { }.get(20, java.util.concurrent.TimeUnit.SECONDS) }
     private fun <T> execute(action: () -> T, success: (T) -> Unit) {
         if (busy) return

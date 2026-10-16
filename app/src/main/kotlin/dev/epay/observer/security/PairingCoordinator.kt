@@ -72,6 +72,9 @@ class PairingCoordinator(context: Context, database: ObserverDatabase,
         val bytes = transport.post(pending.origin, pending.token, "redeem", pending.request.bytes())
         val enrollment = try { PairingProtocol.enrollment(bytes, scope, pending.request) } finally { bytes.fill(0) }
         try {
+            // Wait for actual local validity, without backdating not_before.
+            val wait = enrollment.notBefore - System.currentTimeMillis()
+            if (wait in 1..5000) Thread.sleep(wait)
             val now = System.currentTimeMillis()
             require(enrollment.notBefore <= now && now < enrollment.expiresAt) { "clock_error" }
             vault.install(enrollment.binding, enrollment.keyId, enrollment.material)

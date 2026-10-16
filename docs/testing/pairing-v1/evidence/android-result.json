@@ -1,0 +1,15 @@
+{
+  "layer": "emulator synthetic pairing over HTTPS",
+  "providers": [
+    "wxpay",
+    "alipay"
+  ],
+  "active_credentials": 2,
+  "historical_unbound": 2,
+  "fresh_queued": 2,
+  "events_uploaded": false,
+  "payment_verified": false,
+  "unknown_ca_rejected": true,
+  "redirect_rejected": true,
+  "unexpected_origin_rejected": true
+}

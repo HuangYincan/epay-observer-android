@@ -1,0 +1,11 @@
+{
+  "active_credentials": 2,
+  "events": 0,
+  "layer": "emulator synthetic pairing over HTTPS",
+  "payment_verified": false,
+  "providers": [
+    "wxpay",
+    "alipay"
+  ],
+  "redirect_requests": 0
+}

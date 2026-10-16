@@ -22,10 +22,10 @@ internal fun pairingScopeBytes() = JSONObject().put("schema_version", 1).put("gr
     .toString().toByteArray()
 internal fun pairingPending() = PendingPairing("https://observer.example",
     Base64.getUrlEncoder().withoutPadding().encodeToString(ByteArray(32) { 3 }), pairingScopeBytes(), PairingProtocol.newRequest())
-internal class PairingTestServer(private val keyId: String = "test-pairing-key") : PairingClient {
+internal class PairingTestServer(private val keyId: String = "test-pairing-key",
+    private val start: Long = System.currentTimeMillis() - 1000) : PairingClient {
     var calls = 0
     var dropActivation = false
-    private val start = System.currentTimeMillis() - 1000
     fun response(request: EnrollmentRequest): ByteArray = JSONObject().put("schema_version", 1)
         .put("enrollment_id", request.enrollmentId).put("origin", "https://observer.example").put("environment", "isolated-test")
         .put("receiver_id", "receiver-test").put("provider", "wxpay").put("source_class", "synthetic")
@@ -127,9 +127,13 @@ class PairingInstrumentedTest {
             identities.record(identityInput("conflict"), Provider.entries.toSet(), first.binding)
             identities.record(identityInput("conflict").copy(postTime = 42), Provider.entries.toSet(), first.binding)
             val before = OutboxStore(db).rows().associate { it.eventId to it.body }
+            val staleSnapshot = store.active(Provider.WXPAY)!!
             store.pause(Provider.WXPAY)
             val next = PairingEnrollment(UUID.randomUUID().toString(), first.binding, "rotated", vaultMaterial(), first.notBefore, first.expiresAt)
             store.activate(next)
+            val delayed = identities.record(identityInput("captured-during-pause"), Provider.entries.toSet(),
+                credentialsAtCapture = mapOf(Provider.WXPAY to staleSnapshot))
+            assertEquals("UNBOUND", identities.event(delayed.eventId!!)!!.state)
             val rows = OutboxStore(db).rows()
             assertEquals(1, rows.count { it.state == "READY" })
             assertEquals(1, rows.count { it.state == "HELD" && it.reason == "IDENTITY_CONFLICT" })
@@ -144,14 +148,33 @@ class PairingProcessTest {
     @Test fun encryptedPendingSurvivesActualProcessRestart() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val journal = PairingJournal(context, "pairing-process-test")
-        when (InstrumentationRegistry.getArguments().getString("pairingPhase")) {
-            "prepare" -> { assertNull(journal.read()); journal.save(pairingPending()); assertNotNull(journal.read()) }
-            "verify" -> try {
+        val name = "pairing-process-test.db"
+        val db = ObserverDatabase.open(context, name)
+        val phase = InstrumentationRegistry.getArguments().getString("pairingPhase")
+        val boundary = InstrumentationRegistry.getArguments().getString("pairingBoundary")
+        try { when (phase) {
+            "prepare" -> {
+                assertNull(journal.read()); val pending = pairingPending(); journal.save(pending)
+                val server = PairingTestServer("test-pairing-process-key", pending.scope.expiresAt - 301_000)
+                val enrollment = PairingProtocol.enrollment(server.response(pending.request), pending.scope, pending.request)
+                if (boundary in setOf("key", "room")) HmacKeyVault(context).install(enrollment.binding, enrollment.keyId, enrollment.material)
+                if (boundary == "room") PairingStore(db).activate(enrollment)
+                enrollment.material.fill(0)
+                assertNotNull(journal.read())
+            }
+            "verify" -> {
                 val pending = journal.read()!!
-                assertEquals("receiver-test", pending.scope.receiverId)
-                assertTrue(PairingProtocol.validSecret(pending.request.resumeSecret))
-            } finally { cleanupPairingTest("pairing-process-test") }
+                val server = PairingTestServer("test-pairing-process-key", pending.scope.expiresAt - 301_000)
+                val coordinator = PairingCoordinator(context, db, server, "pairing-process-test")
+                val active = coordinator.recover()!!
+                assertEquals(pending.request.enrollmentId, active.enrollmentId)
+                assertNull(HmacKeyVault(context).load(active.binding, active.keyId)!!.encoded)
+                assertNull(journal.read())
+                assertEquals(if (boundary == "room") 0 else 2, server.calls)
+                HmacKeyVault(context).remove(active.binding, active.keyId)
+                cleanupPairingTest("pairing-process-test")
+            }
             else -> error("pairingPhase required")
-        }
+        } } finally { db.close(); if (phase == "verify") context.deleteDatabase(name) }
     }
 }

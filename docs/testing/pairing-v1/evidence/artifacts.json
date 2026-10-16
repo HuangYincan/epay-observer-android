@@ -1,0 +1,8 @@
+{
+  "ca_sha256": "eaf6fae75361d0cd1a6467ed18ed05a44b76d974fcde0f2de16efa8db0ea3cdd",
+  "artifacts": {
+    "observer-fixture-tls.apk": "86058c4c627a53f52ce79fb11ca731ec0e2336efcf90956259f6b704b5c8590f",
+    "observer-fixture-tls-test.apk": "a89923cf2038b05f3d7df4abd153d3c643cfe3a2869db33eb168f5fb75f6bf7d"
+  },
+  "go_test_binary_sha256": "f2f696ff37b2fcd25c53a9f4b57dbae2e780b9890559a3b123203ead10718789"
+}

@@ -38,15 +38,16 @@ def instrument(report_path, expected_count, extra):
     if any(marker in output for marker in ['FAILURES!!!', 'INSTRUMENTATION_FAILED', 'shortMsg=']):
         raise SystemExit(f'Instrumentation failure; inspect {report_path}')
 
-instrument(args.report, 28, ['-e', 'notClass', process_class + ',' + pairing_process_class])
+instrument(args.report, 28, ['-e', 'notClass', process_class + ',' + pairing_process_class + ',dev.epay.observer.PairingNetworkTest'])
 instrument(args.report.with_name(args.report.stem + '-process-prepare.txt'), 1,
     ['-e', 'class', process_class, '-e', 'identityPhase', 'prepare'])
 subprocess.run(adb + ['shell', 'am', 'force-stop', 'dev.epay.observer.fixtureclient.debug'], check=True, timeout=15)
 instrument(args.report.with_name(args.report.stem + '-process-verify.txt'), 1,
     ['-e', 'class', process_class, '-e', 'identityPhase', 'verify'])
-instrument(args.report.with_name(args.report.stem + '-pairing-prepare.txt'), 1,
-    ['-e', 'class', pairing_process_class, '-e', 'pairingPhase', 'prepare'])
-subprocess.run(adb + ['shell', 'am', 'force-stop', 'dev.epay.observer.fixtureclient.debug'], check=True, timeout=15)
-instrument(args.report.with_name(args.report.stem + '-pairing-verify.txt'), 1,
-    ['-e', 'class', pairing_process_class, '-e', 'pairingPhase', 'verify'])
-print(f'AVD: 28/28 suite tests plus 4/4 cross-process phases passed; report {args.report}')
+for boundary in ['pending', 'key', 'room']:
+    instrument(args.report.with_name(args.report.stem + f'-pairing-{boundary}-prepare.txt'), 1,
+        ['-e', 'class', pairing_process_class, '-e', 'pairingPhase', 'prepare', '-e', 'pairingBoundary', boundary])
+    subprocess.run(adb + ['shell', 'am', 'force-stop', 'dev.epay.observer.fixtureclient.debug'], check=True, timeout=15)
+    instrument(args.report.with_name(args.report.stem + f'-pairing-{boundary}-verify.txt'), 1,
+        ['-e', 'class', pairing_process_class, '-e', 'pairingPhase', 'verify', '-e', 'pairingBoundary', boundary])
+print(f'AVD: 28/28 suite tests plus 8/8 cross-process phases passed; report {args.report}')
