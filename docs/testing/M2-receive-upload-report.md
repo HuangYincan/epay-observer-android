@@ -41,3 +41,9 @@ Android每次重新生成封套，冻结body与event_id。授权快照检查与�
 - M3匹配、永久金额claim、事务记账、持久商户回调和New API余额验证均未交付。真实支付兼容性、API29、真机没有本批运行证据。
 
 本地验证不代替最终head CI。跨仓库PR及其最终检查完成后追加记录，Goal保持active。
+
+## 跨库记录
+
+- [Android PR #51](https://github.com/HuangYincan/epay-observer-android/pull/51)，代码 `7e6da30` / `814d796`。
+- [epay-go PR #15](https://github.com/HuangYincan/epay-go/pull/15)，代码 `1135b59` / `c645f10`。
+- 实际HTTPS用修复后代码重新运行通过；恢复默认APK后再次验证system-only及Release通过。最终head远端检查以两端PR Checks为准，尚未完成的CI不写作通过。
