@@ -28,7 +28,6 @@ for p in ['fixture/build/outputs/apk/debug/fixture-debug.apk', 'app/build/output
     run('install', '-r', str(root / p), timeout=180)
 run('shell', 'am', 'force-stop', clientpkg)
 assert run('shell', 'pm', 'clear', clientpkg) == 'Success'
-run('reverse', 'tcp:18443', 'tcp:18443')
 subprocess.run(adb + ['shell', '-T', 'run-as', clientpkg, 'sh', '-c', shlex.quote('umask 077; mkdir -p no_backup; cat > no_backup/pairing-network-bootstrap.json')], input=(lab / 'avd-grants.json').read_bytes(), check=True, capture_output=True)
 jar = http.cookiejar.LWPCookieJar(str(lab / 'newapi-cookies'))
 jar.load(ignore_discard=True, ignore_expires=True)
@@ -56,8 +55,10 @@ start = newapi('/api/user/self')
 assert start['success']
 quota_before = start['data']['quota']
 log = (lab / 'avd-recharge.txt').open('w')
-p = subprocess.Popen(adb + ['shell', 'am', 'instrument', '-w', '-r', '-e', 'class', 'dev.epay.observer.RechargeNetworkTest#independentNotificationsForOrdinaryRechargeOrders', runner], stdout=log, stderr=subprocess.STDOUT)
+p = None
 try:
+    run('reverse', 'tcp:18443', 'tcp:18443')
+    p = subprocess.Popen(adb + ['shell', 'am', 'instrument', '-w', '-r', '-e', 'class', 'dev.epay.observer.RechargeNetworkTest#independentNotificationsForOrdinaryRechargeOrders', runner], stdout=log, stderr=subprocess.STDOUT)
     wait('pairing', lambda: run('shell', 'run-as', clientpkg, 'sh', '-c', '"test -f files/recharge-paired && echo ready || true"') == 'ready')
     created = []
     for provider in ['wxpay', 'alipay']:
@@ -90,7 +91,7 @@ try:
     (lab / 'recharge-result.json').write_text(json.dumps(evidence, indent=2))
     print(json.dumps({k: v for k, v in evidence.items() if k not in ['orders', 'android']}))
 finally:
-    if p.poll() is None:
+    if p is not None and p.poll() is None:
         p.kill()
         p.wait(timeout=15)
     log.close()

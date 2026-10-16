@@ -15,10 +15,15 @@ def load_runtime(directory):
     return metadata
 
 
-def require_container(metadata, suffix):
+def require_container(metadata, suffix, missing_ok=False):
     if suffix not in {'runtime', 'postgres', 'redis', 'gateway', 'newapi'}:
         raise ValueError('unknown task service')
     name = metadata['prefix'] + '-' + suffix
+    existing = subprocess.check_output(['docker', 'container', 'ls', '-a', '--format', '{{.Names}}'], text=True).splitlines()
+    if name not in existing:
+        if missing_ok:
+            return None
+        raise ValueError('task container does not exist: ' + name)
     result = subprocess.check_output(['docker', 'inspect', '--format', '{{index .Config.Labels "epay-observer.lab"}}', name], text=True).strip()
     if result != metadata['prefix']:
         raise ValueError('container lacks this lab ownership label: ' + name)
