@@ -64,3 +64,10 @@
 - [M3回调基础验证](testing/M3-callback-foundation-report.md)
 
 - [SPEC-025合成资格](specs/SPEC-025-synthetic-evidence-identity.md)与[SPEC-026管理追踪/暂停](specs/SPEC-026-admin-trace-pause.md)。
+
+## 人工验收与M4准备
+
+- [手动打开App、授权、轮换配对与查看状态](testing/manual-acceptance.md)
+- [真机双渠道计划与准入门槛](testing/real-device-plan.md)（计划，实测Not run）
+- [签名、产物与发布检查表](operations/release-checklist.md)（规划，未发布）
+- [SPEC-027人工验收准备](specs/SPEC-027-manual-acceptance-readiness.md)
