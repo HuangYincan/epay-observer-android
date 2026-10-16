@@ -1,14 +1,14 @@
 # 兼容性矩阵
 
-2026-10-16：API37模拟器合成通知完整充值及用户重跑已通过，见[M3报告](M3-prototype-report.md)。真实App和实体设备仍Not run；人工界面验收按[清单](manual-acceptance.md)逐项记录。
+2026-10-16：API37模拟器合成通知完整充值及用户重跑已通过，见[M3报告](M3-prototype-report.md)。真实App已完成安装与首次启动，登录/通知兼容性仍Not run；实体设备Not run。人工界面验收按[清单](manual-acceptance.md)逐项记录。
 
 | 层次 | 来源 | Android / 镜像 | 设备 / ABI | 支付 App 版本 | 结果 | 样本与报告 |
 | --- | --- | --- | --- | --- | --- | --- |
 | 模拟器基础应用（非通知夹具） | fixture client 状态页 | API 37.0 Google Play rev 6 | Medium_Phone / arm64-v8a | 不适用 | Passed | [#9/#5 报告](M1-foundation-report.md) |
 | 模拟器夹具 | 微信形态 | API 37.0 Google Play rev 6 | Medium_Phone / arm64-v8a | 不适用 | Passed | [M3闭环与故障报告](M3-prototype-report.md) |
 | 模拟器夹具 | 支付宝形态 | API 37.0 Google Play rev 6 | Medium_Phone / arm64-v8a | 不适用 | Passed | [M3闭环与故障报告](M3-prototype-report.md) |
-| 模拟器真实 App | 微信 | 目标API37 / Android17 | 目标Medium_Phone / arm64-v8a | 已下载8.0.79 (3200)，未安装 | Not run | [D0来源核验已通过，运行未测](../research/M4-real-app-d0.md) |
-| 模拟器真实 App | 支付宝 | 目标API37 / Android17 | 目标Medium_Phone / arm64-v8a | 已下载12.12.30.8000 (212310)，未安装 | Not run | [D0来源核验已通过，运行未测](../research/M4-real-app-d0.md) |
+| 模拟器真实 App | 微信 | API37 / Android17 | Medium_Phone / arm64-v8a | 已安装8.0.79 (3200) | Not run | [安装及首次登录入口Passed，登录/通知未测](../research/M4-real-app-d0.md) |
+| 模拟器真实 App | 支付宝 | API37 / Android17 | Medium_Phone / arm64-v8a | 已安装12.12.30.8000 (212310) | Not run | [安装及首次隐私提示Passed，登录/通知未测](../research/M4-real-app-d0.md) |
 | 实体真机 | 微信 | 待后续设备 | TBD | TBD | Not run | TBD |
 | 实体真机 | 支付宝 | 待后续设备 | TBD | TBD | Not run | TBD |
 
