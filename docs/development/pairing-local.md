@@ -71,6 +71,14 @@ python3 scripts/pairing_tls_avd.py emulator-5554 "$observer_lab"
 
 ## 恢复默认产物与清理
 
+### SPEC-017实际上传模式
+
+完成上述准备与构建后，测试桥增加 `-e OBSERVER_AVD_MODE=upload`，容器名可改为 `epay-observer-upload-bridge`；设备脚本增加 `--upload`。使用独立私有目录，或先归档上一轮报告并仅移除该目录的 `device-uploaded` 完成标记，防止桥提前退出。桥每轮建立新schema与新短期授权。
+
+上传脚本会显式清空本任务专用 `dev.epay.observer.fixtureclient.debug` 数据，然后安装客户端、独立通知fixture与runner。预期Android报告：历史2个UNBOUND、2个ACKED、3次发送（首次ACK响应体丢失）；网关报告：2个active、2个event、3个request、redirect_requests=0。两端payment_verified仍false；不会运行订单匹配或充值。设备报告完成后桥自动退出并清理schema。通用AVD主套件要求初始未配对；上传测试后再次运行主套件前只重置此专用debug客户端。
+
+### 恢复system-only构建
+
 ```sh
 ./gradlew --no-daemon --dependency-verification strict :app:assembleFixtureDebug :app:assembleProductionRelease
 python3 scripts/verify_apk.py app/build/outputs/apk/fixture/debug/app-fixture-debug.apk --variant fixtureDebug

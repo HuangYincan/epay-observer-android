@@ -4,13 +4,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import dev.epay.observer.parsing.Provider
 import dev.epay.observer.protocol.PairingProtocol
-import dev.epay.observer.protocol.PairingTransport
-import dev.epay.observer.protocol.PairingFailure
 import dev.epay.observer.security.*
 import dev.epay.observer.storage.*
 import java.io.File
 import java.util.UUID
-import java.util.Base64
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
@@ -33,20 +30,7 @@ class PairingNetworkTest {
         val coordinator = PairingCoordinator(context, db, namespace = "pairing-network-test")
         val activated = mutableListOf<ActiveCredential>()
         try {
-            val transport = PairingTransport()
-            val redirectToken = Base64.getUrlEncoder().withoutPadding().encodeToString(ByteArray(32))
-            val unknownCA = runCatching {
-                // Only localhost has the fixture CA anchor. The certificate also
-                // has a valid 127.0.0.1 SAN, so this tests trust rather than naming.
-                transport.post("https://127.0.0.1:18443", redirectToken, "inspect", PairingProtocol.inspectBody())
-            }.exceptionOrNull()
-            assertTrue("unknown CA must fail TLS", unknownCA is javax.net.ssl.SSLHandshakeException)
-            val redirected = runCatching {
-                transport.post("https://localhost:18443", redirectToken, "inspect", PairingProtocol.inspectBody())
-            }.exceptionOrNull()
-            assertEquals("redirect_rejected", (redirected as? PairingFailure)?.code)
-            val originToken = Base64.getUrlEncoder().withoutPadding().encodeToString(ByteArray(32) { 1 })
-            assertTrue(runCatching { coordinator.inspect("https://localhost:18443", originToken) }.exceptionOrNull() is IllegalArgumentException)
+            verifyPairingTlsBoundary(coordinator)
             val identities = IdentityStore(db)
             val old = (0..1).map { identities.record(queueInput(it).copy(key = "before-network-$it"), Provider.entries.toSet()) }
             for (i in 0 until grants.length()) {

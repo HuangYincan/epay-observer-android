@@ -11,9 +11,11 @@ data class OutboxRow(
     val state: String, val attempts: Long, val nextAttemptAt: Long,
     val leaseToken: String?, val leaseUntil: Long?, val receivedAt: Long?, val reason: String?,
 )
+data class DeliveryCount(val state: String, val count: Int)
 
 @Dao
 interface OutboxDao {
+    @Query("SELECT state, COUNT(*) AS count FROM outbox GROUP BY state") fun counts(): List<DeliveryCount>
     @Insert fun insert(row: OutboxRow)
     @Query("SELECT * FROM outbox ORDER BY eventId") fun rows(): List<OutboxRow>
     @Query("SELECT COUNT(*) FROM outbox") fun count(): Int
@@ -38,4 +40,10 @@ interface OutboxDao {
     fun pausePairing(provider: String)
     @Query("UPDATE outbox SET state = 'READY', reason = NULL WHERE scope = :scope AND state = 'HELD' AND reason = 'PAIRING_IN_PROGRESS'")
     fun resumePairing(scope: String)
+    @Query("UPDATE outbox SET state = 'HELD', reason = :reason, leaseToken = NULL, leaseUntil = NULL WHERE scope = :scope AND state IN ('READY','RETRY','IN_FLIGHT')")
+    fun holdScope(scope: String, reason: String)
+    @Query("UPDATE outbox SET state = 'READY', leaseToken = NULL, leaseUntil = NULL, reason = NULL WHERE scope = :scope AND state = 'IN_FLIGHT'")
+    fun releaseScopeLeases(scope: String)
+    @Query("UPDATE outbox SET state = 'READY', reason = NULL WHERE scope = :scope AND state = 'HELD' AND reason IN ('AUTHENTICATION','SCOPE','REDIRECT','UNEXPECTED_RESPONSE','CLOCK_RANGE')")
+    fun resumeAuthorizedScope(scope: String)
 }

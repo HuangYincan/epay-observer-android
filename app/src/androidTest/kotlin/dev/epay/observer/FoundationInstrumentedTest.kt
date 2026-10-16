@@ -33,7 +33,7 @@ class FoundationInstrumentedTest {
                 assertEquals(if (connected) "已连接" else "未连接", activity.findViewById<TextView>(R.id.listener_status).text.toString())
                 assertEquals("未绑定", activity.findViewById<TextView>(R.id.binding_status).text.toString())
                 val count = dev.epay.observer.storage.DurableCapture.stats.events
-                assertEquals(if (count == 0) "暂无事件" else "$count 个本地候选，未上报", activity.findViewById<TextView>(R.id.events_status).text.toString())
+                assertEquals(if (count == 0) "暂无事件" else "$count 个本地候选，回执不代表充值", activity.findViewById<TextView>(R.id.events_status).text.toString())
             }
         } finally {
             instrumentation.runOnMainSync { activity.finish() }
