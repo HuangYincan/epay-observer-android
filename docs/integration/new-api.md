@@ -1,6 +1,6 @@
 # New API 集成与验收
 
-状态：M0 review candidate；#10/#27/#29。目标维持易支付协议，由 epay-go 向 New API 通知，APK 不直接充值。
+状态：M0历史研究与M3实施证据并存，当前金额补丁/受限TLS基础见[报告](../testing/M3-callback-foundation-report.md)；#10/#27/#29。目标维持易支付协议，由 epay-go 向 New API 通知，APK 不直接充值。
 
 固定研究基线：`QuantumNous/new-api v1.0.0-rc.44`，提交 `633b4c5b190dc1af99a2814391354d86948e7943`，go-epay v0.0.5。2026-10-15 静态审计完成，未部署／运行数据库测试；该 RC 不是生产推荐。epay-go 固定 `4d855060439df247fc60a529139e80c7e4b757c0`。
 
@@ -14,7 +14,7 @@
 | PayMethods | wxpay 与 alipay；检查固定版本支持的 JSON 配置 |
 | 商户回调 | 由 New API 下单时传入并由网关保存，客户端不能替换 |
 
-长期Goal已授权本任务专用本地隔离实例；尚未启动New API。此版本还以支付设置确认状态和 PayMethods 非空控制 EPay webhook 是否启用；后续隔离实例按 UI 正常配置，不以测试绕过开关代替。只验余额充值 `/api/user/pay` → `/api/user/epay/notify`，订阅购买不在首轮范围。
+长期Goal已授权本任务专用本地隔离实例；M3已启动完整New API测试实例，金额校验本地补丁42c3424d通过三数据库和回归。此版本还以支付设置确认状态和 PayMethods 非空控制 EPay webhook 是否启用；隔离实例通过普通setup、dashboard会话和设置接口配置，不以测试绕过开关代替。只验余额充值 `/api/user/pay` → `/api/user/epay/notify`，订阅购买不在首轮范围。
 
 金额对应：New API PurchaseArgs.Money 为两位小数元字符串；其 ServiceTradeNo 对应网关 out_trade_no，网关 trade_no 是另一标识。New API 的 quota 增额按原 topup.Amount 与 QuotaPerUnit 计算，不能将 money 元值直接当 quota。商户回调为 EPay MD5（非 Observer HMAC）；api_trade_no 可省略，New API 充值路径不要求它。
 
@@ -31,6 +31,8 @@
 | NEW-05 | 网关已提交后重启，回调最终完成；缓存与数据库一致 | Not run |
 
 ## safehttp 与受控测试链路
+
+M3按用户仅本地授权采用[SPEC-024](../specs/SPEC-024-local-synthetic-callback.md)受限测试适配器：默认safehttp不变，专用构建只访问精确环回TLS目标、核验任务CA和已入账synthetic范围；不使用下述M0候选公网方案。实际测试见回调基础报告，完整AVD仍待验收。
 
 建议后续使用受控公网 HTTPS 测试域名和反向隧道/转发，使 epay-go 的默认 safehttp 实际拨号到经验证的公网入口，再由入口转发到隔离 New API。只开放 `/api/user/epay/notify` 等必要测试路由，独立用户/商户/DB、访问约束与可清理路由；具体域名及入口资源 TBD，后续部署需授权。本轮没有创建隧道、开放端口或注册域名。
 
