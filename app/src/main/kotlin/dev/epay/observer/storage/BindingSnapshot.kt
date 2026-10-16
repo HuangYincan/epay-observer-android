@@ -26,16 +26,19 @@ data class BindingSnapshot(
     internal val metadataKey: String get() = "binding:$providerName"
 }
 
+enum class EvidenceIdentity(val wire: String) { UNCERTAIN("uncertain"), DISTINCT("distinct") }
+
 object EventWire {
-    fun encode(eventId: String, candidate: ParseResult.Candidate, observedAt: Long, binding: BindingSnapshot): ByteArray {
+    fun encode(eventId: String, candidate: ParseResult.Candidate, observedAt: Long, binding: BindingSnapshot, identity: EvidenceIdentity = EvidenceIdentity.UNCERTAIN): ByteArray {
         // Validate the shared fields before interpolating the protocol's restricted ASCII identifiers.
         IdentityEncoding.localPayload(eventId, candidate, observedAt)
         require(candidate.provider == binding.provider)
+        require(identity != EvidenceIdentity.DISTINCT || OutboundPolicy.permits(binding, candidate))
         return ("{\"schema_version\":1,\"event_id\":\"$eventId\",\"device_id\":\"${binding.deviceId}\"," +
             "\"receiver_id\":\"${binding.receiverId}\",\"binding_version\":${binding.version}," +
             "\"provider\":\"${binding.providerName}\",\"amount_minor\":${candidate.amountMinor},\"currency\":\"CNY\"," +
             "\"observed_at_ms\":$observedAt,\"parser_version\":\"${candidate.ruleVersion}\"," +
-            "\"source_class\":\"${binding.sourceClass.wire}\",\"identity_confidence\":\"uncertain\"}")
+            "\"source_class\":\"${binding.sourceClass.wire}\",\"identity_confidence\":\"${identity.wire}\"}")
             .toByteArray(Charsets.UTF_8).also { require(it.size <= 16_384) }
     }
 }

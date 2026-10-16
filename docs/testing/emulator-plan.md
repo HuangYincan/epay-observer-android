@@ -1,6 +1,6 @@
 # 安卓模拟器优先测试计划
 
-状态：EMU-01..14 的完整通知／充值场景仍未全部运行；#11/#12 的 CAP-01..05 和 #13/#14 的 PARSE-01..05 只验证通知输入／监听／合成解析子集，见 [解析报告](M1-parsing-report.md)。#9/#5 已使用已有 API 37 AVD 验证基础应用。启动、网络与应用重置结果见 [首批报告](M1-foundation-report.md)，没有部署网关或操作支付账号。
+状态：EMU-01..14按明确测试层次已覆盖隔离原型，见[M3最终矩阵](M3-prototype-report.md)。不把PostgreSQL/Go故障注入写成AVD全链路注入；真实App和真机Not run。
 
 ## 测试层次
 
@@ -15,7 +15,7 @@
 
 开发基线为 Medium_Phone_API_37.0、API 37.0、Google Play arm64-v8a revision 6；最低 API 29 与 35/36 是后续扩展候选，未安装或运行对应产品测试。
 
-测试拓扑：Observer test build + 独立 fixture → HTTPS 测试网关 → 测试 PostgreSQL → New API 测试实例。fixture 不带订单信息，只有正常通知金额/语义，网关执行完整 SPEC-003 匹配。Release 不含测试信任或 TLS 绕过。AVD 可经测试域名访问网关；10.0.2.2 仅是后续开发路由候选，不可作为 safehttp 接受的商户回调目的地。受控公网 HTTPS 回调链路见 [集成文档](../integration/new-api.md)。
+测试拓扑：Observer test build + 独立 fixture → HTTPS 测试网关 → 测试 PostgreSQL → New API 测试实例。fixture 不带订单信息，只有正常通知金额/语义，网关执行完整 SPEC-003 匹配。Release 不含测试信任或 TLS 绕过。AVD 可经测试域名访问网关；10.0.2.2 仅是后续开发路由候选，不可作为 safehttp 接受的商户回调目的地。本地精确环回TLS回调按SPEC-024隔离，不使用公网隧道，见[集成文档](../integration/new-api.md)。
 
 ## 场景清单
 

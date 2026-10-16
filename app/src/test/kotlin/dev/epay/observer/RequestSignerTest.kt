@@ -14,7 +14,7 @@ class RequestSignerTest {
         val vectors = requireNotNull(javaClass.getResourceAsStream("/vectors.json")).use {
             JSONObject(it.bufferedReader().readText()).getJSONArray("vectors")
         }
-        assertEquals(3, vectors.length())
+        assertEquals(5, vectors.length())
         repeat(vectors.length()) { i ->
             val v = vectors.getJSONObject(i)
             val body = Base64.getDecoder().decode(v.getString("body_base64"))

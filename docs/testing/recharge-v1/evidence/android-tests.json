@@ -1,0 +1,26 @@
+{
+  "layer": "default system-trust-only Android build and API37 AVD",
+  "avd_suite_passed": 43,
+  "avd_process_phases_passed": 8,
+  "strict_build": "passed",
+  "lint": "passed",
+  "apk_isolation": [
+    "fixtureDebug",
+    "productionRelease",
+    "fixtureSender"
+  ],
+  "jvm": {
+    "testProductionDebugUnitTest": {
+      "tests": 32,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "testFixtureDebugUnitTest": {
+      "tests": 147,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  }
+}

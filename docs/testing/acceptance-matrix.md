@@ -1,17 +1,19 @@
 # 需求—规格—验收矩阵
 
-FR-01..08 的完整通知／支付验收仍为 Not run。首批工程与模拟器的 BUILD-01..03、AVD-01..04 见 [独立报告](M1-foundation-report.md)，不将基础启动当作完整需求通过。Issue 的 Done 证据须回链本表或独立报告。
+当前验收范围为模拟器合成通知原型；[最终报告](M3-prototype-report.md)区分AVD、真实TLS与PostgreSQL证据。真实App/真机/生产准入Not run。
 
-| 需求 | 规格 | 关键证据 | 当前状态 |
-| --- | --- | --- | --- |
-| FR-01 双通道 | SPEC-001 | 微信／支付宝各自正负样本；EMU-01/02/03 | Not run |
-| FR-02 可观测 | SPEC-006 | 权限、服务、网络、ACK 分开显示；EMU-10 | Not run |
-| FR-03 可靠上报 | SPEC-002/006 | 队列恢复、ACK 丢失、50 条积压；EMU-05/06 | Not run |
-| FR-04 自动充值 | SPEC-003/004 | 无人工确认、无订单提示的双通道闭环；EMU-01/02/12 | Not run |
-| FR-05 幂等／不串单 | SPEC-003/004 | 并发、回滚、迟到、同额、跨账户；EMU-07/08/09 | Not run |
-| FR-06 可解释 | SPEC-002/004 | 事件→订单→通知状态及原因；故障报告 | Not run |
-| FR-07 模拟器 | SPEC-001/005 | 环境可重建、夹具隔离、Release 检查；EMU-13/14 | Not run |
-| FR-08 设备安全 | SPEC-002/005 | 绑定、轮换、撤销、越权、篡改；EMU-11 | Not run |
+| 需求 | 规格 | 当前证据 |
+| --- | --- | --- |
+| FR-01双通道 | SPEC-008/009/025 | 116例语料、独立App通知及实际两渠道充值 |
+| FR-02可观测 | SPEC-019/020 | 权限/服务/队列/ACK分层及独立health；不声称Android ACK表示支付 |
+| FR-03可靠上报 | SPEC-010–018 | 50条Room积压、实际HTTPS/ACK丢失、进程与AVD恢复 |
+| FR-04自动充值 | SPEC-021–025 | 普通订单、不含订单提示、双渠道New API一次增额 |
+| FR-05幂等不串单 | SPEC-021–024 | PostgreSQL同额/迟到/并发/事务恢复，实际TLS并发回调及SIGKILL |
+| FR-06可解释 | SPEC-026 | 管理HTTPS查询及逐笔跨库audit；暂停原因/候选/订单/通知/审计 |
+| FR-07模拟器 | SPEC-007/024 | 干净复现、固定环境、Release/默认/显式CA检查 |
+| FR-08设备安全 | SPEC-015–020 | KeyStore、实际激活/撤销/轮换、越权/重放/篡改、UNBOUND保持 |
+
+以下是各历史阶段的独立证据，不覆盖其后续实现。
 
 ## M1 已实现子集
 
@@ -21,7 +23,7 @@ FR-01..08 的完整通知／支付验收仍为 Not run。首批工程与模拟�
 - SPEC-011 / QUEUE-01..05：50条离线候选、跨进程恢复、schema升级与租约状态机，见 [队列报告](M2-outbox-report.md)。ACK为本地存储契约输入，网络发送未实现。
 - SPEC-012 / SIGN-01..02、RETRY-01：实际Kotlin/Android JCA签名与纯退避决策，见[核心报告](M2-signing-core-report.md)；HTTP/配对仍未实现。
 - SPEC-014 / MODEL-01..04、SPEC-015 / VAULT-01..03：真实PostgreSQL模型/迁移和AndroidKeyStore，见[报告](M2-identity-vault-report.md)；不等于HTTP配对/授权/充值验证。
-- 以上不等于表中完整需求通过；网络／ACK状态、全链路充值和真实App证据仍缺失。
+- 历史子批次不单独证明完整需求；后续网络/充值证据见上表，真实App证据仍缺失。
 
 ## M0 研究证据（2026-10-15）
 
@@ -33,7 +35,7 @@ FR-01..08 的完整通知／支付验收仍为 Not run。首批工程与模拟�
 | New API NEW-02 | 合法签名但金额不符不得增额 | Blocked：固定源码没有业务金额比较，运行 Not run |
 | 真实来源资格 | 文案、签名证书、账户/订单关联 | 未验证，不能开启生产自动确认 |
 
-复现与限制见 [M0 报告](../research/M0-review.md)、[黄金向量](protocol-v1/README.md)。M3 须同时通过 NEW-01..05、NET-01..04、MATCH-01..12；基线有缺口时不得删减验收项让报告通过。
+复现与限制见 [M0 报告](../research/M0-review.md)、[黄金向量](protocol-v1/README.md)。M3的NEW/MATCH及网络安全按后续SPEC-021–026和最终报告落实。公网NET-01端到端不属于本地授权；本地TLS正例由显式受限适配器验证，默认safehttp负例和DNS边界由Go测试验证，不宣称公网部署通过。
 
 ## 资金正确性必须额外检查
 

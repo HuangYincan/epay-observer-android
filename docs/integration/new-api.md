@@ -1,6 +1,6 @@
 # New API 集成与验收
 
-状态：M0历史研究与M3实施证据并存，当前金额补丁/受限TLS基础见[报告](../testing/M3-callback-foundation-report.md)；#10/#27/#29。目标维持易支付协议，由 epay-go 向 New API 通知，APK 不直接充值。
+状态：M3实际双渠道充值已验证，见[最终报告](../testing/M3-prototype-report.md)和[演示手册](../operations/prototype-demo.md)；历史金额缺口由固定本地补丁修复；#10/#27/#29。目标维持易支付协议，由 epay-go 向 New API 通知，APK 不直接充值。
 
 固定研究基线：`QuantumNous/new-api v1.0.0-rc.44`，提交 `633b4c5b190dc1af99a2814391354d86948e7943`，go-epay v0.0.5。2026-10-15 静态审计完成，未部署／运行数据库测试；该 RC 不是生产推荐。epay-go 固定 `4d855060439df247fc60a529139e80c7e4b757c0`。
 
@@ -18,27 +18,23 @@
 
 金额对应：New API PurchaseArgs.Money 为两位小数元字符串；其 ServiceTradeNo 对应网关 out_trade_no，网关 trade_no 是另一标识。New API 的 quota 增额按原 topup.Amount 与 QuotaPerUnit 计算，不能将 money 元值直接当 quota。商户回调为 EPay MD5（非 Observer HMAC）；api_trade_no 可省略，New API 充值路径不要求它。
 
-## 必须处理的契约缺口
+## 历史契约缺口与已验证补丁
 
-该 SHA 的 EpayNotify 验签后调用 RechargeEpay，后者有数据库行锁和事务幂等，但没有接收/比较回调 Money 与原单 Money。go-epay Verify 也不查询订单。详见 [静态审计](../research/M0-source-audit.md)。因此 NEW-02 不能写为已支持；保留 #10 和相关集成任务阻塞，建议选已修正并审查的固定版本，或用户确认后另开最小 New API 兼容修正。用户长期Goal已授权独立New API测试checkout及必要兼容补丁，保留提交/版本记录但不推送第三方上游；金额验收不得降低。
+该 SHA 的 EpayNotify 验签后调用 RechargeEpay，后者有数据库行锁和事务幂等，但没有接收/比较回调 Money 与原单 Money。go-epay Verify 也不查询订单。详见 [静态审计](../research/M0-source-audit.md)。该原始基线的NEW-02不支持；本地补丁42c3424d按SPEC-023修复并通过三数据库及实际TLS验收，不能把修复归给未打补丁的上游。用户长期Goal已授权独立New API测试checkout及必要兼容补丁，保留提交/版本记录但不推送第三方上游；金额验收不得降低。
 
-| ID | 未来验收 | M0 状态 |
-| --- | --- | --- |
-| NEW-01 | 两实例/并发/响应丢失后重复回调，充值单成功和 quota 原子且一次 | 源码有机制；运行 Not run |
-| NEW-02 | 合法签名但金额不符，零增额 | 静态契约缺口；Blocked |
-| NEW-03 | 错误签名／不重签名的金额篡改，零增额 | 源码验签；运行 Not run |
-| NEW-04 | 过期/非 epay/缺失充值单不得成功；退款不恢复 | 源码部分状态防护；运行 Not run |
-| NEW-05 | 网关已提交后重启，回调最终完成；缓存与数据库一致 | Not run |
+| ID | 当前验收与边界 |
+| --- | --- |
+| NEW-01 | 原订单金额/状态事务和并发数据库测试；实际20并发TLS回调、丢响应及进程重启后仅一次quota。双活完整服务实例未部署 |
+| NEW-02 | 合法签名错金额在SQLite/PG/MySQL handler及实际lab均零增额，包括成功后重复错金额 |
+| NEW-03 | 错签/未重签篡改实际TLS返回fail，零增额 |
+| NEW-04 | 原model回归保留非epay/缺失/非pending状态及上限保护；退款准备状态测试不冒充真实退款产品流程 |
+| NEW-05 | 完整lab网关与New API SIGKILL/持久重试通过；API读quota与数据库一致 |
 
 ## safehttp 与受控测试链路
 
-M3按用户仅本地授权采用[SPEC-024](../specs/SPEC-024-local-synthetic-callback.md)受限测试适配器：默认safehttp不变，专用构建只访问精确环回TLS目标、核验任务CA和已入账synthetic范围；不使用下述M0候选公网方案。实际测试见回调基础报告，完整AVD仍待验收。
+M3按用户仅本地授权采用[SPEC-024](../specs/SPEC-024-local-synthetic-callback.md)受限测试适配器：默认safehttp不变，专用构建只访问精确环回TLS目标、核验任务CA和已入账synthetic范围；不使用下述M0候选公网方案。实际双渠道AVD闭环和故障矩阵见最终报告。没有公网隧道、端口暴露或域名资源。
 
-建议后续使用受控公网 HTTPS 测试域名和反向隧道/转发，使 epay-go 的默认 safehttp 实际拨号到经验证的公网入口，再由入口转发到隔离 New API。只开放 `/api/user/epay/notify` 等必要测试路由，独立用户/商户/DB、访问约束与可清理路由；具体域名及入口资源 TBD，后续部署需授权。本轮没有创建隧道、开放端口或注册域名。
-
-仅把 `localhost` 改成域名而仍解析到私网无效；safehttp 禁用 HTTP 代理，不应依赖代理环境变量绕过。AVD 到网关的开发路由与网关到 New API 的回调路由是两回事。
-
-默认安全链路验收：NET-01 公网 HTTPS 正常；NET-02 私网/环回拒绝；NET-03 DNS 混合公私网或拨号重新解析变私网拒绝；NET-04 重定向至私网拒绝。均 Not run。纯本地单测可在 Go `_test.go` 中注入固定 transport 与 httptest 服务，但这不能作为 default safehttp 的端到端通过证据。不得增加生产 ALLOW_PRIVATE、DNS 伪装或全局校验关闭选项。
+默认safehttp私网/环回、混合DNS、重定向等边界由Go测试验证；公网HTTPS完整部署未运行，本地适配器的成功不冒充公网端到端证据。适配器要求精确数值环回地址、路径、端口、私有CA及当前合成范围和已消费事件；不存在生产ALLOW_PRIVATE、全局TLS关闭或DNS伪装。
 
 ## 端到端成功条件
 

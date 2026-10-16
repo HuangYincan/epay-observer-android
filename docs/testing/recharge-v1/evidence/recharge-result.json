@@ -1,0 +1,26 @@
+{
+  "layer": "AVD synthetic notifications to ordinary New API topups",
+  "providers": [
+    "wxpay",
+    "alipay"
+  ],
+  "quota_before": 100000000,
+  "quota_after": 110000000,
+  "quota_delta": 10000000,
+  "orders": [
+    {
+      "provider": "wxpay",
+      "gateway_trade_no": "20261016103247d2531e93c9",
+      "newapi_trade_no": "USR1NOTZSBWI1792146767",
+      "amount_minor": 1000
+    },
+    {
+      "provider": "alipay",
+      "gateway_trade_no": "202610161032473f41afa6a5",
+      "newapi_trade_no": "USR1NOPUADAk1792146767",
+      "amount_minor": 1000
+    }
+  ],
+  "gateway_paid_orders": 2,
+  "merchant_callbacks_succeeded": 2
+}

@@ -1,12 +1,12 @@
 # epay-go 集成计划
 
-状态：M0 review candidate。研究基线：`HuangYincan/epay-go@4d855060439df247fc60a529139e80c7e4b757c0`，2026-10-15 重新只读核对，工作区干净且未改动。详见 [源码审计](../research/M0-source-audit.md)。
+状态：隔离原型已实现。历史研究基线`4d855060439df247fc60a529139e80c7e4b757c0`保留在[源码审计](../research/M0-source-audit.md)，当前原型功能基线`9a96f72`及最终PR见[M3报告](../testing/M3-prototype-report.md)。
 
-## 当前实现基线（2026-10-16）
+## 当前能力与信任边界
 
-研究基线仍保留4d855060，不能把新代码写入历史审计结论。当前main为 `9d326b2`（PR #13已合并，模型功能代码e0580d8完整CI通过），包括协议核心 `7459367`（PR #10）及安全补丁基线 `6097e1f`（PR #12）。pkg/observer提供纯协议校验，internal/observerstore提供身份/凭据元数据、版本化迁移和不可变证据事务原语；尚未挂载HTTP路由，也没有配对、请求重放登记、完整授权接收事务或支付确认。New API固定版本及#10金额缺口不变。
+SPEC-014–020提供身份/KEK、专用TLS配对/事件接口、验权/防重放、持久接收和管理员撤销/轮换。SPEC-021/022在明确synthetic环境下提供永久claim、首次候选快照、原子消费/订单/收入与持久匹配退避。SPEC-024提供受限本地TLS回调，SPEC-026提供管理员事件追踪和非追溯暂停。默认构建不能自动确认synthetic/notification证据；生产真实来源未准入。
 
-双方实现与证据见 [网关协议核心报告](../testing/M2-gateway-protocol-report.md)；对外接收API未实现，不能把库返回的VerifiedRequest视为ACK。
+Android只持有独立设备凭据，不直接确认订单、不查询业务数据库、不持商户API Key。ACK代表持久接收；只有网关消费/原收入及New API topup审计能证明隔离充值结果。没有平台流水时保存NULL，不用event_id伪造。
 
 ## 已存在的能力
 
@@ -17,16 +17,10 @@
 
 证据：[epay adapter](https://github.com/HuangYincan/epay-go/blob/4d855060439df247fc60a529139e80c7e4b757c0/internal/payment/epay.go)、[order service](https://github.com/HuangYincan/epay-go/blob/4d855060439df247fc60a529139e80c7e4b757c0/internal/service/order.go)、[notify service](https://github.com/HuangYincan/epay-go/blob/4d855060439df247fc60a529139e80c7e4b757c0/internal/service/notify.go)。
 
-## 需要增加的能力
+## 跨仓库交付与运行
 
-设备与 receiver 绑定模型、签名事件入口、持久事件表、业务幂等／重放防护、账户级订单匹配、自动确认策略、事件与记账共同事务、审计查询及异常核对页面。新接口建议由 SPEC-002 定义，不能要求手机从通知中凭空得知 trade_no。
+网关实现不复制到Android仓库；跨库Issue映射见[BACKLOG](../issues/BACKLOG.md)。M2由epay-go PR #14–17交付，M3金额/匹配/回调由#18–20及最终联调PR交付；Android对应#50–56及最终PR。版本与CI见最终报告。
 
-旧回调保持兼容；新 Observer 路径属于另一信任边界，不直接把设备 key 替换进旧 MD5 回调就宣称已完成。无真实平台流水时需明确 observer evidence 存储方案，避免假造交易流水。
+旧支付入口保持兼容，无法用于确认observer订单；旧教程#5不适用于events v1。数据库版本化迁移保护历史证据/claim/审计，回退代码不删表/trigger。实际schema5→6升级两次启动保持四笔账务；数据备份和生产灾难恢复未验收。
 
-## 跨仓库交付
-
-本仓库的网关 Issues 是协调任务，M0 已检查 epay-go 现有任务并建立对应边界，映射见 [BACKLOG](../issues/BACKLOG.md)。已交付PR #10协议核心与PR #13模型/证据原语；完整接收与联调仍待后续PR，不虚构端到端证据。不得复制网关；数据库迁移、并发及回滚测试在 epay-go，协议向量和端到端报告固定双方提交。
-
-既有 epay-go #5 的旧入口教程不适用于新 events v1：尤其不能将 event_id 作为 api_trade_no，也不能让 APK持有网关订单映射或直接确认支付。原旧入口保持兼容，新接口单独处理 observer evidence。
-
-模型迁移已按SPEC-014验证旧数据保留、DDL回滚、版本漂移及并发；部署仍未执行。既有migrate/启动入口会执行新增DDL，代码回退保留历史表与保护trigger，不自动删除证据。事件本身不可信时不能通过强行写数据库来绕过审核。
+本机隔离构建、配置、启动和清理见[演示手册](../operations/prototype-demo.md)。设备、管理员、商户及New API会话四类凭据分开；公开文档不含可用凭据。真实异常应暂停并核对独立账单，不能直接改数据库绕过证据约束。

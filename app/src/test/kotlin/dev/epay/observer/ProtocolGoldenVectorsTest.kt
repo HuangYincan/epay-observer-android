@@ -34,7 +34,7 @@ class ProtocolGoldenVectorsTest {
     }
 
     @Test fun exactBytesAgreeWithCommittedPythonJavaGoldens() {
-        assertEquals(3, vectors.length())
+        assertEquals(5, vectors.length())
         for (index in 0 until vectors.length()) {
             val vector = vectors.getJSONObject(index)
             val body = bytes(vector.getString("body_base64"))

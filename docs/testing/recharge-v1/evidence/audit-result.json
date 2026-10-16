@@ -1,0 +1,93 @@
+{
+  "layer": "isolated PostgreSQL read-only cross-system audit",
+  "orders": [
+    {
+      "gateway_order": "20261016103247d2531e93c9",
+      "newapi_order": "USR1NOTZSBWI1792146767",
+      "provider": "wxpay",
+      "amount_minor": 1000,
+      "fee_minor": 0,
+      "event_pk": 1,
+      "processing_status": "credited",
+      "outcome": "matched",
+      "reason": "eligible",
+      "ledger_id": 1,
+      "ledger_income_minor": 1000,
+      "order_status": 1,
+      "notify_status": 2,
+      "notify_count": 1,
+      "newapi_topup_status": "success",
+      "newapi_credit_quota": 5000000
+    },
+    {
+      "gateway_order": "202610161032473f41afa6a5",
+      "newapi_order": "USR1NOPUADAk1792146767",
+      "provider": "alipay",
+      "amount_minor": 1000,
+      "fee_minor": 0,
+      "event_pk": 2,
+      "processing_status": "credited",
+      "outcome": "matched",
+      "reason": "eligible",
+      "ledger_id": 2,
+      "ledger_income_minor": 1000,
+      "order_status": 1,
+      "notify_status": 2,
+      "notify_count": 1,
+      "newapi_topup_status": "success",
+      "newapi_credit_quota": 5000000
+    },
+    {
+      "gateway_order": "20261016103528b914282dc7",
+      "newapi_order": "USR1NOeiTLpc1792146928",
+      "provider": "wxpay",
+      "amount_minor": 2000,
+      "fee_minor": 0,
+      "event_pk": 3,
+      "processing_status": "credited",
+      "outcome": "matched",
+      "reason": "eligible",
+      "ledger_id": 3,
+      "ledger_income_minor": 2000,
+      "order_status": 1,
+      "notify_status": 2,
+      "notify_count": 2,
+      "newapi_topup_status": "success",
+      "newapi_credit_quota": 10000000
+    },
+    {
+      "gateway_order": "20261016103641ecea3f2b20",
+      "newapi_order": "USR1NOIdPNDq1792147001",
+      "provider": "alipay",
+      "amount_minor": 2000,
+      "fee_minor": 0,
+      "event_pk": 4,
+      "processing_status": "credited",
+      "outcome": "matched",
+      "reason": "eligible",
+      "ledger_id": 4,
+      "ledger_income_minor": 2000,
+      "order_status": 1,
+      "notify_status": 2,
+      "notify_count": 2,
+      "newapi_topup_status": "success",
+      "newapi_credit_quota": 10000000
+    }
+  ],
+  "original_quota": 100000000,
+  "current_quota": 130000000,
+  "total_quota_added": 30000000,
+  "noncredited_decisions": [
+    {
+      "outcome": "duplicate_suspected",
+      "reason": "earlier_evidence",
+      "events": 1
+    },
+    {
+      "outcome": "evidence_insufficient",
+      "reason": "confirmation_paused",
+      "events": 1
+    }
+  ],
+  "contains_device_ids_or_credentials": false
+}

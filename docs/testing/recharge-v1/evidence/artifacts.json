@@ -1,0 +1,42 @@
+{
+  "scope": "private synthetic lab artifacts; APKs are not published",
+  "artifacts": {
+    "observer-fixture-explicit-ca.apk": {
+      "sha256": "43289bc437c4cc19ffe25bd088392f856e61930d9e0b25f1c77b0775915c014b",
+      "bytes": 8798707
+    },
+    "observer-fixture-test.apk": {
+      "sha256": "03b21ca38c05325ab9d900c5124b484b4cc224de722c6e96a54f6fe3788e3c21",
+      "bytes": 2084969
+    },
+    "notification-sender.apk": {
+      "sha256": "c7f6467a1dc14aa1d331f22c899f695dfd8532f7d6a937be70290b39acfbc5a6",
+      "bytes": 2563222
+    },
+    "epay-observer-synthetic": {
+      "sha256": "1649ae16170ad922a1a535a03a7b70f46c88403326eb33224a5407e9c3bb2109",
+      "bytes": 44979848
+    },
+    "new-api-observer": {
+      "sha256": "67351f7142b8e78466b1eb12b70b1c7e6f41ebf9fa4ea5bcaf68f8a15ea29270",
+      "bytes": 155969927
+    },
+    "0001-epay-amount-validation.patch": {
+      "sha256": "9eed8453a796e4f2233b22bdd8f6ec9827eb5f2b32a41ace679254a5a94a65ff",
+      "bytes": 19487
+    },
+    "NEW-API-LICENSE": {
+      "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef",
+      "bytes": 34523
+    },
+    "NEW-API-NOTICE": {
+      "sha256": "528067fcdf4f9d7e3fdb489d02cbdd36a0efa63fc2eb1686340612c26beb9f33",
+      "bytes": 2026
+    },
+    "NEW-API-THIRD-PARTY-LICENSES.md": {
+      "sha256": "9fbf84bd75bdb45d8d430c32ddf02816bb8e6828b49c66d92f4b047b0f74361b",
+      "bytes": 33787
+    }
+  },
+  "ca_file_sha256": "3705280f8f9ad2c9e36c2a89709644ac73672f315305ede637c3f9232595d946"
+}

@@ -34,6 +34,22 @@ class OutboxInstrumentedTest {
         val db = ObserverDatabase.open(context, name)
         try { block(db, name) } finally { db.close(); context.deleteDatabase(name) }
     }
+    @Test fun freshSyntheticIdentityQualifiesWithoutRewritingFrozenHistory() = withDatabase { db, _ ->
+        val store = IdentityStore(db)
+        val queue = OutboxStore(db)
+        Provider.entries.forEach { queue.activate(syntheticBinding(it)) }
+        repeat(2) { i -> store.record(queueInput(i), enabled, syntheticBinding(if (i == 0) Provider.WXPAY else Provider.ALIPAY)) }
+        val original = queue.rows().associate { it.eventId to it.body }
+        assertEquals(2, original.size)
+        queue.rows().forEach { assertEquals("distinct", org.json.JSONObject(String(it.body)).getString("identity_confidence")) }
+        store.recordGap()
+        store.record(queueInput(0), enabled, binding)
+        original.forEach { (id, body) -> assertArrayEquals(body, queue.rows().single { it.eventId == id }.body) }
+        store.record(queueInput(2), enabled, binding)
+        assertEquals("uncertain", org.json.JSONObject(String(queue.rows().single { it.eventId !in original }.body)).getString("identity_confidence"))
+        store.record(identityInput("unknown-restored", restored = true), enabled, binding)
+        assertEquals(3, queue.rows().size)
+    }
     @Test fun fiftyOfflineDualProviderEventsRemainByteIdenticalAfterReopen() = withDatabase { db, name ->
         val store = IdentityStore(db)
         val queue = OutboxStore(db)
