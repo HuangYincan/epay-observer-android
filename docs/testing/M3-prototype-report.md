@@ -43,12 +43,12 @@
 
 第一次闭环的Android恒定输出uncertain，被网关正确判为needs_review/unqualified_evidence，收入与额度均为0。原数据库保留在旧lab，不升级历史事件、不重写body。SPEC-025先定义隔离资格，再在fixture首次持久身份边界批准新鲜、已绑定、无恢复/缺口的synthetic证据；production继续uncertain并拒绝distinct编码。Room回归先失败再通过，双方共享实际Android编码向量增至5组。
 
-审查发现部分启动清理及审计关联不足，已修复且实际重复清理验证。SPEC-026查询缺订单状态已修复，候选与已消费订单字段独立；已credited后退款状态可查而历史收入不改。所有发现复审关闭，没有通过放宽金额/身份/TLS/签名断言通过测试。
+审查发现部分启动清理及审计关联不足，已修复且实际重复清理验证。SPEC-026查询缺订单状态已修复，候选与已消费订单字段独立；已credited后退款状态可查而历史收入不改。默认AVD恢复验证曾因完整lab遗留的已配对状态与主套件“未绑定”前置条件冲突而失败；仅在归档后清空专用debug客户端重跑，43+8通过，服务端历史保持。测试聚合初版把14个无测试文件package记为skip，现按原JSON分列package与真实测试事件。没有通过放宽金额/身份/TLS/签名断言通过测试。
 
 ## 检查、版本与产物
 
 - Android最终strict构建、production/fixture JVM、lint通过；默认AVD43/43及8/8进程阶段通过。显式CA APK完成真实联调后归档，默认system-only构建再次生成并检查。5组共享签名向量覆盖实际Android编码。
-- 网关最终默认全仓race211项、observersynthetic322项，0失败/跳过；两构建vet通过，20并发匹配包括在内。默认与专用构建完全分开。
+- 网关最终默认全仓race211项、observersynthetic322项，0测试失败/跳过；每构建另有14个无测试文件package，JSON单独列出，不能与测试skip混计；两构建vet通过，20并发匹配包括在内。默认与专用构建完全分开。
 - New API基线633b4c5、本地42c3424d补丁：SQLite3.50.4/PG16.15/MySQL8.4.11签名GET/POST各14项，model Epay51项、完整model/controller race及vet通过，详见[M3回调基础](M3-callback-foundation-report.md)。
 - Android功能8ff7f40、脚本79f6cf4/812517f；网关最终9a96f72；New API42c3424d。Go1.26.9、PG16.15、Redis7、Bun1.4.0镜像摘要由脚本及产物清单固定；不依据“最新版”。
 - 私有可保留交付在`build/prototype-delivery/`，备份位于当前lab `artifacts/`；包含APK、二进制、补丁、AGPL许可和哈希。[公共产物摘要](recharge-v1/evidence/artifacts.json)。没有APK上传到GitHub或正式签名发布。
