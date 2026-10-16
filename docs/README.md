@@ -1,6 +1,6 @@
 # 文档索引
 
-更新日期：2026-10-16。#9/#5、#11/#12、#13/#14 已合并；#16/#19 已由PR #47合并，实现 [持久身份](specs/SPEC-010-durable-observation-identity.md) 与 [队列](specs/SPEC-011-durable-outbox.md)。其余 Spec 仍为评审候选／待实现；#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
+更新日期：2026-10-16。#9/#5、#11/#12、#13/#14 已合并；#16/#19 已由PR #47合并，实现 [持久身份](specs/SPEC-010-durable-observation-identity.md) 与 [队列](specs/SPEC-011-durable-outbox.md)。#15按SPEC-014交付网关身份/证据模型，#17按SPEC-015交付KeyStore子集；HTTP配对仍待实现。其余Spec按各自状态处理；#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
 
 ## 建议阅读顺序
 
@@ -31,6 +31,8 @@
 
 - [签名／退避核心报告](testing/M2-signing-core-report.md)、[网关纯协议报告](testing/M2-gateway-protocol-report.md)；SPEC-012/013，完整上传/接收仍未实现。
 
+- [身份模型与KeyStore验证](testing/M2-identity-vault-report.md)：[SPEC-014](specs/SPEC-014-gateway-identity-model.md)、[SPEC-015](specs/SPEC-015-pairing-and-key-vault.md)
+
 ## 架构决策
 
 - [ADR-0001：设备只上报事件](decisions/ADR-0001-event-only-client.md)
@@ -40,3 +42,5 @@
 - [ADR-0005：通知观察身份与事件身份](decisions/ADR-0005-notification-identity.md)
 
 规格中的 MUST 表示待实现的验收要求，Proposed 表示设计建议，TBD 表示尚未决定。用户已确认双通道、自动充值、模拟器优先、公开仓库、规划先行，以及本仓库采用 MIT；允许参考旧 V免签系列业务流程，旧代码仅供研究。
+
+- [ADR-0006：稳定receiver与证据历史](decisions/ADR-0006-stable-receiver-and-evidence-history.md)

@@ -1,0 +1,17 @@
+{
+  "ProductionDebug": {
+    "tests": 22,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "FixtureDebug": {
+    "tests": 136,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "gateway_code_commit": "e0580d896c4b1516ff6147a3d9959790ff0e270e",
+  "migration_sha256": "71c3658dfef4c62e2d9f24c994b200e906a818419d6911bab0b5a1effa407004",
+  "gateway_workflow_run": 38840015908
+}

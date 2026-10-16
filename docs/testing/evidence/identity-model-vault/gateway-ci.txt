@@ -1,0 +1,19 @@
+2026-10-16T02:22:00.7596287Z ##[group]Run go test -race ./...
+2026-10-16T02:22:06.4676999Z ok  	github.com/example/epay-go/internal/config	(cached)
+2026-10-16T02:22:11.0980369Z ok  	github.com/example/epay-go/internal/observerstore	4.632s
+2026-10-16T02:22:11.0981037Z ok  	github.com/example/epay-go/internal/payment	(cached)
+2026-10-16T02:22:11.7080833Z ok  	github.com/example/epay-go/internal/router	3.655s
+2026-10-16T02:22:18.0734963Z ok  	github.com/example/epay-go/internal/service	9.712s
+2026-10-16T02:22:18.0736342Z ok  	github.com/example/epay-go/pkg/observer	1.046s
+2026-10-16T02:22:18.0737702Z ok  	github.com/example/epay-go/pkg/safehttp	(cached)
+2026-10-16T02:22:18.0738282Z ok  	github.com/example/epay-go/pkg/sign	(cached)
+2026-10-16T02:22:18.1053983Z ##[group]Run go test ./pkg/observer -run '^$' -fuzz=FuzzParseEvent -fuzztime=3s -parallel=2
+2026-10-16T02:22:39.0894833Z fuzz: elapsed: 0s, gathering baseline coverage: 0/3 completed
+2026-10-16T02:22:39.1006147Z fuzz: elapsed: 0s, gathering baseline coverage: 3/3 completed, now fuzzing with 2 workers
+2026-10-16T02:22:42.0894955Z fuzz: elapsed: 3s, execs: 38839 (12946/sec), new interesting: 78 (total: 81)
+2026-10-16T02:22:43.0917951Z fuzz: elapsed: 4s, execs: 38839 (0/sec), new interesting: 78 (total: 81)
+2026-10-16T02:22:43.0928703Z ok  	github.com/example/epay-go/pkg/observer	4.007s
+2026-10-16T02:22:43.1544678Z ##[group]Run go vet ./...
+2026-10-16T02:22:44.3520367Z ##[group]Run go build -o /tmp/epay-server ./cmd/server
+2026-10-16T02:22:45.8780257Z ##[group]Run gofmt -d pkg/observer internal/observerstore internal/database/migrate.go
+2026-10-16T02:22:50.1328118Z No vulnerabilities found.

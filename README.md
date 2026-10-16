@@ -2,7 +2,7 @@
 
 面向个人收款场景的 Android 微信／支付宝通知观察器，计划对接 [epay-go](https://github.com/HuangYincan/epay-go)，再通过易支付协议为 New API 自动充值。
 
-**当前状态：双通道合成通知采集／解析、持久身份和事件队列已实现（#16/#19，已合并PR #47）。** Room schema v2 保存稳定身份、不可变字节与可恢复租约；运行时尚无配对，候选保持未绑定，没有网络上传或自动充值。正式构建来源／解析／出站规则均拒绝未验证来源，真实微信／支付宝尚未验证。
+**当前状态：双通道合成通知采集／解析、持久身份和事件队列已实现（#16/#19，已合并PR #47）。** Room schema v2 保存稳定身份、不可变字节与可恢复租约；运行时尚无配对，候选保持未绑定，没有网络上传或自动充值。另已实现独立Android KeyStore与网关身份／不可变证据模型（#15/#17子集）；HTTP配对、授权接收事务仍未实现。正式构建来源／解析／出站规则均拒绝未验证来源，真实微信／支付宝尚未验证。
 
 ## 已确认的范围
 
@@ -38,6 +38,7 @@ flowchart LR
 | 尚未决定的问题 | [待决问题](docs/OPEN-QUESTIONS.md) |
 | M0 具体结论、证据与阻塞 | [M0 评审报告](docs/research/M0-review.md) |
 | 构建、APK 检查和模拟器操作 | [开发指南](docs/development/build.md) |
+| #15 身份模型与 #17 KeyStore子集 | [验证报告](docs/testing/M2-identity-vault-report.md) |
 | #21 签名／退避核心与网关协议子集 | [Android报告](docs/testing/M2-signing-core-report.md)、[Go报告](docs/testing/M2-gateway-protocol-report.md) |
 | #16/#19 持久身份与队列验证 | [身份报告](docs/testing/M1-identity-report.md)、[队列报告](docs/testing/M2-outbox-report.md) |
 | #13/#14 合成解析验证 | [解析报告](docs/testing/M1-parsing-report.md) |

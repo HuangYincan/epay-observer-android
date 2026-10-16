@@ -43,7 +43,7 @@ Epic：[[Epic] 安卓模拟器中的微信／支付宝双通道采集](https://g
 
 ## M2 · 可靠认证上报
 
-设备绑定、持久队列、协议双方和故障一致性。#19已合并本地outbox；#21实际签名/退避、#20/#25的Go纯协议子集已实施。#17配对、完整HTTP上传、网关接收事务与跨端故障验收仍待完成。
+设备绑定、持久队列、协议双方和故障一致性。#19已合并本地outbox；#21实际签名/退避、#20/#25的Go纯协议子集已实施。#15身份/证据模型与#17 KeyStore子集已在epay-go PR #13和观察器PR #49交付，见M2-identity-vault-report；完整配对、HTTP上传/接收事务与跨端故障验收仍待完成。
 
 Epic：[[Epic] 设备认证与可靠事件上报](https://github.com/HuangYincan/epay-observer-android/issues/40)
 

@@ -76,6 +76,6 @@ Android verification workflow 使用 ubuntu-24.04、Temurin 25.0.3+9（setup-jav
 
 ## 合成解析验证
 
-SPEC-009定义两组独立规则，116条语料在docs/testing/parsing-v1。当前production单测22项、fixture136项（公共测试重复执行）；AVD helper要求21项主套件及2个独立跨进程阶段，涵盖采集、解析、Room持久身份/队列和实际Android JCA签名。详细证据见M1-parsing-report、M2-outbox-report与M2-signing-core-report。
+SPEC-009定义两组独立规则，116条语料在docs/testing/parsing-v1。当前production单测22项、fixture136项（公共测试重复执行）；AVD helper要求25项主套件及2个独立跨进程阶段，涵盖采集、解析、Room持久身份/队列和实际Android JCA签名、KeyStore导入/幂等/删除与跨进程密钥恢复。详细证据见M1-parsing-report、M2-outbox-report与M2-signing-core-report。
 
 追加夹具命令：parse-wx、parse-ali、parse-wx-update，以及 wx-/ali- 前缀的 conflict、currency、refund、chat、promotion、inbox、precision、subtext。两个独立CheckBox控制预览和后续新观察的解析，偏好保存在本应用私有空间。持久层保存采集时开关；旧身份不会在重新启用时追溯制造事件。运行时尚未配对，无网络发送；开关不能使正式构建信任夹具。

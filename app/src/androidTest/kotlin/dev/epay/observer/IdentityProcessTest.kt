@@ -17,14 +17,18 @@ class IdentityProcessTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val phase = InstrumentationRegistry.getArguments().getString("identityPhase")
         require(phase == "prepare" || phase == "verify")
+        val vault = dev.epay.observer.security.HmacKeyVault(context)
+        val vaultKeyId = "test-process-vault"
         val name = "test-identity-process.db"
         val reference = java.io.File(context.filesDir, "test-identity-process.json")
-        if (phase == "prepare") { context.deleteDatabase(name); reference.delete() }
+        if (phase == "prepare") { context.deleteDatabase(name); reference.delete(); vault.remove(vaultBinding(), vaultKeyId) }
         val db = ObserverDatabase.open(context, name)
         try {
             val store = IdentityStore(db)
             val queue = OutboxStore(db)
             if (phase == "prepare") {
+                vault.install(vaultBinding(), vaultKeyId, vaultMaterial())
+                assertEquals(vaultGolden().getString("signature_hex"), vaultSign(vault, vaultBinding(), vaultKeyId))
                 Provider.entries.forEach { queue.activate(syntheticBinding(it)) }
                 repeat(50) { i -> store.record(queueInput(i), Provider.entries.toSet(), syntheticBinding(if (i % 2 == 0) Provider.WXPAY else Provider.ALIPAY)) }
                 queue.claim(syntheticBinding(), 1000, 100)!! // Simulated in-flight death, real process exit below.
@@ -39,6 +43,7 @@ class IdentityProcessTest {
             } else {
                 val expected = JSONObject(reference.readText())
                 assertNotEquals(expected.getInt("pid"), Process.myPid())
+                assertEquals(vaultGolden().getString("signature_hex"), vaultSign(vault, vaultBinding(), vaultKeyId))
                 assertEquals(expected.getString("epoch"), store.epoch())
                 val row = store.record(identityInput("process-event", restored = true).copy(wallTime = 9999), Provider.entries.toSet())
                 assertEquals(expected.getString("eventId"), row.eventId)
@@ -63,7 +68,7 @@ class IdentityProcessTest {
                 assertEquals(2, lease.attempt)
                 assertTrue(store.events().all { it.observedAt == 1000L })
             }
-        } finally { db.close() }
+        } finally { db.close(); if (phase == "verify") vault.remove(vaultBinding(), vaultKeyId) }
         if (phase == "verify") { context.deleteDatabase(name); reference.delete() }
     }
 }

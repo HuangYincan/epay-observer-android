@@ -8,7 +8,7 @@
 | event_id | 同一设备持久化的逻辑事件标识；网络重试不得重建 |
 | request_id | 一次传输尝试的唯一标识；不同重试使用不同 request_id |
 | provider_transaction_id | 支付平台交易流水；只有真实取得时才存在，不能用 event_id 冒充 |
-| receiver_id | 网关定义的收款账户绑定；不等于手机型号或设备 ID |
+| receiver_id | 网关登记的稳定收款账户；不等于商户、设备或一次授权绑定。规范词汇见 [CONTEXT.md](../CONTEXT.md) |
 | device_id | 网关登记的观察器实例；重装需重新绑定，不能接管旧身份 |
 | binding_version | receiver 授权绑定代次；换账号/设备不能沿用旧事件授权 |
 | identity_confidence | 候选观察身份的 distinct/uncertain 分类，不是平台交易真实性 |
