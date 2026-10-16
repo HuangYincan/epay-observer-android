@@ -2,7 +2,7 @@
 
 面向个人收款场景的 Android 微信／支付宝通知观察器，计划对接 [epay-go](https://github.com/HuangYincan/epay-go)，再通过易支付协议为 New API 自动充值。
 
-**当前状态：#11/#12 已合并；#13/#14 提供两组有版本的合成收款候选解析、明确拒绝原因和独立通道开关。** 当前只有内存观察与解析预览，没有持久事件、队列、上传或自动充值。正式构建来源／解析规则注册表均为空，真实微信／支付宝尚未验证。
+**当前状态：双通道合成通知采集／解析、持久身份和事件队列已实现（#16/#19，PR #47）。** Room schema v2 保存稳定身份、不可变字节与可恢复租约；运行时尚无配对，候选保持未绑定，没有网络上传或自动充值。正式构建来源／解析／出站规则均拒绝未验证来源，真实微信／支付宝尚未验证。
 
 ## 已确认的范围
 
@@ -10,7 +10,7 @@
 - 首个可用版本的目标是自动充值，不把人工确认当作最终主流程。
 - 先用安卓模拟器开发和验证完整链路。
 - 本仓库承载 APK 与协议规格；网关变更在 epay-go 中交付，通过跨仓库 Issue／PR 关联。
-- M0、工程与采集基线已合并；用户授权继续 #13/#14，范围见 SPEC-009。持久身份、队列和网关功能继续按后续 Issue 推进。
+- 用户已授权按 Spec/Issue 持续开发；#13/#14 合成解析已合并，#16/#19 持久身份与队列见 SPEC-010/011。M0 的 #8/#10 真实匹配／New API 金额契约仍有阻塞。
 
 ```mermaid
 flowchart LR
@@ -38,6 +38,7 @@ flowchart LR
 | 尚未决定的问题 | [待决问题](docs/OPEN-QUESTIONS.md) |
 | M0 具体结论、证据与阻塞 | [M0 评审报告](docs/research/M0-review.md) |
 | 构建、APK 检查和模拟器操作 | [开发指南](docs/development/build.md) |
+| #16/#19 持久身份与队列验证 | [身份报告](docs/testing/M1-identity-report.md)、[队列报告](docs/testing/M2-outbox-report.md) |
 | #13/#14 合成解析验证 | [解析报告](docs/testing/M1-parsing-report.md) |
 | #11/#12 通知采集验证 | [采集报告](docs/testing/M1-capture-report.md) |
 | 首批 #9/#5 验证结果 | [工程基线报告](docs/testing/M1-foundation-report.md) |

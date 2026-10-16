@@ -1,0 +1,234 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "2d4ae47aa143ca812482632db967d66a",
+    "entities": [
+      {
+        "tableName": "metadata",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`name`))",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "name"
+          ]
+        }
+      },
+      {
+        "tableName": "observation_identities",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`identityKey` TEXT NOT NULL, `sourcePackage` TEXT NOT NULL, `userSerial` INTEGER NOT NULL, `sourceVersion` INTEGER NOT NULL, `sourceFingerprint` TEXT NOT NULL, `fieldsFingerprint` TEXT NOT NULL, `postTime` INTEGER NOT NULL, `firstWallTime` INTEGER NOT NULL, `firstElapsedTime` INTEGER NOT NULL, `lastWallTime` INTEGER NOT NULL, `revision` INTEGER NOT NULL, `deliveries` INTEGER NOT NULL, `everRestored` INTEGER NOT NULL, `removed` INTEGER NOT NULL, `conflict` INTEGER NOT NULL, `eventId` TEXT, PRIMARY KEY(`identityKey`))",
+        "fields": [
+          {
+            "fieldPath": "identityKey",
+            "columnName": "identityKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourcePackage",
+            "columnName": "sourcePackage",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userSerial",
+            "columnName": "userSerial",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceVersion",
+            "columnName": "sourceVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceFingerprint",
+            "columnName": "sourceFingerprint",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fieldsFingerprint",
+            "columnName": "fieldsFingerprint",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "postTime",
+            "columnName": "postTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "firstWallTime",
+            "columnName": "firstWallTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "firstElapsedTime",
+            "columnName": "firstElapsedTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastWallTime",
+            "columnName": "lastWallTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "revision",
+            "columnName": "revision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deliveries",
+            "columnName": "deliveries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "everRestored",
+            "columnName": "everRestored",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "removed",
+            "columnName": "removed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "conflict",
+            "columnName": "conflict",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eventId",
+            "columnName": "eventId",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "identityKey"
+          ]
+        }
+      },
+      {
+        "tableName": "local_events",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`eventId` TEXT NOT NULL, `identityKey` TEXT NOT NULL, `provider` TEXT NOT NULL, `amountMinor` INTEGER NOT NULL, `currency` TEXT NOT NULL, `parserVersion` TEXT NOT NULL, `observedAt` INTEGER NOT NULL, `payload` BLOB NOT NULL, `state` TEXT NOT NULL, PRIMARY KEY(`eventId`), FOREIGN KEY(`identityKey`) REFERENCES `observation_identities`(`identityKey`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "eventId",
+            "columnName": "eventId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "identityKey",
+            "columnName": "identityKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "provider",
+            "columnName": "provider",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "amountMinor",
+            "columnName": "amountMinor",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "currency",
+            "columnName": "currency",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "parserVersion",
+            "columnName": "parserVersion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "observedAt",
+            "columnName": "observedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "payload",
+            "columnName": "payload",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "eventId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_local_events_identityKey",
+            "unique": true,
+            "columnNames": [
+              "identityKey"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_local_events_identityKey` ON `${TABLE_NAME}` (`identityKey`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "observation_identities",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "identityKey"
+            ],
+            "referencedColumns": [
+              "identityKey"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2d4ae47aa143ca812482632db967d66a')"
+    ]
+  }
+}

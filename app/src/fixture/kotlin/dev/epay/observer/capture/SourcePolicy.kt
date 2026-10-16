@@ -9,8 +9,10 @@ import java.security.MessageDigest
 /** Only compiled into the isolated client. Both APKs must be signed by the same local build key. */
 object SourcePolicy {
     private const val PACKAGE = "dev.epay.observer.fixture"
+    fun isCandidate(sbn: StatusBarNotification): Boolean =
+        sbn.packageName == PACKAGE && sbn.opPkg == PACKAGE && sbn.user == Process.myUserHandle()
     fun resolve(context: Context, sbn: StatusBarNotification): SourceIdentity? {
-        if (sbn.packageName != PACKAGE || sbn.opPkg != PACKAGE || sbn.user != Process.myUserHandle()) return null
+        if (!isCandidate(sbn)) return null
         val pm = context.packageManager
         @Suppress("DEPRECATION")
         val sender = try { pm.getPackageInfo(PACKAGE, PackageManager.GET_SIGNING_CERTIFICATES) }

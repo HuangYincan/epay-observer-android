@@ -10,7 +10,7 @@
     <string name="events_label">事件记录</string>
     <string name="events_empty">暂无事件</string>
     <string name="empty_title">还没有收款事件</string>
-    <string name="empty_description">当前仅观察已验证测试来源的通知。\n解析预览不创建收款事件，尚无持久保存或上报能力。</string>
+    <string name="empty_description">当前仅观察已验证测试来源的通知。\n合格新观察可保存本地候选，尚未配对或上报。</string>
     <string name="privacy_note">通知是观察证据，充值结果以网关记录为准。</string>
     <string name="permission_label">通知读取权限</string>
     <string name="permission_granted">已授权</string>
@@ -20,7 +20,7 @@
     <string name="open_permission">打开通知读取授权设置</string>
     <string name="reconnect">重新连接监听服务</string>
     <string name="observation_count">本次进程：%1$d 条通知观察 · %2$d 次来源拒绝</string>
-    <string name="capture_memory_only">观察记录仅在内存，进程退出即丢失；不是收款事件。</string>
+    <string name="capture_memory_only">原文预览仅在内存；身份与本地候选的保存状态单独显示。</string>
     <string name="capture_full">观察容量已满，已暂停接收新通知；后续需持久队列支持。</string>
     <string name="capture_error">无法读取活动通知，请检查授权并重新连接。</string>
     <string name="parser_title">文案解析预览</string>
@@ -30,4 +30,9 @@
     <string name="parser_counts">候选 %1$d · 已忽略 %2$d · 未支持 %3$d</string>
     <string name="parser_reason_count">%1$s %2$d</string>
     <string name="parser_note">候选不是到账证明。开关仅重算本次进程的观察，不会充值。</string>
+    <string name="persistence_counts">已持久化：%1$d 个身份 · %2$d 个本地候选 · %3$d 个冲突</string>
+    <string name="persistence_database_error">存储失败：部分观察可能未保存，请检查本地存储。</string>
+    <string name="persistence_capacity">身份存储已满，新观察暂不能保存；已有记录保留。</string>
+    <string name="persistence_gap">检测到保存缺口，可能漏采；请核对来源记录。</string>
+    <string name="local_events">%1$d 个本地候选，未上报</string>
 </resources>

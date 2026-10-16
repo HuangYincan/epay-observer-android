@@ -31,8 +31,10 @@ class ObserverListener : NotificationListenerService() {
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
-        if (!CaptureState.connected) return
+        if (!CaptureState.connected || !SourcePolicy.isCandidate(sbn)) return
         // Only updates existing identities. Never reads extras or creates records.
+        dev.epay.observer.storage.DurableCapture.removed(
+            getSystemService(android.os.UserManager::class.java).getSerialNumberForUser(sbn.user), sbn.packageName, sbn.key)
         CaptureState.journal.removed(getSystemService(android.os.UserManager::class.java).getSerialNumberForUser(sbn.user), sbn.packageName, sbn.key)
         CaptureState.changed()
     }
@@ -42,11 +44,13 @@ class ObserverListener : NotificationListenerService() {
             catch (_: RuntimeException) { null }
         if (source == null) { CaptureState.reject(); return }
         val fields = extractFields(sbn.notification)
-        CaptureState.journal.record(ObservationInput(
+        val input = ObservationInput(
             key = sbn.key, source = source, postTime = sbn.postTime,
             wallTime = System.currentTimeMillis(), elapsedTime = SystemClock.elapsedRealtime(),
             restored = restored, fields = fields,
-        ))
+        )
+        dev.epay.observer.storage.DurableCapture.accept(input)
+        CaptureState.journal.record(input)
         CaptureState.changed()
     }
 }

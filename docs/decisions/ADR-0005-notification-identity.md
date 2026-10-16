@@ -1,6 +1,6 @@
 # ADR-0005 通知观察身份与收款候选身份
 
-状态：M0 review candidate，待用户评审；#4、#16，SPEC-001/002。真实支付 App 规则仍未验证。
+状态：隔离实现基线；2026-10-16 持久化细节见 SPEC-010；#4、#16，SPEC-001/002。真实支付 App 规则仍未验证。
 
 ## 依据与边界
 
@@ -18,7 +18,7 @@ Android [StatusBarNotification](https://developer.android.com/reference/android/
 6. 通知消失不表示付款撤销。删除后重发、重启后缺少历史映射、重装或清库，都不能重置服务端的历史付款保护。已 ACK 的本地身份墓碑保留 90 天（候选默认）；清理后恢复的旧通知只能 uncertain，不能因墓碑过期再次自动确认。
 7. 两条无法区分的真实付款不可从不足的字段恢复；保留“可能多笔／身份不明”状态供账单核对。不能宣称一种 dedup 算法可以同时保证零漏记和零重复。
 
-## 合成场景与预期（未执行 Android 测试）
+## 合成场景与预期（具体执行层次见各批测试报告）
 
 | ID | 输入 | 候选与自动确认预期 |
 | --- | --- | --- |
@@ -35,3 +35,5 @@ Android [StatusBarNotification](https://developer.android.com/reference/android/
 | ID-11 | 两笔真实付款在所有可见字段上相同 | 信息不足，不能承诺区分；账单核对 |
 
 合成夹具使用 `dev.epay.observer.fixture` 自己的包名及证书，提供 wxpay/alipay 两组文案和上述生命周期；不提供订单 ID 或匹配提示。fixture 规则的 distinct 只能在隔离测试域成立，不能变成真实来源白名单。
+
+#16 先持久保存本地候选的稳定 ID 与私有 payload；缺少配对上下文时不伪造完整 SPEC-002 body。#19 的 wire body/outbox 必须在绑定有效时随新观察原子创建；不能把旧 UNBOUND 事件补绑到新 receiver。

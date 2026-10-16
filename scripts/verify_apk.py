@@ -44,7 +44,12 @@ services = application.findall('service')
 if sender:
     assert not services
 else:
-    assert len(services) == 1
+    assert len(services) == 2
+    by_name = {s.get(android + 'name'): s for s in services}
+    assert set(by_name) == {'dev.epay.observer.capture.ObserverListener', 'androidx.room.MultiInstanceInvalidationService'}
+    room_service = by_name['androidx.room.MultiInstanceInvalidationService']
+    assert room_service.get(android + 'exported') == 'false'
+    services = [by_name['dev.epay.observer.capture.ObserverListener']]
     assert services[0].get(android + 'name') == 'dev.epay.observer.capture.ObserverListener'
     assert services[0].get(android + 'exported') == 'true'
     assert services[0].get(android + 'permission') == 'android.permission.BIND_NOTIFICATION_LISTENER_SERVICE'
