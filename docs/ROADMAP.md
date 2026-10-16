@@ -1,6 +1,6 @@
 # 路线图与阶段门槛
 
-状态：M1合成采集与持久队列已交付；M2实际配对及KeyStore/Room恢复已完成本地和模拟器验证，见[配对报告](testing/M2-pairing-report.md)。事件HTTP接收/上报与ACK丢失恢复已验证，见[上传报告](testing/M2-receive-upload-report.md)；后台持久调度及五类隔离模拟器恢复已按[后台报告](testing/M2-background-report.md)验证，状态/诊断与独立授权检查按[状态报告](testing/M2-status-health-report.md)验证。M3永久金额claim、首次候选快照和原子入账已在隔离PostgreSQL验证，见[事务报告](testing/M3-matching-credit-report.md)；尚无New API支付闭环；用户已授权隔离环境及New API测试补丁，#8真实收款准入仍未满足，#10金额契约仍需修复验证。完整Goal验收见[账本](development/PROTOTYPE-GOAL.md)。
+状态：M1合成采集、M2配对/可靠上报、M3双渠道模拟器合成通知到New API自动充值均已有实现及运行证据，见[最终报告](testing/M3-prototype-report.md)。M3包含干净复现、故障恢复、管理暂停和Release隔离；固定New API金额补丁仅在隔离checkout。#8真实收款归属与M4真实App/真机/发布任务仍未满足，生产自动匹配关闭。完整A–E见[验收账本](development/PROTOTYPE-GOAL.md)。
 
 | 里程碑 | 目标 | 退出条件 |
 | --- | --- | --- |

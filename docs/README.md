@@ -1,6 +1,6 @@
 # 文档索引
 
-更新日期：2026-10-16。#9/#5、#11/#12、#13/#14 已合并；#16/#19 已由PR #47合并，实现 [持久身份](specs/SPEC-010-durable-observation-identity.md) 与 [队列](specs/SPEC-011-durable-outbox.md)。#15按SPEC-014交付网关身份/证据模型，#17按SPEC-015/016交付KeyStore、实际HTTPS配对与本地恢复（PR #50 / epay-go #14）；按SPEC-017已实现实际事件上报/事务接收与ACK，后台持久调度按SPEC-018完成隔离模拟器验证。其余Spec按各自状态处理；#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
+更新日期：2026-10-16。M1采集、M2可靠认证上报和M3双渠道模拟器合成充值已验证；[最终原型报告](testing/M3-prototype-report.md)、[演示手册](operations/prototype-demo.md)和[验收账本](development/PROTOTYPE-GOAL.md)为当前状态。各阶段历史报告只表示当时范围；New API本地金额补丁已验证，#8真实收款准入仍阻塞。
 
 ## 建议阅读顺序
 
@@ -29,7 +29,7 @@
 
 - [持久身份报告](testing/M1-identity-report.md) 与 [队列恢复／迁移报告](testing/M2-outbox-report.md)
 
-- [签名／退避核心报告](testing/M2-signing-core-report.md)、[网关纯协议报告](testing/M2-gateway-protocol-report.md)；SPEC-012/013，完整上传/接收仍未实现。
+- [签名／退避核心报告](testing/M2-signing-core-report.md)、[网关纯协议报告](testing/M2-gateway-protocol-report.md)；SPEC-012/013历史子批次，后续实际上传见SPEC-017。
 
 - [身份模型与KeyStore验证](testing/M2-identity-vault-report.md)：[SPEC-014](specs/SPEC-014-gateway-identity-model.md)、[SPEC-015](specs/SPEC-015-pairing-and-key-vault.md)
 
@@ -57,8 +57,10 @@
 
 - [SPEC-021合成永久金额占用](specs/SPEC-021-synthetic-order-claims.md)、[M3占用子批次报告](testing/M3-amount-claims-report.md)：真实PostgreSQL并发及默认构建拒绝，尚无匹配/记账。
 
-- [SPEC-022合成匹配/原子入账](specs/SPEC-022-synthetic-matching-credit.md)、[M3事务验证报告](testing/M3-matching-credit-report.md)：首次候选快照、真实子进程恢复及TLS重复ACK；New API未验收。
+- [SPEC-022合成匹配/原子入账](specs/SPEC-022-synthetic-matching-credit.md)、[M3事务验证报告](testing/M3-matching-credit-report.md)：首次候选快照、真实子进程恢复及TLS重复ACK；后续New API闭环见最终原型报告。
 
 - [SPEC-023 New API金额校验](specs/SPEC-023-new-api-callback-amount.md)
 - [SPEC-024 受限本地回调](specs/SPEC-024-local-synthetic-callback.md)
 - [M3回调基础验证](testing/M3-callback-foundation-report.md)
+
+- [SPEC-025合成资格](specs/SPEC-025-synthetic-evidence-identity.md)与[SPEC-026管理追踪/暂停](specs/SPEC-026-admin-trace-pause.md)。

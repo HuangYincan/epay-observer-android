@@ -2,7 +2,7 @@
 
 面向个人收款场景的 Android 微信／支付宝通知观察器，计划对接 [epay-go](https://github.com/HuangYincan/epay-go)，再通过易支付协议为 New API 自动充值。
 
-**当前状态：双渠道合成通知已可经真实 HTTPS 签名上传，并获得网关持久接收 ACK。** 已实现配对、KeyStore、Room队列、接收事务、防重放及错误处理，见[上传报告](docs/testing/M2-receive-upload-report.md)。后台持久调度与模拟器恢复已按[后台报告](docs/testing/M2-background-report.md)验证；[状态、脱敏诊断与独立授权检查](docs/testing/M2-status-health-report.md)已验证；[合成匹配与事务入账](docs/testing/M3-matching-credit-report.md)已在隔离PostgreSQL验证；商户回调与New API充值尚未交付；ACK仅表示证据已接收。正式构建继续拒绝未验证通知来源，真实微信／支付宝尚未验证。
+**当前状态：模拟器合成通知双渠道自动充值原型已通过实际闭环验收。** 独立通知App经Android持久采集、HTTPS配对/签名、epay-go匹配/账本及持久回调，使隔离New API测试账户恰好增额一次；回调失败、进程崩溃、响应丢失、重复/并发及管理暂停均有证据。见[完整报告](docs/testing/M3-prototype-report.md)和[构建演示步骤](docs/operations/prototype-demo.md)。ACK只表示持久接收；生产自动匹配关闭，真实微信/支付宝及真机兼容性未验证。
 
 ## 已确认的范围
 
@@ -10,7 +10,7 @@
 - 首个可用版本的目标是自动充值，不把人工确认当作最终主流程。
 - 先用安卓模拟器开发和验证完整链路。
 - 本仓库承载 APK 与协议规格；网关变更在 epay-go 中交付，通过跨仓库 Issue／PR 关联。
-- 用户已授权按 Spec/Issue 持续开发；#13/#14 合成解析已合并，#16/#19 持久身份与队列见 SPEC-010/011。M0 的 #8/#10 真实匹配／New API 金额契约仍有阻塞。
+- 用户已授权按 Spec/Issue 持续开发；#13/#14 合成解析已合并，#16/#19 持久身份与队列见 SPEC-010/011。New API金额契约已在固定本地补丁修复；#8真实收款准入仍阻塞。
 
 ```mermaid
 flowchart LR

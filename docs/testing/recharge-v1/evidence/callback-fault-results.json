@@ -1,0 +1,58 @@
+[
+  {
+    "case": "callback_503_gateway_SIGKILL_restart",
+    "provider": "wxpay",
+    "callback_attempts": 2,
+    "quota_delta": 10000000,
+    "passed": true
+  },
+  {
+    "case": "lost_callback_response_both_processes_SIGKILL_restart",
+    "provider": "alipay",
+    "callback_attempts": 2,
+    "quota_delta": 10000000,
+    "passed": true
+  },
+  {
+    "case": "current_merchant_key_rotation",
+    "callback_attempts": 2,
+    "quota_delta": 0,
+    "passed": true
+  },
+  {
+    "case": "wrong signature",
+    "quota_delta": 0,
+    "passed": true
+  },
+  {
+    "case": "signed wrong amount",
+    "quota_delta": 0,
+    "passed": true
+  },
+  {
+    "case": "unsigned amount tamper",
+    "quota_delta": 0,
+    "passed": true
+  },
+  {
+    "case": "missing amount",
+    "quota_delta": 0,
+    "passed": true
+  },
+  {
+    "case": "late_duplicate_TLS_callback",
+    "quota_delta": 0,
+    "passed": true
+  },
+  {
+    "case": "new_key_identical_content",
+    "quota_delta": 0,
+    "passed": true
+  },
+  {
+    "case": "twenty_concurrent_TLS_callbacks",
+    "requests": 20,
+    "quota_delta": 0,
+    "passed": true
+  }
+]

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from pathlib import Path
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 from lab_state import load_runtime, require_container
 import urllib.request, urllib.parse, json, http.cookiejar, os, subprocess, time, hashlib
 os.umask(63)
@@ -141,6 +142,10 @@ try:
         evidence.append({'case': name, 'quota_delta': 0, 'passed': True})
     assert callback('20', rotated) == 'success' and callback('20.00', rotated) == 'success' and (quota() == before)
     evidence.append({'case': 'late_duplicate_TLS_callback', 'quota_delta': 0, 'passed': True})
+    with ThreadPoolExecutor(max_workers=20) as pool:
+        responses=list(pool.map(lambda _: callback('20',rotated),range(20)))
+    assert responses==['success']*20 and quota()==before
+    evidence.append({'case':'twenty_concurrent_TLS_callbacks','requests':20,'quota_delta':0,'passed':True})
     save()
     post('fresh-wxpay')
     wait('duplicate evidence classified', lambda: subprocess.check_output(['docker', 'exec', meta['prefix'] + '-postgres', 'psql', '-U', 'observer_lab', '-d', meta['gateway_database'], '-Atc', "SELECT count(*) FROM observer_match_decisions WHERE outcome='duplicate_suspected'"]).decode().strip() == '1')
