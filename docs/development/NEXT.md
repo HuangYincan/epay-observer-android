@@ -1,12 +1,12 @@
 # 下一批实现边界
 
-2026-10-16。用户已授权持续开发，本清单不要求重复启动许可。当前完成M1合成采集、Room持久队列及双方协议纯逻辑，仍没有HTTP接收/上报闭环。
+2026-10-16。长期Goal授权与完整A–E验收见[PROTOTYPE-GOAL](PROTOTYPE-GOAL.md)。目标仍是双渠道合成通知到New API真实测试余额更新；配对成功不等于目标完成。
 
-1. **#15已完成模型范围。** SPEC-014与epay-go PR #13提供身份/凭据密文元数据、channel别名、不可变事件/冲突和版本化迁移；8项真实PostgreSQL测试通过。RecordEvidence仍不是接收API，不包含授权/撤销/重放，后续必须组合完整事务。
-2. **#17继续完成配对生命周期。** KeyStore子集已通过25+2 AVD验证；SPEC-015收敛grant/enrollment/resume-secret响应丢失恢复候选。下一步冻结严格HTTP/错误向量与轮换签名域，实现服务端独立KEK加密、一次性grant事务及客户端受保护pending日志，再接入用户确认范围与Room激活。通知正文不能授权绑定；旧UNBOUND不补绑，缺密钥/绑定不发送。不可变凭据密文当前不支持原位KEK重封装；KEK运维轮换须专门设计。
-3. **#20/#21/#25：接收事务与实际网络。** 服务端事务同时登记request/event/pending，持久ACK后客户端结束该事件重试；客户端严格ACK解析、TLS/禁止重定向、原字节签名及lease token应用结果。必须补重复并发、ACK丢失、撤销和跨环境测试，不能只调用纯函数写全链路通过。
-4. **#23/#24：后台调度与状态。** Room为真相源，漏调度可恢复；权限/服务/网络/ACK/充值分开显示。没有WorkManager之前不承诺后台可靠送达。
+1. **#17实际配对已实现并验证，继续保留接收联动追踪。** SPEC-016定义HTTPS inspect/redeem/activate、短期grant恢复与管理员撤销/轮换。Android pending以KeyStore AES-GCM保护，导入HMAC后激活Room；capture epoch阻止轮换暂停期间旧快照补绑。28项AVD主套件、8个进程阶段、双渠道实际HTTPS及TLS负例通过；报告M2-pairing-report。服务端独立KEK，不混用商户密钥；KEK运维重封装仍未实现。
+2. **下一批#20/#21/#25：接收事务与实际上传。** 在同一事务检查环境/receiver/device/binding/credential有效性、登记request/event及pending，提交后才ACK。撤销/轮换并发必须与接收锁顺序一致；严格ACK、重放/冲突、响应丢失、跨环境和断网恢复必须运行。不得直接把RecordEvidence挂成接收接口。
+3. **#23/#24：后台调度与状态。** Room为真相源，系统调度可恢复；权限/服务/配对/网络ACK/充值分别显示。当前没有WorkManager，不宣称后台可靠送达。
+4. **M3：#18/#22/#26/#27/#29与New API补丁。** 按隔离合成策略实现永久金额claim、明确10分钟窗口、事务消费/入账/持久回调；普通测试订单不得通过通知携带ID。New API独立checkout已获授权，金额核对缺口需修复和幂等验证，不能因历史“未授权第三仓库”停止。
 
-上述身份/授权/接收基础与真实收款自动匹配是不同验收阶段。#8/#10继续限制生产匹配/M3：静态码证据不足、金额复用风险、New API金额检查缺口没有通过本地协议代码解决。不得为了继续开发删掉准入条件。
+本机复用已有SDK/JBR/AVD与Docker，不安装全局工具。当前任务容器为epay-observer-go-tools、epay-observer-postgres及epay-observer-prototype网络；临时配对TLS桥测试结束即退出。Go使用固定1.26.9容器，网关开发隔离checkout为/tmp/epay-observer-go-pairing；原相邻仓库main未被覆盖。测试CA仅显式fixtureDebug/localhost，默认和Release仍system-only；后续safehttp回调不能直接放行内网，应设计独立受限测试链路。
 
-不安装额外宿主开发工具；Go使用仓库既有CI，本机没有Go。现有AVD临时4CPU/4GiB已验证，config.ini未改。部署应用、测试公网回调资源、第三个New API仓库修改、真实账号/真机付款、APK发布仍需对应资源或明确授权。没有这些资源仍可完成有明确契约的离线/CI基础任务，但不能声称端到端或真实兼容性完成。
+生产/公网部署、真实账号资金、真机付款、正式APK发布及第三方上游推送不在授权内。真实来源自动匹配继续关闭；保留无法取得的外部证据，不把合成通过写成真实兼容性。

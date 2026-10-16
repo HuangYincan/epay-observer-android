@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""Run the real HTTPS pairing test with private bootstrap, without shell secrets.
+
+Requires an explicitly generated loopback-CA fixtureDebug APK and a running
+observeravd Go test bridge. Never accepts a physical device serial.
+"""
+import argparse
+import json
+import os
+import shlex
+from pathlib import Path
+import subprocess
+
+parser = argparse.ArgumentParser()
+parser.add_argument('serial')
+parser.add_argument('directory', type=Path)
+args = parser.parse_args()
+if not args.serial.startswith('emulator-') or not args.serial[9:].isdigit():
+    parser.error('emulator-NNNN required')
+sdk = Path(os.environ['ANDROID_HOME'])
+adb = [str(sdk / 'platform-tools/adb'), '-s', args.serial]
+client = 'dev.epay.observer.fixtureclient.debug'
+for apk in ['app/build/outputs/apk/fixture/debug/app-fixture-debug.apk',
+            'app/build/outputs/apk/androidTest/fixture/debug/app-fixture-debug-androidTest.apk']:
+    subprocess.run(adb + ['install', '-r', apk], check=True, timeout=180)
+subprocess.run(adb + ['reverse', 'tcp:18443', 'tcp:18443'], check=True, timeout=15)
+bootstrap = (args.directory / 'avd-grants.json').read_bytes()
+assert len(bootstrap) < 4096
+try:
+    # Input bytes go through stdin; no grant is placed in argv, shared storage,
+    # screenshots, instrumentation extras or logs. The test immediately deletes it.
+    subprocess.run(adb + ['shell', '-T', 'run-as', client, 'sh', '-c',
+                         shlex.quote('umask 077; mkdir -p no_backup; cat > no_backup/pairing-network-bootstrap.json')],
+                   input=bootstrap, check=True, timeout=15)
+    report = args.directory / 'android-instrumentation.txt'
+    with report.open('w') as output:
+        subprocess.run(adb + ['shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
+                             'dev.epay.observer.PairingNetworkTest',
+                             client + '.test/androidx.test.runner.AndroidJUnitRunner'],
+                       stdout=output, stderr=subprocess.STDOUT, check=True, timeout=180)
+    text = report.read_text()
+    assert 'OK (1 test)' in text and 'FAILURES!!!' not in text and 'INSTRUMENTATION_FAILED' not in text, report
+    result = subprocess.check_output(adb + ['exec-out', 'run-as', client, 'cat', 'files/avd-pairing-result.json'], timeout=15)
+    parsed = json.loads(result)
+    assert parsed['active_credentials'] == 2 and parsed['fresh_queued'] == 2 and parsed['historical_unbound'] == 2
+    assert all(parsed[key] is True for key in ['unknown_ca_rejected', 'redirect_rejected', 'unexpected_origin_rejected'])
+    (args.directory / 'android-result.json').write_bytes(result)
+    (args.directory / 'device-paired').write_text('two synthetic channels activated\n')
+    print('Actual Android HTTPS pairing: wxpay/alipay active; historical UNBOUND retained; two fresh events queued.')
+finally:
+    subprocess.run(adb + ['reverse', '--remove', 'tcp:18443'], check=False, timeout=15)
+    subprocess.run(adb + ['shell', 'run-as', client, 'rm', '-f', 'no_backup/pairing-network-bootstrap.json'], check=False, timeout=15)

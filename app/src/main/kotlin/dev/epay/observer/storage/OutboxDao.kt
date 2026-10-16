@@ -34,4 +34,8 @@ interface OutboxDao {
     fun holdOtherScopes(provider: String, scope: String)
     @Query("UPDATE outbox SET state = 'HELD', reason = 'BINDING_REVOKED', leaseToken = NULL, leaseUntil = NULL WHERE provider = :provider AND state IN ('READY','IN_FLIGHT','RETRY')")
     fun holdProvider(provider: String)
+    @Query("UPDATE outbox SET state = 'HELD', reason = 'PAIRING_IN_PROGRESS', leaseToken = NULL, leaseUntil = NULL WHERE provider = :provider AND state IN ('READY','IN_FLIGHT','RETRY')")
+    fun pausePairing(provider: String)
+    @Query("UPDATE outbox SET state = 'READY', reason = NULL WHERE scope = :scope AND state = 'HELD' AND reason = 'PAIRING_IN_PROGRESS'")
+    fun resumePairing(scope: String)
 }

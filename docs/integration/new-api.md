@@ -14,13 +14,13 @@
 | PayMethods | wxpay 与 alipay；检查固定版本支持的 JSON 配置 |
 | 商户回调 | 由 New API 下单时传入并由网关保存，客户端不能替换 |
 
-本轮不部署／配置实例。此版本还以支付设置确认状态和 PayMethods 非空控制 EPay webhook 是否启用；后续隔离实例按 UI 正常配置，不以测试绕过开关代替。只验余额充值 `/api/user/pay` → `/api/user/epay/notify`，订阅购买不在首轮范围。
+长期Goal已授权本任务专用本地隔离实例；尚未启动New API。此版本还以支付设置确认状态和 PayMethods 非空控制 EPay webhook 是否启用；后续隔离实例按 UI 正常配置，不以测试绕过开关代替。只验余额充值 `/api/user/pay` → `/api/user/epay/notify`，订阅购买不在首轮范围。
 
 金额对应：New API PurchaseArgs.Money 为两位小数元字符串；其 ServiceTradeNo 对应网关 out_trade_no，网关 trade_no 是另一标识。New API 的 quota 增额按原 topup.Amount 与 QuotaPerUnit 计算，不能将 money 元值直接当 quota。商户回调为 EPay MD5（非 Observer HMAC）；api_trade_no 可省略，New API 充值路径不要求它。
 
 ## 必须处理的契约缺口
 
-该 SHA 的 EpayNotify 验签后调用 RechargeEpay，后者有数据库行锁和事务幂等，但没有接收/比较回调 Money 与原单 Money。go-epay Verify 也不查询订单。详见 [静态审计](../research/M0-source-audit.md)。因此 NEW-02 不能写为已支持；保留 #10 和相关集成任务阻塞，建议选已修正并审查的固定版本，或用户确认后另开最小 New API 兼容修正。未经确认不改第三个仓库，不降低金额验收。
+该 SHA 的 EpayNotify 验签后调用 RechargeEpay，后者有数据库行锁和事务幂等，但没有接收/比较回调 Money 与原单 Money。go-epay Verify 也不查询订单。详见 [静态审计](../research/M0-source-audit.md)。因此 NEW-02 不能写为已支持；保留 #10 和相关集成任务阻塞，建议选已修正并审查的固定版本，或用户确认后另开最小 New API 兼容修正。用户长期Goal已授权独立New API测试checkout及必要兼容补丁，保留提交/版本记录但不推送第三方上游；金额验收不得降低。
 
 | ID | 未来验收 | M0 状态 |
 | --- | --- | --- |

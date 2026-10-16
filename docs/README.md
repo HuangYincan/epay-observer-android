@@ -1,6 +1,6 @@
 # 文档索引
 
-更新日期：2026-10-16。#9/#5、#11/#12、#13/#14 已合并；#16/#19 已由PR #47合并，实现 [持久身份](specs/SPEC-010-durable-observation-identity.md) 与 [队列](specs/SPEC-011-durable-outbox.md)。#15按SPEC-014交付网关身份/证据模型，#17按SPEC-015交付KeyStore子集；HTTP配对仍待实现。其余Spec按各自状态处理；#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
+更新日期：2026-10-16。#9/#5、#11/#12、#13/#14 已合并；#16/#19 已由PR #47合并，实现 [持久身份](specs/SPEC-010-durable-observation-identity.md) 与 [队列](specs/SPEC-011-durable-outbox.md)。#15按SPEC-014交付网关身份/证据模型，#17按SPEC-015/016交付KeyStore、实际HTTPS配对与本地恢复（PR #50 / epay-go #14）；完整事件上报仍待实现。其余Spec按各自状态处理；#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
 
 ## 建议阅读顺序
 
@@ -44,3 +44,7 @@
 规格中的 MUST 表示待实现的验收要求，Proposed 表示设计建议，TBD 表示尚未决定。用户已确认双通道、自动充值、模拟器优先、公开仓库、规划先行，以及本仓库采用 MIT；允许参考旧 V免签系列业务流程，旧代码仅供研究。
 
 - [ADR-0006：稳定receiver与证据历史](decisions/ADR-0006-stable-receiver-and-evidence-history.md)
+
+- [SPEC-016：实际配对HTTP与恢复](specs/SPEC-016-pairing-http.md)：#17/#25跨库实现，激活、撤销、轮换与本地受保护日志；验收逐项跟踪。
+
+- [实际配对与恢复报告](testing/M2-pairing-report.md)、[长期原型验收账本](development/PROTOTYPE-GOAL.md)。

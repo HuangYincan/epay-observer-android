@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """BUILD-03: inspect the packaged artifact, not only source manifests."""
 import argparse
+import hashlib
 import os
 import re
 from pathlib import Path
@@ -11,7 +12,9 @@ import zipfile
 parser = argparse.ArgumentParser()
 parser.add_argument('apk', type=Path)
 parser.add_argument('--variant', choices=['productionRelease', 'fixtureDebug', 'fixtureSender'], required=True)
+parser.add_argument('--fixture-ca-sha256', help='Explicit opt-in certificate digest for a local fixtureDebug APK only')
 args = parser.parse_args()
+assert not args.fixture_ca_sha256 or args.variant == 'fixtureDebug'
 sdk = Path(os.environ.get('ANDROID_HOME') or os.environ['ANDROID_SDK_ROOT'])
 analyzers = []
 for properties in sorted((sdk / 'cmdline-tools').glob('*/source.properties')):
@@ -86,7 +89,19 @@ if not sender:
     network = packaged_xml('networkSecurityConfig')
     assert not network.findall('debug-overrides')
     assert network.find('base-config').get('cleartextTrafficPermitted') == 'false'
-    assert [node.get('src') for node in network.findall('.//certificates')] == ['system']
+    certificates = [node.get('src') for node in network.findall('.//certificates')]
+    if args.fixture_ca_sha256:
+        assert re.fullmatch(r'[0-9a-f]{64}', args.fixture_ca_sha256)
+        assert len(certificates) == 2 and certificates[0] == 'system' and certificates[1].startswith('@')
+        custom = [node for node in network.findall('domain-config') if node.find('trust-anchors') is not None]
+        assert len(custom) == 1
+        assert [(''.join(node.itertext()).strip(), node.get('includeSubdomains')) for node in custom[0].findall('domain')] == [('localhost', 'false')]
+        with zipfile.ZipFile(args.apk) as artifact:
+            ca = artifact.read('res/raw/observer_fixture_ca.pem')
+            assert hashlib.sha256(ca).hexdigest() == args.fixture_ca_sha256
+            assert b'PRIVATE KEY' not in ca
+    else:
+        assert certificates == ['system']
     for config in network.findall('.//domain-config'):
         assert config.get('cleartextTrafficPermitted') == 'false'
     domains = {''.join(node.itertext()).strip() for node in network.findall('.//domain')}
@@ -105,6 +120,7 @@ for section in ['cloud-backup', 'device-transfer']:
 with zipfile.ZipFile(args.apk) as apk:
     contents = b''.join(apk.read(name) for name in apk.namelist())
     if production:
+        assert not any('observer_fixture_ca' in name for name in apk.namelist())
         for marker in ['dev.epay.observer.fixture', 'fixture-key-a', 'fixture-wx-v1', 'fixture-ali-v1', '微信形态 · 合成收款', '支付宝形态 · 合成到账', '隔离测试环境', '合成流水-仅用于字节验证', 'synthetic-v1', 'identical-pair', 'fixture-key', 'synthetic-group']:
             for encoding in ['utf-8', 'utf-16-le']:
                 assert marker.encode(encoding) not in contents, f'Production contains {marker}'

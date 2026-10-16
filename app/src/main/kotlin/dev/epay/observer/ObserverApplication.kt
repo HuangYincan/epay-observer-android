@@ -7,5 +7,6 @@ class ObserverApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         DurableCapture.start(this)
+        dev.epay.observer.security.PairingRuntime.start(this)
     }
 }

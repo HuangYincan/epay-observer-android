@@ -18,7 +18,8 @@ class IdentityStore(private val database: ObserverDatabase, private val capacity
     }
     fun epoch(): String = database.runInTransaction(Callable { epochInTransaction() })
 
-    fun record(input: ObservationInput, enabled: Set<Provider>, bindingAtCapture: BindingSnapshot? = null): ObservationRow = database.runInTransaction(Callable {
+    fun record(input: ObservationInput, enabled: Set<Provider>, bindingAtCapture: BindingSnapshot? = null,
+        credentialsAtCapture: Map<Provider, ActiveCredential> = emptyMap()): ObservationRow = database.runInTransaction(Callable {
         require(input.key.isNotEmpty())
         val key = IdentityEncoding.identity(epochInTransaction(), input.source.user, input.source.packageName, input.key)
         val old = dao.observation(key)
@@ -48,7 +49,10 @@ class IdentityStore(private val database: ObserverDatabase, private val capacity
             val candidate = (parsed as? ParseResult.Candidate)?.takeIf { IdentityEncoding.validTime(input.wallTime) }
             val proposedId = candidate?.let { UUID.randomUUID().toString() }
             val payload = candidate?.let { IdentityEncoding.localPayload(proposedId!!, it, input.wallTime) }
-            val binding = bindingAtCapture?.takeIf {
+            val credential = candidate?.provider?.let(credentialsAtCapture::get)?.takeIf {
+                it.captureEpoch.isNotEmpty() && dao.metadata(PairingStore.epochName(it.binding.provider)) == it.captureEpoch
+            }
+            val binding = (bindingAtCapture ?: credential?.binding)?.takeIf {
                 candidate != null && OutboundPolicy.permits(it, candidate) && dao.metadata(it.metadataKey) == it.scope
             }
             val wire = binding?.let { EventWire.encode(proposedId!!, candidate!!, input.wallTime, it) }
