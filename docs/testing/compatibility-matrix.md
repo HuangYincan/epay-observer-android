@@ -7,8 +7,8 @@
 | 模拟器基础应用（非通知夹具） | fixture client 状态页 | API 37.0 Google Play rev 6 | Medium_Phone / arm64-v8a | 不适用 | Passed | [#9/#5 报告](M1-foundation-report.md) |
 | 模拟器夹具 | 微信形态 | API 37.0 Google Play rev 6 | Medium_Phone / arm64-v8a | 不适用 | Passed | [M3闭环与故障报告](M3-prototype-report.md) |
 | 模拟器夹具 | 支付宝形态 | API 37.0 Google Play rev 6 | Medium_Phone / arm64-v8a | 不适用 | Passed | [M3闭环与故障报告](M3-prototype-report.md) |
-| 模拟器真实 App | 微信 | TBD | TBD | TBD | Not run | TBD |
-| 模拟器真实 App | 支付宝 | TBD | TBD | TBD | Not run | TBD |
+| 模拟器真实 App | 微信 | 目标API37 / Android17 | 目标Medium_Phone / arm64-v8a | 已下载8.0.79 (3200)，未安装 | Not run | [D0来源核验已通过，运行未测](../research/M4-real-app-d0.md) |
+| 模拟器真实 App | 支付宝 | 目标API37 / Android17 | 目标Medium_Phone / arm64-v8a | 已下载12.12.30.8000 (212310)，未安装 | Not run | [D0来源核验已通过，运行未测](../research/M4-real-app-d0.md) |
 | 实体真机 | 微信 | 待后续设备 | TBD | TBD | Not run | TBD |
 | 实体真机 | 支付宝 | 待后续设备 | TBD | TBD | Not run | TBD |
 
