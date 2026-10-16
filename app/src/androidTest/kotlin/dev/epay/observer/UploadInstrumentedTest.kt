@@ -74,7 +74,7 @@ class UploadInstrumentedTest {
                 assertFalse(PairingStore(db).uploadAllowed(credential))
                 assertNull(delivery.sendNext(Provider.WXPAY))
                 PairingStore(db).resumeUploads(Provider.WXPAY)
-                assertTrue(PairingStore(db).uploadAllowed(credential))
+                assertTrue(PairingStore(db).uploadAllowed(PairingStore(db).active(Provider.WXPAY)!!))
             }
             if (status == 409) assertTrue(PairingStore(db).uploadAllowed(credential))
         }
@@ -91,5 +91,42 @@ class UploadInstrumentedTest {
         val blocked = OutboxDelivery(context, db, EventClient { _, _ -> error("network must not be called") }, { 2000 })
         assertEquals("KEY_UNAVAILABLE", blocked.sendNext(Provider.WXPAY)!!.state)
         assertEquals("HELD", OutboxStore(db).rows().single().state)
+    }
+    @Test fun rotationBetweenCredentialReadAndClaimCannotStrandEvent() = fixture { db, old, _ ->
+        val pairing = PairingStore(db)
+        val newKey = "test-${UUID.randomUUID()}"
+        HmacKeyVault(context).install(old.binding, newKey, vaultMaterial())
+        try {
+            val delivery = OutboxDelivery(context, db, EventClient { _, _ -> error("stale authority must not send") }, {
+                pairing.pause(Provider.WXPAY)
+                pairing.activate(PairingEnrollment(UUID.randomUUID().toString(), old.binding, newKey, byteArrayOf(), 0, 1_000_000))
+                2000
+            })
+            assertNull(delivery.sendNext(Provider.WXPAY))
+            assertEquals("READY", OutboxStore(db).rows().single().state)
+            assertEquals(0L, OutboxStore(db).rows().single().attempts)
+            assertFalse(pairing.pauseUploads(old, HoldReason.AUTHENTICATION))
+            assertTrue(pairing.uploadAllowed(pairing.active(Provider.WXPAY)!!))
+            assertNotNull(pairing.claimUpload(pairing.active(Provider.WXPAY)!!, 2000))
+        } finally { HmacKeyVault(context).remove(old.binding, newKey) }
+    }
+    @Test fun repairInvalidatesOldResponsesAndPreLeaseFailures() {
+        for (status in listOf(202, 401)) fixture { db, old, id ->
+            val pairing = PairingStore(db)
+            val delivery = OutboxDelivery(context, db, EventClient { _, _ ->
+                pairing.resumeUploads(Provider.WXPAY)
+                if (status == 202) ack(id) else HttpResult(401,
+                    "{\"schema_version\":1,\"code\":\"invalid_signature\"}".toByteArray(), true)
+            }, { 2000 })
+            assertFalse(delivery.sendNext(Provider.WXPAY)!!.applied)
+            assertEquals("READY", OutboxStore(db).rows().single().state)
+            assertFalse(pairing.pauseUploads(old, HoldReason.AUTHENTICATION))
+            val repaired = pairing.active(Provider.WXPAY)!!
+            assertEquals(old.captureEpoch, repaired.captureEpoch)
+            assertNotEquals(old.uploadEpoch, repaired.uploadEpoch)
+            assertTrue(pairing.uploadAllowed(repaired))
+            assertEquals("ACKED", OutboxDelivery(context, db, EventClient { _, _ -> ack(id, 200) }, { 2000 })
+                .sendNext(Provider.WXPAY)!!.state)
+        }
     }
 }

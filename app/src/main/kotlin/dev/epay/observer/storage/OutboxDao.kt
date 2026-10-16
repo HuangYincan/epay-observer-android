@@ -42,6 +42,8 @@ interface OutboxDao {
     fun resumePairing(scope: String)
     @Query("UPDATE outbox SET state = 'HELD', reason = :reason, leaseToken = NULL, leaseUntil = NULL WHERE scope = :scope AND state IN ('READY','RETRY','IN_FLIGHT')")
     fun holdScope(scope: String, reason: String)
+    @Query("UPDATE outbox SET state = 'READY', leaseToken = NULL, leaseUntil = NULL, reason = NULL WHERE scope = :scope AND state = 'IN_FLIGHT'")
+    fun releaseScopeLeases(scope: String)
     @Query("UPDATE outbox SET state = 'READY', reason = NULL WHERE scope = :scope AND state = 'HELD' AND reason IN ('AUTHENTICATION','SCOPE','REDIRECT','UNEXPECTED_RESPONSE','CLOCK_RANGE')")
     fun resumeAuthorizedScope(scope: String)
 }

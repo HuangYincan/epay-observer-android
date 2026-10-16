@@ -23,25 +23,20 @@ class OutboxDelivery(context: Context, database: ObserverDatabase,
         if (!pairing.uploadAllowed(credential)) return null
         val now = clock()
         if (!IdentityEncoding.validTime(now) || now < credential.notBefore || now >= credential.expiresAt) {
-            pairing.pauseUploads(credential, HoldReason.CLOCK_RANGE)
-            return DeliveryResult("CLOCK_RANGE", true)
+            return DeliveryResult("CLOCK_RANGE", pairing.pauseUploads(credential, HoldReason.CLOCK_RANGE))
         }
         val key = try { vault.load(credential.binding, credential.keyId) } catch (_: VaultFailure) { null }
         if (key == null) {
-            pairing.pauseUploads(credential, HoldReason.AUTHENTICATION)
-            return DeliveryResult("KEY_UNAVAILABLE", true)
+            return DeliveryResult("KEY_UNAVAILABLE", pairing.pauseUploads(credential, HoldReason.AUTHENTICATION))
         }
-        val lease = outbox.claim(credential.binding, now) ?: return null
-        if (!pairing.uploadAllowed(credential)) return DeliveryResult("STALE_AUTHORITY", outbox.hold(lease, HoldReason.SCOPE))
+        val lease = pairing.claimUpload(credential, now) ?: return null
         val request = try { RequestSigner(clock).prepare(lease.body, credential.keyId, key) }
         catch (_: IllegalArgumentException) {
-            val applied = outbox.hold(lease, HoldReason.CLOCK_RANGE)
-            if (applied) pairing.pauseUploads(credential, HoldReason.CLOCK_RANGE)
+            val applied = pairing.pauseUploads(credential, HoldReason.CLOCK_RANGE, lease)
             return DeliveryResult("CLOCK_RANGE", applied)
         }
         catch (_: java.security.GeneralSecurityException) {
-            val applied = outbox.hold(lease, HoldReason.AUTHENTICATION)
-            if (applied) pairing.pauseUploads(credential, HoldReason.AUTHENTICATION)
+            val applied = pairing.pauseUploads(credential, HoldReason.AUTHENTICATION, lease)
             return DeliveryResult("KEY_UNAVAILABLE", applied)
         }
         val response = try { client.send(credential.binding.origin, request) } catch (_: IOException) { null }
@@ -51,8 +46,7 @@ class OutboxDelivery(context: Context, database: ObserverDatabase,
         val status = response?.status?.takeUnless { it in setOf(400, 413, 415) && code == null }
         val after = clock()
         if (!IdentityEncoding.validTime(after)) {
-            val applied = outbox.hold(lease, HoldReason.CLOCK_RANGE)
-            if (applied) pairing.pauseUploads(credential, HoldReason.CLOCK_RANGE)
+            val applied = pairing.pauseUploads(credential, HoldReason.CLOCK_RANGE, lease)
             return DeliveryResult("CLOCK_RANGE", applied)
         }
         return when (val decision = retry.decide(status, ack != null, lease.attempt, after, response?.retryAfter)) {
@@ -60,8 +54,8 @@ class OutboxDelivery(context: Context, database: ObserverDatabase,
             is DeliveryDecision.Retry -> DeliveryResult("RETRY", outbox.retry(lease, decision.at))
             is DeliveryDecision.Pause -> {
                 val reason = HoldReason.valueOf(decision.reason.name)
-                val applied = outbox.hold(lease, reason)
-                if (applied && reason != HoldReason.CONFLICT) pairing.pauseUploads(credential, reason)
+                val applied = if (reason == HoldReason.CONFLICT) outbox.hold(lease, reason)
+                    else pairing.pauseUploads(credential, reason, lease)
                 DeliveryResult(reason.name, applied)
             }
             is DeliveryDecision.Terminal -> {
