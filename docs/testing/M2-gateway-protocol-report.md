@@ -12,7 +12,7 @@ Go纯库按固定路由/单值headers/原body HMAC/时间窗验证，再严格�
 
 在 `epay-go@f7c4097` / run `38834865589` 中，全部Go包race测试、vet、build、gofmt及新包fuzz通过；3秒预算实际约4秒完成23,178次输入、54个新interesting corpus，无崩溃。[CI摘要](evidence/gateway-protocol/initial-ci-excerpt.txt)。这不是长期fuzz、数据库观察器事务或对外HTTP测试。
 
-完整CI当时被既有安全依赖阻塞：前端Vue/source-map-js、Go1.26.8/x/net0.59。独立epay-go Issue #11 / PR #12修复，保留npm audit/govulncheck。最终合并/CI结果仍须按最终head补充，不能把上述功能测试通过写成整个PR绿色。
+完整CI当时被既有安全依赖阻塞：前端Vue/source-map-js、Go1.26.8/x/net0.59。独立epay-go Issue #11 / PR #12修复，保留npm audit/govulncheck。PR #12已合并为6097e1f，补丁基线Go1.26.9/x/net0.60.0、Vue3.5.42/source-map-js1.2.2。协议代码97a1927在run38835577839完整CI通过，包括所有既有Go/race/PostgreSQL测试、fuzz、vet/build/gofmt/govulncheck、前端审计构建及两个镜像。见[完整代码验证摘要](evidence/gateway-protocol/final-code-ci-excerpt.txt)。协议PR随后只补充文档，合并状态见GitHub。
 
 ## 仍缺少
 

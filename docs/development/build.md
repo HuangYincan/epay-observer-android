@@ -43,7 +43,7 @@ APK 检查按 source.properties 选择 Command-line Tools23.0（不能假定 lat
 ```sh
 "$ANDROID_HOME/platform-tools/adb" devices -l
 # 仅当现有 AVD 尚未启动时执行；不要重复启动同一个 AVD。
-"$ANDROID_HOME/emulator/emulator" -avd Medium_Phone_API_37.0 -no-snapshot-load
+"$ANDROID_HOME/emulator/emulator" -avd Medium_Phone_API_37.0 -no-snapshot-load -no-snapshot-save -cores 4 -memory 4096
 # 按 adb 输出选择 emulator-NNNN；此处以本轮目标为例。
 python3 scripts/smoke_avd.py emulator-5554 --report /tmp/observer-foundation-instrumentation.txt
 sh scripts/reset_fixture_client.sh emulator-5554

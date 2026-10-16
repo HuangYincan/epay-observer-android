@@ -2,6 +2,12 @@
 
 状态：M0 review candidate。研究基线：`HuangYincan/epay-go@4d855060439df247fc60a529139e80c7e4b757c0`，2026-10-15 重新只读核对，工作区干净且未改动。详见 [源码审计](../research/M0-source-audit.md)。
 
+## 当前实现基线（2026-10-16）
+
+研究基线仍保留4d855060，不能把新代码写入历史审计结论。当前协议核心固定 `7459367`（epay-go PR #10，功能代码已在97a1927通过完整CI）；安全补丁基线 `6097e1f`（PR #12已合并）。新增pkg/observer仅是纯签名/严格JSON校验库，尚未挂载HTTP路由；没有新增观察器数据库事务、配对、重放表或支付确认。New API固定版本及#10金额缺口不变。
+
+双方实现与证据见 [网关协议核心报告](../testing/M2-gateway-protocol-report.md)；对外接收API未实现，不能把库返回的VerifiedRequest视为ACK。
+
 ## 已存在的能力
 
 - `/submit.php`、`/mapi.php`、`/api.php` 易支付兼容入口。
