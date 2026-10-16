@@ -12,7 +12,7 @@
 
 ## 模拟器失败与恢复
 
-原1CPU运行实例在本轮全套复测中240秒超时；logcat/dumpsys均曾超时。正常关闭并按原配置冷启动后仍有Launcher/SystemUI/Settings等系统ANR，cpuinfo显示单CPU100%，SurfaceFlinger约75%。这些是系统异常证据，不足以精确判定驱动/调度根因；失败没有记为通过。
+原1CPU运行实例在本轮全套复测中240秒超时；logcat/dumpsys均曾超时。正常关闭并按原配置冷启动后仍有Launcher/SystemUI/Settings等系统ANR，cpuinfo显示单CPU100%，SurfaceFlinger约75%。该次套件最终完成21项，1项失败：Foundation的公网HTTPS探针对example.com出现UnknownHostException/EAI_NODATA；新增签名测试通过。DNS失败与系统ANR分别记录，不能断言两者有已证明的因果关系或把失败写成通过。
 
 随后以同一AVD/API37/用户数据，临时参数 `-cores 4 -memory 4096 -no-snapshot-load -no-snapshot-save` 冷启动，通过上述21+2测试。config.ini前后SHA256相同，未wipe、未清数据、未安装新镜像/SDK，未操作真实App。该结果的资源基线是4CPU/4GiB，不能宣称1CPU稳定性已解决。运行参数、首次失败、原配置重试及ANR/CPU证据均保留。
 
