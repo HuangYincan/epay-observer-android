@@ -38,12 +38,12 @@ APK 检查按 source.properties 选择 Command-line Tools23.0（不能假定 lat
 
 ## 现有模拟器
 
-基线：Medium_Phone_API_37.0，实际目录 Medium_Phone.avd；API 37.0、Google Play arm64-v8a rev 6、2 GiB RAM/1 CPU，Emulator 37.2.12。只针对明确指定的 emulator-NNNN 操作，不选择实体设备。
+基线：Medium_Phone_API_37.0，实际目录 Medium_Phone.avd；API 37.0、Google Play arm64-v8a rev 6、配置文件2GiB RAM/1CPU，Emulator37.2.12。2026-10-16的1CPU实例出现系统ANR，后以运行参数 -cores 4 -memory 4096 通过21+2测试；config.ini前后不变。当前4CPU/4GiB结果与原配置稳定性分开记录，见M2-signing-core-report。只针对明确指定的 emulator-NNNN 操作，不选择实体设备。
 
 ```sh
 "$ANDROID_HOME/platform-tools/adb" devices -l
 # 仅当现有 AVD 尚未启动时执行；不要重复启动同一个 AVD。
-"$ANDROID_HOME/emulator/emulator" -avd Medium_Phone_API_37.0 -no-snapshot-load
+"$ANDROID_HOME/emulator/emulator" -avd Medium_Phone_API_37.0 -no-snapshot-load -no-snapshot-save -cores 4 -memory 4096
 # 按 adb 输出选择 emulator-NNNN；此处以本轮目标为例。
 python3 scripts/smoke_avd.py emulator-5554 --report /tmp/observer-foundation-instrumentation.txt
 sh scripts/reset_fixture_client.sh emulator-5554
@@ -72,10 +72,10 @@ Android verification workflow 使用 ubuntu-24.04、Temurin 25.0.3+9（setup-jav
   -n dev.epay.observer.fixture/.FixtureActivity --es scenario wxpay
 ```
 
-可选场景：wxpay、alipay、identical-pair、update、repost、summary、child、refund、expense、chat、malformed、oversized、clear。最后一个撤下夹具通知。命令没有订单号／匹配提示；真实来源不支持靠配置开启。观察记录最多 100 个 key，仅保留在进程内，容量满会显示告警；清数据不能充当支付去重策略。
+可选场景：wxpay、alipay、identical-pair、update、repost、summary、child、refund、expense、chat、malformed、oversized、clear。最后一个撤下夹具通知。命令没有订单号／匹配提示；真实来源不支持靠配置开启。诊断预览最多100个key，仅保留在进程内；SPEC-010/011另外以Room保存身份、候选和队列，身份容量10,000，payload预算32MiB，受阻会显示告警。清数据不能充当支付去重策略。
 
 ## 合成解析验证
 
-SPEC-009 定义两组独立规则，语料在 docs/testing/parsing-v1；production 单测 9 项、fixture 单测 124 项（含重复执行的共同基线 8 项），不是 133 个不同案例。AVD helper 当前要求 6/6 仪器测试，其中新增解析测试验证两通道及 16 条实际投递负例、开关保存和恢复／修订拒绝。
+SPEC-009定义两组独立规则，116条语料在docs/testing/parsing-v1。当前production单测22项、fixture136项（公共测试重复执行）；AVD helper要求21项主套件及2个独立跨进程阶段，涵盖采集、解析、Room持久身份/队列和实际Android JCA签名。详细证据见M1-parsing-report、M2-outbox-report与M2-signing-core-report。
 
-追加夹具命令：parse-wx、parse-ali、parse-wx-update，以及 wx-/ali- 前缀的 conflict、currency、refund、chat、promotion、inbox、precision、subtext。两个独立 CheckBox 只改变当前内存观察的解析预览，偏好保存在本应用私有空间；不会创建事件、补发历史付款或使正式构建信任夹具。
+追加夹具命令：parse-wx、parse-ali、parse-wx-update，以及 wx-/ali- 前缀的 conflict、currency、refund、chat、promotion、inbox、precision、subtext。两个独立CheckBox控制预览和后续新观察的解析，偏好保存在本应用私有空间。持久层保存采集时开关；旧身份不会在重新启用时追溯制造事件。运行时尚未配对，无网络发送；开关不能使正式构建信任夹具。

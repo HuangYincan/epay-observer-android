@@ -1,0 +1,6 @@
+Existing API37 AVD; runtime-only experiment, no config/data wipe.
+config.ini SHA256 before: b0a83f414531bd6e5106a90341a487b4290f3637b593387df4503a308f367d95
+Launch flags: -avd Medium_Phone_API_37.0 -no-snapshot-load -no-snapshot-save -cores 4 -memory 4096
+config.ini SHA256 after: b0a83f414531bd6e5106a90341a487b4290f3637b593387df4503a308f367d95
+CPU online: 0-3
+Main suite: 21/21 in 28.249s; actual cross-process phases: 2/2.

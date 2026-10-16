@@ -1,6 +1,6 @@
 # SPEC-002 观察器事件协议 v1 候选
 
-状态：M0 review candidate（`observer-events-v1-rc1`）；#7、FR-03/06/08。未实现、未获用户最终确认，不可调用现有服务器。
+状态：M0 review candidate（`observer-events-v1-rc1`）；#7、FR-03/06/08。本轮实际签名/严格解析核心按SPEC-012/013实施验证；仍未实现接收API/授权/重放事务，不能据此调用现有服务器或宣称生产协议准入。
 
 ## 路由与 JSON
 

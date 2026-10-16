@@ -37,10 +37,10 @@ def instrument(report_path, expected_count, extra):
     if any(marker in output for marker in ['FAILURES!!!', 'INSTRUMENTATION_FAILED', 'shortMsg=']):
         raise SystemExit(f'Instrumentation failure; inspect {report_path}')
 
-instrument(args.report, 20, ['-e', 'notClass', process_class])
+instrument(args.report, 21, ['-e', 'notClass', process_class])
 instrument(args.report.with_name(args.report.stem + '-process-prepare.txt'), 1,
     ['-e', 'class', process_class, '-e', 'identityPhase', 'prepare'])
 subprocess.run(adb + ['shell', 'am', 'force-stop', 'dev.epay.observer.fixtureclient.debug'], check=True, timeout=15)
 instrument(args.report.with_name(args.report.stem + '-process-verify.txt'), 1,
     ['-e', 'class', process_class, '-e', 'identityPhase', 'verify'])
-print(f'AVD: 20/20 suite tests plus 2/2 cross-process phases passed; report {args.report}')
+print(f'AVD: 21/21 suite tests plus 2/2 cross-process phases passed; report {args.report}')
