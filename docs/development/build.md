@@ -1,6 +1,6 @@
 # 构建与模拟器验证（#9 / #5 / #11 / #12 / #13 / #14）
 
-范围见 SPEC-007/008/009；当前有独立夹具、通知监听和合成解析预览，尚无配对、持久事件／队列、上传、匹配或充值能力。正式／测试应用 ID 是构建隔离，不是服务端身份认证。
+范围见 SPEC-007/008/009；当前有独立夹具、监听/解析、持久事件/队列及SPEC-016实际配对，尚无事件HTTP上传、匹配或充值能力。正式／测试应用 ID 是构建隔离，不是服务端身份认证。
 
 ## 本机工具
 
@@ -38,7 +38,7 @@ APK 检查按 source.properties 选择 Command-line Tools23.0（不能假定 lat
 
 ## 现有模拟器
 
-基线：Medium_Phone_API_37.0，实际目录 Medium_Phone.avd；API 37.0、Google Play arm64-v8a rev 6、配置文件2GiB RAM/1CPU，Emulator37.2.12。2026-10-16的1CPU实例出现系统ANR，后以运行参数 -cores 4 -memory 4096 通过21+2测试；config.ini前后不变。当前4CPU/4GiB结果与原配置稳定性分开记录，见M2-signing-core-report。只针对明确指定的 emulator-NNNN 操作，不选择实体设备。
+基线：Medium_Phone_API_37.0，实际目录 Medium_Phone.avd；API 37.0、Google Play arm64-v8a rev 6、配置文件2GiB RAM/1CPU，Emulator37.2.12。2026-10-16的1CPU实例出现系统ANR，后以运行参数 -cores 4 -memory 4096 通过21+2测试；config.ini前后不变。当前4CPU/4GiB结果与原配置稳定性分开记录，见M2-signing-core-report。本批旧图形进程再次过载，使用同AVD -gpu swiftshader -no-window 冷启动后通过28+8，见M2-pairing-report。只针对明确指定的 emulator-NNNN 操作，不选择实体设备。
 
 ```sh
 "$ANDROID_HOME/platform-tools/adb" devices -l
@@ -79,3 +79,5 @@ Android verification workflow 使用 ubuntu-24.04、Temurin 25.0.3+9（setup-jav
 SPEC-009定义两组独立规则，116条语料在docs/testing/parsing-v1。当前production单测22项、fixture136项（公共测试重复执行）；AVD helper要求25项主套件及2个独立跨进程阶段，涵盖采集、解析、Room持久身份/队列和实际Android JCA签名、KeyStore导入/幂等/删除与跨进程密钥恢复。详细证据见M1-parsing-report、M2-outbox-report与M2-signing-core-report。
 
 追加夹具命令：parse-wx、parse-ali、parse-wx-update，以及 wx-/ali- 前缀的 conflict、currency、refund、chat、promotion、inbox、precision、subtext。两个独立CheckBox控制预览和后续新观察的解析，偏好保存在本应用私有空间。持久层保存采集时开关；旧身份不会在重新启用时追溯制造事件。运行时尚未配对，无网络发送；开关不能使正式构建信任夹具。
+
+实际配对HTTPS及临时CA/默认构建恢复：[配对复现](pairing-local.md)。当前smoke要求28项主套件和8个真实进程阶段；网络配对单独执行，不能把离线恢复套件当作网络通过。

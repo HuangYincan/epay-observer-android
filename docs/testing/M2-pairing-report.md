@@ -52,3 +52,10 @@
 CI与两端PR/最终代码SHA在本报告末尾追加，不能用本地成功代替远端检查。
 
 本地复现：[完整配对步骤](../development/pairing-local.md)。
+
+## 固定代码与跨库记录
+
+- Android实现提交 `9b74816`（前置39f9243），[PR #50](https://github.com/HuangYincan/epay-observer-android/pull/50)。
+- 网关实现提交 `f961159`（前置0107b0f），[PR #14](https://github.com/HuangYincan/epay-go/pull/14)。
+- 网关实现head完整CI [run 38850098132](https://github.com/HuangYincan/epay-go/actions/runs/38850098132)通过：race/PostgreSQL、fuzz、vet、build、漏洞扫描、前端及两个镜像。
+- Android与后续文档提交的最终CI状态以各PR Checks为权威，只有最终head通过且审查问题处理后合并；文档更新不改变上述代码快照。
