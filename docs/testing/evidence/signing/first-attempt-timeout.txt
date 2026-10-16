@@ -1,0 +1,126 @@
+INSTRUMENTATION_STATUS: class=dev.epay.observer.CaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=21
+INSTRUMENTATION_STATUS: stream=
+dev.epay.observer.CaptureInstrumentedTest:
+INSTRUMENTATION_STATUS: test=systemDeliveryFilteringAndLifecycle
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=dev.epay.observer.CaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=21
+INSTRUMENTATION_STATUS: stack=java.lang.RuntimeException: Could not launch intent Intent { flg=0x14008000 cmp=dev.epay.observer.fixtureclient.debug/dev.epay.observer.MainActivity } within 45000 milliseconds. Perhaps the main thread has not gone idle within a reasonable amount of time? There could be an animation or something constantly repainting the screen. Or the activity is doing network calls on creation? See the threaddump logs. For your reference the last time the event queue was idle before your activity launch request was 1792113273948 and now the last time the queue went idle was: 1792113273948. If these numbers are the same your activity might be hogging the event queue.
+	at androidx.test.runner.MonitoringInstrumentation.startActivitySync(MonitoringInstrumentation.java:537)
+	at dev.epay.observer.CaptureInstrumentedTest.grant(CaptureInstrumentedTest.kt:37)
+	at dev.epay.observer.CaptureInstrumentedTest.systemDeliveryFilteringAndLifecycle(CaptureInstrumentedTest.kt:48)
+
+INSTRUMENTATION_STATUS: stream=
+Error in systemDeliveryFilteringAndLifecycle(dev.epay.observer.CaptureInstrumentedTest):
+java.lang.RuntimeException: Could not launch intent Intent { flg=0x14008000 cmp=dev.epay.observer.fixtureclient.debug/dev.epay.observer.MainActivity } within 45000 milliseconds. Perhaps the main thread has not gone idle within a reasonable amount of time? There could be an animation or something constantly repainting the screen. Or the activity is doing network calls on creation? See the threaddump logs. For your reference the last time the event queue was idle before your activity launch request was 1792113273948 and now the last time the queue went idle was: 1792113273948. If these numbers are the same your activity might be hogging the event queue.
+	at androidx.test.runner.MonitoringInstrumentation.startActivitySync(MonitoringInstrumentation.java:537)
+	at dev.epay.observer.CaptureInstrumentedTest.grant(CaptureInstrumentedTest.kt:37)
+	at dev.epay.observer.CaptureInstrumentedTest.systemDeliveryFilteringAndLifecycle(CaptureInstrumentedTest.kt:48)
+
+INSTRUMENTATION_STATUS: test=systemDeliveryFilteringAndLifecycle
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=dev.epay.observer.CaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=21
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=fieldExtractionRejectsUnexpectedTypesAndPreservesCharSequence
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=dev.epay.observer.CaptureInstrumentedTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=21
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=fieldExtractionRejectsUnexpectedTypesAndPreservesCharSequence
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=dev.epay.observer.FoundationInstrumentedTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=21
+INSTRUMENTATION_STATUS: stream=
+dev.epay.observer.FoundationInstrumentedTest:
+INSTRUMENTATION_STATUS: test=publicHttpsWorksWithDefaultSystemTrust
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=dev.epay.observer.FoundationInstrumentedTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=21
+INSTRUMENTATION_STATUS: stack=java.io.IOException: unexpected end of stream on com.android.okhttp.Address@2f6df8b6
+	at com.android.okhttp.internal.http.Http1xStream.readResponse(Http1xStream.java:203)
+	at com.android.okhttp.internal.http.Http1xStream.readResponseHeaders(Http1xStream.java:129)
+	at com.android.okhttp.internal.http.HttpEngine.readNetworkResponse(HttpEngine.java:750)
+	at com.android.okhttp.internal.http.HttpEngine.readResponse(HttpEngine.java:622)
+	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.execute(HttpURLConnectionImpl.java:475)
+	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.getResponse(HttpURLConnectionImpl.java:411)
+	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.getResponseCode(HttpURLConnectionImpl.java:542)
+	at com.android.okhttp.internal.huc.DelegatingHttpsURLConnection.getResponseCode(DelegatingHttpsURLConnection.java:106)
+	at com.android.okhttp.internal.huc.HttpsURLConnectionImpl.getResponseCode(HttpsURLConnectionImpl.java:30)
+	at dev.epay.observer.FoundationInstrumentedTest.publicHttpsWorksWithDefaultSystemTrust(FoundationInstrumentedTest.kt:56)
+	... 32 trimmed
+Caused by: java.io.EOFException: \n not found: size=0 content=...
+	at com.android.okhttp.okio.RealBufferedSource.readUtf8LineStrict(RealBufferedSource.java:202)
+	at com.android.okhttp.internal.http.Http1xStream.readResponse(Http1xStream.java:188)
+	... 42 more
+
+INSTRUMENTATION_STATUS: stream=
+Error in publicHttpsWorksWithDefaultSystemTrust(dev.epay.observer.FoundationInstrumentedTest):
+java.io.IOException: unexpected end of stream on com.android.okhttp.Address@2f6df8b6
+	at com.android.okhttp.internal.http.Http1xStream.readResponse(Http1xStream.java:203)
+	at com.android.okhttp.internal.http.Http1xStream.readResponseHeaders(Http1xStream.java:129)
+	at com.android.okhttp.internal.http.HttpEngine.readNetworkResponse(HttpEngine.java:750)
+	at com.android.okhttp.internal.http.HttpEngine.readResponse(HttpEngine.java:622)
+	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.execute(HttpURLConnectionImpl.java:475)
+	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.getResponse(HttpURLConnectionImpl.java:411)
+	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.getResponseCode(HttpURLConnectionImpl.java:542)
+	at com.android.okhttp.internal.huc.DelegatingHttpsURLConnection.getResponseCode(DelegatingHttpsURLConnection.java:106)
+	at com.android.okhttp.internal.huc.HttpsURLConnectionImpl.getResponseCode(HttpsURLConnectionImpl.java:30)
+	at dev.epay.observer.FoundationInstrumentedTest.publicHttpsWorksWithDefaultSystemTrust(FoundationInstrumentedTest.kt:56)
+	... 32 trimmed
+Caused by: java.io.EOFException: \n not found: size=0 content=...
+	at com.android.okhttp.okio.RealBufferedSource.readUtf8LineStrict(RealBufferedSource.java:202)
+	at com.android.okhttp.internal.http.Http1xStream.readResponse(Http1xStream.java:188)
+	... 42 more
+
+INSTRUMENTATION_STATUS: test=publicHttpsWorksWithDefaultSystemTrust
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=dev.epay.observer.FoundationInstrumentedTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=21
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=manifestDisablesBackupAndCleartext
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=dev.epay.observer.FoundationInstrumentedTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=21
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=manifestDisablesBackupAndCleartext
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=dev.epay.observer.FoundationInstrumentedTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=21
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=isolatedClientLaunchesWithHonestInitialState
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=dev.epay.observer.FoundationInstrumentedTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=21
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=isolatedClientLaunchesWithHonestInitialState
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=dev.epay.observer.IdentityStoreInstrumentedTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=21
+INSTRUMENTATION_STATUS: stream=
+dev.epay.observer.IdentityStoreInstrumentedTest:
+INSTRUMENTATION_STATUS: test=actualSqlAbortRollsBackIdentityEpochAndCandidateTogether
+INSTRUMENTATION_STATUS_CODE: 1

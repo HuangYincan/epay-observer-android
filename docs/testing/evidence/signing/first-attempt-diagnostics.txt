@@ -1,0 +1,6 @@
+2026-10-16, existing emulator-5554/API37.
+APK installs succeeded but took unusually long. Main instrumentation timed out after 240s at test 6/21; no passing result asserted.
+Read-only adb logcat -b events -d -s am_anr am_crash: timed out after 15 seconds.
+Read-only adb shell dumpsys cpuinfo: timed out after 15 seconds.
+adb shell pidof fixture client still returned a process.
+This evidence identifies an unresponsive emulator/system surface; it is not proof of a specific root cause or an application pass.

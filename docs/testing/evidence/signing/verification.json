@@ -1,0 +1,15 @@
+{
+  "ProductionDebug": {
+    "tests": 22,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "FixtureDebug": {
+    "tests": 136,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "vectors_sha256": "5430764f20b5d8427f7751b1824d7050d4367bd52ff722bb585af1d2100a45ed"
+}

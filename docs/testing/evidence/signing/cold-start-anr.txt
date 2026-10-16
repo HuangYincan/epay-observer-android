@@ -1,0 +1,12 @@
+--------- beginning of events
+10-16 01:21:50.940   615  1346 I am_anr  : [0,1100,com.google.android.apps.nexuslauncher,885767749,Input dispatching timed out (bbf2601 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity is not responding. Waited 5168ms for FocusEvent(hasFocus=true)).]
+10-16 01:22:02.564   615  1346 I am_anr  : [0,1096,com.android.phone,818429517,Broadcast of Intent { act=android.safetycenter.action.REFRESH_SAFETY_SOURCES flg=0x10000010 xflg=0x4 pkg=com.android.phone cmp=com.android.phone/.security.SafetySourceReceiver (has extras) }]
+10-16 01:22:08.298   615  1346 I am_anr  : [0,940,com.android.systemui,550026765,executing service com.android.systemui/.SystemUIService, waited 25389ms]
+10-16 01:22:09.905   615  1346 I am_anr  : [0,1203,com.android.settings,952876613,Process ProcessRecord{a85a4e7 1203:com.android.settings/1000} failed to complete startup]
+10-16 01:22:32.769   615  1854 I am_anr  : [0,1359,com.google.android.inputmethod.latin,550157893,Process ProcessRecord{ebcb8f1 1359:com.google.android.inputmethod.latin/u0a171} failed to complete startup]
+10-16 01:22:48.862   615  1854 I am_anr  : [0,1497,com.google.android.googlequicksearchbox:interactor,551272005,Process ProcessRecord{71cbc55 1497:com.google.android.googlequicksearchbox:interactor/u0a162} failed to complete startup]
+10-16 01:22:49.764   615  1854 I am_anr  : [0,1591,com.android.phone,818429517,Process ProcessRecord{f0c06ce 1591:com.android.phone/1001} failed to complete startup]
+10-16 01:22:55.013   615  1854 I am_anr  : [0,1507,com.google.android.as,818658885,Process ProcessRecord{d5554af 1507:com.google.android.as/u0a149} failed to complete startup]
+10-16 01:22:58.368   615  1854 I am_anr  : [0,1666,com.google.android.apps.photos,685489733,Process ProcessRecord{b588ae 1666:com.google.android.apps.photos/u0a175} failed to complete startup]
+10-16 01:23:09.138   615  1854 I am_anr  : [0,1387,com.google.android.gms.persistent,-1597325755,Broadcast of Intent { act=android.safetycenter.action.REFRESH_SAFETY_SOURCES flg=0x10000010 xflg=0x4 pkg=com.google.android.gms cmp=com.google.android.gms/.chimera.GmsIntentOperationService$PersistentTrustedReceiver (has extras) }]
+10-16 01:24:11.469   615  3904 I am_anr  : [0,3225,com.google.android.as,818658885,No response to onStartJob for #PackageMonitoringWorker#@androidx.work.systemjobscheduler@com.google.android.as/androidx.work.impl.background.systemjob.SystemJobService]

@@ -41,6 +41,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     sourceSets["androidTest"].assets.srcDir("$projectDir/schemas")
+    sourceSets["androidTest"].assets.srcDir(rootProject.file("docs/testing/protocol-v1"))
     sourceSets["test"].resources.srcDir(rootProject.file("docs/testing/protocol-v1"))
     sourceSets["test"].resources.srcDir(rootProject.file("docs/testing/parsing-v1"))
 }

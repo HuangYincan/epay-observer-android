@@ -1,6 +1,6 @@
 # 文档索引
 
-更新日期：2026-10-16。#9/#5、#11/#12、#13/#14 已合并；#16/#19 本批实现 [持久身份](specs/SPEC-010-durable-observation-identity.md) 与 [队列](specs/SPEC-011-durable-outbox.md)。其余 Spec 仍为评审候选／待实现；#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
+更新日期：2026-10-16。#9/#5、#11/#12、#13/#14 已合并；#16/#19 已由PR #47合并，实现 [持久身份](specs/SPEC-010-durable-observation-identity.md) 与 [队列](specs/SPEC-011-durable-outbox.md)。其余 Spec 仍为评审候选／待实现；#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
 
 ## 建议阅读顺序
 
@@ -28,6 +28,8 @@
 - [双通道解析报告](testing/M1-parsing-report.md) 与 [116 例合成语料](testing/parsing-v1/README.md)
 
 - [持久身份报告](testing/M1-identity-report.md) 与 [队列恢复／迁移报告](testing/M2-outbox-report.md)
+
+- [签名／退避核心报告](testing/M2-signing-core-report.md)、[网关纯协议报告](testing/M2-gateway-protocol-report.md)；SPEC-012/013，完整上传/接收仍未实现。
 
 ## 架构决策
 

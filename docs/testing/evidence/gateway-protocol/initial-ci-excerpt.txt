@@ -1,0 +1,55 @@
+2026-10-16T01:24:08.0027525Z ##[group]Run go test -race ./...
+2026-10-16T01:24:08.2319935Z ok  	github.com/example/epay-go/internal/config	(cached)
+2026-10-16T01:24:08.2369115Z ok  	github.com/example/epay-go/internal/payment	(cached)
+2026-10-16T01:24:08.2370357Z ok  	github.com/example/epay-go/internal/router	(cached)
+2026-10-16T01:24:08.2370717Z ok  	github.com/example/epay-go/internal/service	(cached)
+2026-10-16T01:24:09.5730885Z ok  	github.com/example/epay-go/pkg/observer	1.018s
+2026-10-16T01:24:09.5731597Z ok  	github.com/example/epay-go/pkg/safehttp	(cached)
+2026-10-16T01:24:09.5731899Z ok  	github.com/example/epay-go/pkg/sign	(cached)
+2026-10-16T01:24:09.7350697Z ##[group]Run go test ./pkg/observer -run '^$' -fuzz=FuzzParseEvent -fuzztime=3s -parallel=2
+2026-10-16T01:24:24.2080077Z fuzz: elapsed: 0s, gathering baseline coverage: 0/3 completed
+2026-10-16T01:24:24.2151978Z fuzz: elapsed: 0s, gathering baseline coverage: 3/3 completed, now fuzzing with 2 workers
+2026-10-16T01:24:27.2103524Z fuzz: elapsed: 3s, execs: 23178 (7725/sec), new interesting: 54 (total: 57)
+2026-10-16T01:24:28.2105862Z fuzz: elapsed: 4s, execs: 23178 (0/sec), new interesting: 54 (total: 57)
+2026-10-16T01:24:28.2115027Z ok  	github.com/example/epay-go/pkg/observer	4.006s
+2026-10-16T01:24:28.2784281Z ##[group]Run go vet ./...
+2026-10-16T01:24:57.0820913Z ##[group]Run go build -o /tmp/epay-server ./cmd/server
+2026-10-16T01:24:58.1005781Z ##[group]Run gofmt -d pkg/observer
+2026-10-16T01:25:07.5425998Z Vulnerability #1: GO-2026-6617
+2026-10-16T01:25:07.5427450Z     Found in: golang.org/x/net@v0.59.0
+2026-10-16T01:25:07.5427746Z     Fixed in: golang.org/x/net@v0.60.0
+2026-10-16T01:25:07.5484946Z     Found in: net/http@go1.26.8
+2026-10-16T01:25:07.5485196Z     Fixed in: net/http@go1.26.9
+2026-10-16T01:25:07.5695072Z Vulnerability #2: GO-2026-6613
+2026-10-16T01:25:07.5696474Z     Found in: net/http@go1.26.8
+2026-10-16T01:25:07.5696710Z     Fixed in: net/http@go1.26.9
+2026-10-16T01:25:07.5756918Z Vulnerability #3: GO-2026-6612
+2026-10-16T01:25:07.5758255Z     Found in: golang.org/x/net@v0.59.0
+2026-10-16T01:25:07.5758528Z     Fixed in: golang.org/x/net@v0.60.0
+2026-10-16T01:25:07.5787588Z     Found in: net/http@go1.26.8
+2026-10-16T01:25:07.5787834Z     Fixed in: net/http@go1.26.9
+2026-10-16T01:25:07.5960503Z Vulnerability #4: GO-2026-6611
+2026-10-16T01:25:07.5961368Z     Found in: golang.org/x/net@v0.59.0
+2026-10-16T01:25:07.5961540Z     Fixed in: golang.org/x/net@v0.60.0
+2026-10-16T01:25:07.5980050Z     Found in: net/http@go1.26.8
+2026-10-16T01:25:07.5980207Z     Fixed in: net/http@go1.26.9
+2026-10-16T01:25:07.6100933Z Vulnerability #5: GO-2026-6610
+2026-10-16T01:25:07.6101774Z     Found in: golang.org/x/net@v0.59.0
+2026-10-16T01:25:07.6101946Z     Fixed in: golang.org/x/net@v0.60.0
+2026-10-16T01:25:07.6102244Z     Found in: net/http@go1.26.8
+2026-10-16T01:25:07.6102517Z     Fixed in: net/http@go1.26.9
+2026-10-16T01:25:07.6105698Z Vulnerability #6: GO-2026-6608
+2026-10-16T01:25:07.6106595Z     Found in: net/textproto@go1.26.8
+2026-10-16T01:25:07.6106772Z     Fixed in: net/textproto@go1.26.9
+2026-10-16T01:25:07.6108965Z Vulnerability #7: GO-2026-6607
+2026-10-16T01:25:07.6109723Z     Found in: crypto/tls@go1.26.8
+2026-10-16T01:25:07.6109886Z     Fixed in: crypto/tls@go1.26.9
+2026-10-16T01:25:07.6115135Z Vulnerability #8: GO-2026-6605
+2026-10-16T01:25:07.6116646Z     Found in: net/http@go1.26.8
+2026-10-16T01:25:07.6116891Z     Fixed in: net/http@go1.26.9
+2026-10-16T01:25:07.6119148Z Vulnerability #9: GO-2026-6603
+2026-10-16T01:25:07.6119933Z     Found in: golang.org/x/net@v0.59.0
+2026-10-16T01:25:07.6120110Z     Fixed in: golang.org/x/net@v0.60.0
+2026-10-16T01:25:07.6138701Z     Found in: net/http@go1.26.8
+2026-10-16T01:25:07.6138859Z     Fixed in: net/http@go1.26.9
+2026-10-16T01:25:07.6291356Z Your code is affected by 9 vulnerabilities from the Go standard library.
