@@ -54,3 +54,5 @@
 - [SPEC-018后台调度](specs/SPEC-018-background-delivery.md)、[后台恢复报告](testing/M2-background-report.md)：38+8主套件/进程阶段及5类实际隔离恢复；fixture网络条件与production边界单独记录。
 
 - [SPEC-019状态/诊断](specs/SPEC-019-status-and-diagnostics.md)、[SPEC-020认证健康检查](specs/SPEC-020-authenticated-health.md)、[验证报告](testing/M2-status-health-report.md)。
+
+- [SPEC-021合成永久金额占用](specs/SPEC-021-synthetic-order-claims.md)、[M3占用子批次报告](testing/M3-amount-claims-report.md)：真实PostgreSQL并发及默认构建拒绝，尚无匹配/记账。
