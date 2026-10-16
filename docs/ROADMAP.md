@@ -1,6 +1,6 @@
 # 路线图与阶段门槛
 
-状态：M1合成采集与持久队列已交付；M2实际配对及KeyStore/Room恢复已完成本地和模拟器验证，见[配对报告](testing/M2-pairing-report.md)。事件HTTP接收/上报、后台调度仍待实现。M3尚无支付闭环；用户已授权隔离环境及New API测试补丁，#8真实收款准入仍未满足，#10金额契约仍需修复验证。完整Goal验收见[账本](development/PROTOTYPE-GOAL.md)。
+状态：M1合成采集与持久队列已交付；M2实际配对及KeyStore/Room恢复已完成本地和模拟器验证，见[配对报告](testing/M2-pairing-report.md)。事件HTTP接收/上报与ACK丢失恢复已验证，见[上传报告](testing/M2-receive-upload-report.md)；后台持久调度仍待实现。M3尚无支付闭环；用户已授权隔离环境及New API测试补丁，#8真实收款准入仍未满足，#10金额契约仍需修复验证。完整Goal验收见[账本](development/PROTOTYPE-GOAL.md)。
 
 | 里程碑 | 目标 | 退出条件 |
 | --- | --- | --- |

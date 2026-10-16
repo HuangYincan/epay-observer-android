@@ -1,6 +1,6 @@
 # 文档索引
 
-更新日期：2026-10-16。#9/#5、#11/#12、#13/#14 已合并；#16/#19 已由PR #47合并，实现 [持久身份](specs/SPEC-010-durable-observation-identity.md) 与 [队列](specs/SPEC-011-durable-outbox.md)。#15按SPEC-014交付网关身份/证据模型，#17按SPEC-015/016交付KeyStore、实际HTTPS配对与本地恢复（PR #50 / epay-go #14）；完整事件上报仍待实现。其余Spec按各自状态处理；#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
+更新日期：2026-10-16。#9/#5、#11/#12、#13/#14 已合并；#16/#19 已由PR #47合并，实现 [持久身份](specs/SPEC-010-durable-observation-identity.md) 与 [队列](specs/SPEC-011-durable-outbox.md)。#15按SPEC-014交付网关身份/证据模型，#17按SPEC-015/016交付KeyStore、实际HTTPS配对与本地恢复（PR #50 / epay-go #14）；按SPEC-017已实现实际事件上报/事务接收与ACK，后台持久调度仍待实现。其余Spec按各自状态处理；#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
 
 ## 建议阅读顺序
 
@@ -48,3 +48,5 @@
 - [SPEC-016：实际配对HTTP与恢复](specs/SPEC-016-pairing-http.md)：#17/#25跨库实现，激活、撤销、轮换与本地受保护日志；验收逐项跟踪。
 
 - [实际配对与恢复报告](testing/M2-pairing-report.md)、[长期原型验收账本](development/PROTOTYPE-GOAL.md)。
+
+- [SPEC-017：事务接收、实际上传与ACK](specs/SPEC-017-receive-and-upload.md)、[上传验证报告](testing/M2-receive-upload-report.md)。
