@@ -37,6 +37,6 @@ M3永久金额claim、匹配、事务记账、持久回调、New API实际余额
 
 ## 跨库版本
 
-Android实现af0ae58、修复49cde41；网关实现1fbf5ca、证据5e77b11，PR #17。最终远端CI与合并记录在PR完成后补充。
+Android实现af0ae58、修复49cde41；网关实现1fbf5ca、证据5e77b11，PR #17。Android PR #53合并b5aa16f；网关PR #17合并0515f18。最终head CI：Android38865643332、Go38865320328/38865312615全部成功。#24已关闭。
 
 截图：[测试模式](status-v1/evidence/synthetic-mode.png)、[持久事件](status-v1/evidence/persistent-events.png)、[空队列](status-v1/evidence/empty-queue.png)、[诊断预览](status-v1/evidence/diagnostic-preview.png)、[检查未完成](status-v1/evidence/check-unavailable.png)。均已逐张检查，无密钥/grant/地址或真实收款资料。
