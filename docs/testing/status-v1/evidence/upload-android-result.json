@@ -1,0 +1,16 @@
+{
+  "layer": "emulator independent synthetic notifications over signed HTTPS",
+  "providers": [
+    "wxpay",
+    "alipay"
+  ],
+  "historical_unbound": 2,
+  "acked_events": 2,
+  "transport_attempts": 3,
+  "missing_ack_recovered": true,
+  "payment_verified": false,
+  "health_authorized_channels": 2,
+  "unknown_ca_rejected": true,
+  "redirect_rejected": true,
+  "unexpected_origin_rejected": true
+}

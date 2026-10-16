@@ -1,0 +1,15 @@
+{
+  "ack_body_dropped": true,
+  "active_credentials": 2,
+  "event_conflicts": 0,
+  "events": 2,
+  "health_checks": 2,
+  "layer": "emulator synthetic notifications over signed HTTPS",
+  "payment_verified": false,
+  "providers": [
+    "wxpay",
+    "alipay"
+  ],
+  "redirect_requests": 0,
+  "requests": 3
+}

@@ -8,6 +8,8 @@ import dev.epay.observer.capture.CaptureState
 import dev.epay.observer.capture.ObserverListener
 import dev.epay.observer.parsing.Provider
 import dev.epay.observer.protocol.UploadRuntime
+import dev.epay.observer.protocol.HealthCheck
+import dev.epay.observer.protocol.HealthState
 import dev.epay.observer.security.*
 import dev.epay.observer.storage.*
 import java.io.File
@@ -59,6 +61,9 @@ class UploadNetworkTest {
             }
             PairingRuntime.recover(); PairingRuntime.awaitIdle(); instrumentation.waitForIdleSync()
             assertEquals(Provider.entries.toSet(), PairingRuntime.active.keys)
+            for (provider in Provider.entries) assertEquals(HealthState.AUTHORIZED, HealthCheck(context, db).check(provider))
+            assertEquals(0, db.outboxDao().count())
+            assertEquals(2, db.observerDao().eventCount())
             post("wxpay"); post("alipay")
             await("both actual notifications queued") { db.outboxDao().count() == 2 }
             // The bridge commits the first event but drops its ACK body. This
@@ -79,6 +84,7 @@ class UploadNetworkTest {
             val report = JSONObject().put("layer", "emulator independent synthetic notifications over signed HTTPS")
                 .put("providers", JSONArray(listOf("wxpay", "alipay"))).put("historical_unbound", 2).put("acked_events", 2)
                 .put("transport_attempts", 3).put("missing_ack_recovered", true).put("payment_verified", false)
+                .put("health_authorized_channels", 2)
                 .put("unknown_ca_rejected", true).put("redirect_rejected", true).put("unexpected_origin_rejected", true)
             File(context.filesDir, "avd-upload-result.json").writeText(report.toString(2))
         } finally {
