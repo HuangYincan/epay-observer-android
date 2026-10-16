@@ -18,7 +18,7 @@ import android.widget.TextView
 class FixtureActivity : Activity() {
     private lateinit var status: TextView
     private val manager get() = getSystemService(NotificationManager::class.java)
-    private val scenarios = listOf("wxpay", "alipay", "fresh-wxpay", "fresh-alipay", "identical-pair", "update", "repost",
+    private val scenarios = listOf("wxpay", "alipay", "fresh-wxpay", "fresh-alipay", "fresh-wxpay-20", "fresh-alipay-20", "fresh-wxpay-40", "identical-pair", "update", "repost",
         "summary", "child", "refund", "expense", "chat", "malformed", "oversized", "clear", "parse-wx", "parse-ali", "parse-wx-update",
         "wx-conflict", "ali-conflict", "wx-currency", "ali-currency", "wx-refund", "ali-refund",
         "wx-chat", "ali-chat", "wx-promotion", "ali-promotion", "wx-inbox", "ali-inbox",
@@ -92,6 +92,9 @@ class FixtureActivity : Activity() {
             // identifier or hidden payment metadata is included in the payload.
             "fresh-wxpay" -> send(101)
             "fresh-alipay" -> send(102, "支付宝形态 · 合成到账", "到账 10.00 元")
+            "fresh-wxpay-20" -> send(103, wxTitle, "收款 20.00 元")
+            "fresh-alipay-20" -> send(104, aliTitle, "到账 20.00 元")
+            "fresh-wxpay-40" -> send(105, wxTitle, "收款 40.00 元")
             "identical-pair" -> { send(201); send(202) }
             "update" -> send(101, text = "收款 20.00 元")
             "summary" -> send(301, text = "收到 2 条消息", group = true, summary = true)
