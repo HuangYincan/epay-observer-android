@@ -104,6 +104,7 @@ ksp { arg("room.schemaLocation", "$projectDir/schemas") }
 
 dependencies {
     implementation(libs.room.runtime)
+    implementation(libs.work.runtime)
     ksp(libs.room.compiler)
     androidTestImplementation(libs.room.testing)
     testImplementation(libs.junit)

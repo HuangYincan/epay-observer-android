@@ -1,6 +1,6 @@
 # SPEC-006 Android 后台与持久队列
 
-状态：整体仍为 M0 review candidate；#16/#19 的本地存储子集已按 SPEC-010/011 实现，WorkManager/HTTP/配对未实现。关联 FR-02、FR-03；技术选择见 ADR-0004、身份见 ADR-0005。
+状态：整体仍为 M0 review candidate；#16/#19 的本地存储子集已按 SPEC-010/011 实现，HTTP/配对已按SPEC-016/017交付，WorkManager按SPEC-018推进验证。关联 FR-02、FR-03；技术选择见 ADR-0004、身份见 ADR-0005。
 
 ## 生命周期
 

@@ -62,9 +62,9 @@ class UploadNetworkTest {
             post("wxpay"); post("alipay")
             await("both actual notifications queued") { db.outboxDao().count() == 2 }
             // The bridge commits the first event but drops its ACK body. This
-            // trigger respects persisted nextAttemptAt; it does not reset backoff.
+            // WorkManager must recover using the persisted due time without a
+            // polling loop that triggers uploads from the test.
             await("durable HTTPS ACK recovery", 60000) {
-                UploadRuntime.kick()
                 db.outboxDao().counts().any { it.state == "ACKED" && it.count == 2 }
             }
             UploadRuntime.awaitIdle(); DurableCapture.awaitIdle()
