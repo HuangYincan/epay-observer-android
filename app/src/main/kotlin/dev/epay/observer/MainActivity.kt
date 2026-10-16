@@ -63,7 +63,7 @@ class MainActivity : Activity() {
         setContentView(R.layout.activity_main)
         parserPreview = dev.epay.observer.parsing.ParserPreview(this)
         pairingUi = dev.epay.observer.security.PairingUi(this)
-        diagnosticsUi = dev.epay.observer.status.DiagnosticsUi(this)
+        diagnosticsUi = dev.epay.observer.status.DiagnosticsUi(this, savedInstanceState)
         findViewById<Button>(R.id.upload_now).setOnClickListener { dev.epay.observer.protocol.UploadRuntime.kick() }
         findViewById<Button>(R.id.retry_upload).setOnClickListener { dev.epay.observer.protocol.UploadRuntime.kick(retryAfterRepair = true) }
 
@@ -88,6 +88,10 @@ class MainActivity : Activity() {
             insets
         }
         root.requestApplyInsets()
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        diagnosticsUi.saveState(outState)
+        super.onSaveInstanceState(outState)
     }
     @Deprecated("Platform activity result callback")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

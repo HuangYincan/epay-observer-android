@@ -39,6 +39,14 @@ class HealthInstrumentedTest {
             assertEquals("AUTHENTICATION", pairing.uploadHold(Provider.WXPAY))
             val delayed = HealthCheck(context, db, EventClient { _, _ -> pairing.resumeUploads(Provider.WXPAY); success }, { 2000 })
             assertEquals(HealthState.CHANGED, delayed.check(Provider.WXPAY))
+            var busy = false
+            val queued = HealthCheck(context, db, EventClient { _, _ -> error("must not send while pairing") }, { 2000 }, { busy })
+            busy = true // Pairing started after the caller enqueued this check.
+            assertEquals(HealthState.BUSY, queued.check(Provider.WXPAY))
+            busy = false
+            val preparing = HealthCheck(context, db, EventClient { _, _ -> error("must not send while pairing") },
+                { busy = true; 2000 }, { busy })
+            assertEquals(HealthState.BUSY, preparing.check(Provider.WXPAY))
             vault.remove(binding, keyId)
             assertEquals(HealthState.LOCAL_KEY, check.check(Provider.WXPAY))
             assertEquals(2, requests.size)

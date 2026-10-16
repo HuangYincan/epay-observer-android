@@ -7,6 +7,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.widget.Button
 import android.widget.ScrollView
 import android.widget.TextView
@@ -33,11 +34,11 @@ class DiagnosticReader(private val context: android.content.Context, private val
 }
 
 /** Local read-only summaries. Export is a separate, user-selected document action. */
-class DiagnosticsUi(private val activity: Activity) {
+class DiagnosticsUi(private val activity: Activity, savedState: Bundle? = null) {
     private val worker = Executors.newSingleThreadExecutor { Thread(it, "observer-diagnostics") }
     private val refreshing = AtomicBoolean(false)
     private val database = ObserverDatabase.open(activity)
-    private var draft: String? = null
+    private var draft: String? = savedState?.getString(DRAFT_KEY)?.takeIf { it.length <= MAX_DRAFT_LENGTH }
     private val checking = AtomicBoolean(false)
 
     init {
@@ -77,7 +78,7 @@ class DiagnosticsUi(private val activity: Activity) {
                     else {
                         val text = TextView(activity).apply {
                             id = R.id.diagnostic_preview
-                            setPadding(24, 16, 24, 16); setTextIsSelectable(true)
+                            setPadding(24, 16, 24, 16)
                             typeface = android.graphics.Typeface.MONOSPACE; this.text = json
                         }
                         AlertDialog.Builder(activity).setTitle(R.string.diagnostic_preview_title)
@@ -99,7 +100,8 @@ class DiagnosticsUi(private val activity: Activity) {
     }
     fun documentResult(resultCode: Int, uri: Uri?) {
         val json = draft; draft = null
-        if (resultCode != Activity.RESULT_OK || uri == null || json == null) return
+        if (resultCode != Activity.RESULT_OK) return
+        if (uri == null || json == null) { message(R.string.diagnostic_export_failed); return }
         if (uri.scheme != "content") { message(R.string.diagnostic_export_failed); return }
         worker.execute {
             val success = try {
@@ -121,6 +123,7 @@ class DiagnosticsUi(private val activity: Activity) {
                 val check = dev.epay.observer.protocol.HealthCheck(activity, database)
                 Provider.entries.joinToString("\n") { provider ->
                     (if (provider == Provider.WXPAY) "微信：" else "支付宝：") + when (check.check(provider)) {
+                        dev.epay.observer.protocol.HealthState.BUSY -> "配对正在进行，请稍后检查"
                         dev.epay.observer.protocol.HealthState.AUTHORIZED -> "检查时网关授权有效"
                         dev.epay.observer.protocol.HealthState.UNBOUND -> "未绑定"
                         dev.epay.observer.protocol.HealthState.LOCAL_KEY -> "本地凭据不可用，请修复配对"
@@ -136,6 +139,13 @@ class DiagnosticsUi(private val activity: Activity) {
             activity.runOnUiThread { if (!activity.isDestroyed) activity.findViewById<TextView>(R.id.authorization_status).text = text }
         }
     }
+    fun saveState(state: Bundle) {
+        draft?.takeIf { it.length <= MAX_DRAFT_LENGTH }?.let { state.putString(DRAFT_KEY, it) }
+    }
     fun close() { worker.execute { database.close() }; worker.shutdown(); draft = null }
-    companion object { const val EXPORT_REQUEST = 2401 }
+    companion object {
+        const val EXPORT_REQUEST = 2401
+        private const val DRAFT_KEY = "diagnostic_export_draft"
+        private const val MAX_DRAFT_LENGTH = 8192
+    }
 }
