@@ -1,6 +1,6 @@
 # M4 真实 App 来源与环境预检
 
-2026-10-16；#33 / #42。依据 SPEC-001 来源核查、SPEC-008 内容读取前的来源边界、SPEC-027 READY-01 与 ADR-0002。用户要求继续下一阶段；本批实际完成官方安装产物的离线核验和现有模拟器环境盘点。安装、登录与通知投递尚未运行，不将 APK 签名验证等同运行兼容性。
+2026-10-16；#33 / #42。依据 SPEC-001 来源核查、SPEC-008 内容读取前的来源边界、SPEC-027 READY-01 与 ADR-0002。先完成官方安装产物离线核验及模拟器环境盘点；用户随后明确确认安装与自行登录测试账号。后续实际安装/启动结果单独记录，不将 APK 签名验证等同运行兼容性。
 
 ## 已完成的合成验收
 
@@ -8,7 +8,7 @@
 
 ## D0 环境
 
-本轮只读盘点已有专用 AVD：Android 17 / API 37，安全补丁 2026-05-05，`sdk_gphone64_arm64`，ABI `arm64-v8a`，`ro.kernel.qemu=1`。分别查询 `pm path com.tencent.mm` 与 `pm path com.eg.android.AlipayGphone`，均未发现已安装包。
+安装前只读盘点已有专用 AVD：Android 17 / API 37，安全补丁 2026-05-05，`sdk_gphone64_arm64`，ABI `arm64-v8a`，`ro.kernel.qemu=1`。当时分别查询 `pm path com.tencent.mm` 与 `pm path com.eg.android.AlipayGphone`，均未发现已安装包。
 
 工具复用现有 Android Build Tools 36.0.0 的 `aapt2`、`apksigner` 和 Android Studio JBR，没有安装工具或新镜像。产物只保存在本机临时目录，未提交 APK。
 
@@ -45,7 +45,7 @@ shasum -a 256 /path/to/downloaded.apk
 | 验收项 | 微信 | 支付宝 | 证据/阻塞 |
 | --- | --- | --- | --- |
 | 官方来源、版本、ABI和签名核验 | Passed | Passed | 上述实际产物与SDK工具结果 |
-| 在目标AVD安装和启动 | Not run | Not run | 已准备安装产物；等待本次安装选择 |
+| 在目标AVD安装和首次启动 | Passed | Passed | 微信到达Log In / Sign Up；支付宝到达首次隐私提示，不表示登录通过 |
 | 登录及模拟器限制 | Not run | Not run | 需用户自行登录测试账号，不代操作账号验证或绕过限制 |
 | 通知可达性与字段 | Blocked | Blocked | 尚未登录，也未获真实样本采集许可；当前观察器不接受真实来源 |
 | 正负例解析及后台稳定性 | Not run | Not run | 依赖获准样本和新的观察实现 |
@@ -56,3 +56,15 @@ shasum -a 256 /path/to/downloaded.apk
 后续观察工具方案为 **Proposed，未实现**：另行定义仅本地观察的独立构建/应用，限定已核验包、版本、签名和用户；经用户允许才读取目标通知字段；无网络上报、配对或支付事件生成，避免真实通知进入已有合成账本。实现前细化规格、保留读取内容前的来源检查，新增拒绝和产物隔离测试。当前不放宽现有来源规则，也不通过夹具规则解析真实通知。
 
 本阶段不要求真实付款。若登录/运行被平台限制，记录界面与版本后标 Blocked，不使用 Hook、签名伪装或登录绕过。#33需安装、登录限制及获准通知证据才能完整验收；#42保持开放。
+
+## 授权后的安装与启动
+
+用户确认后，安装前重新计算两份APK的SHA-256，与上表一致；目标再次确认是已有专用模拟器。通过正常 `adb install` 执行，不使用低SDK绕过、签名绕过或自动授予全部运行时权限。
+
+微信安装返回 `Success`，PackageManager实际报告 `8.0.79 / 3200`、arm64-v8a、minSdk24/targetSdk34。启动 `com.tencent.mm/com.tencent.mm.ui.LauncherUI` 返回 `Status: ok`，冷启动Activity耗时25,664ms；随后UI实际出现 `Log In`、`Sign Up`和语言入口。该结果只表示可安装并进入首次登录页面，登录成功、后台运行与通知投递仍未验收。
+
+支付宝安装返回 `Success`，PackageManager实际报告 `12.12.30.8000 / 212310`、arm64-v8a、minSdk24/targetSdk35。启动 `com.eg.android.AlipayGphone/com.eg.android.AlipayGphone.AlipayLogin` 返回 `Status: ok`，冷启动Activity耗时13,401ms；实际画面显示 `Privacy Protection Tips` 及 `Agree / Disagree`。留在该页交由用户自行阅读选择并登录；未替用户同意隐私条款、填账号或验证码。两次耗时只是本轮单次启动观测，不是性能基准或稳定性结论。
+
+安装过程中可见模拟器出现 `System UI isn't responding`，系统崩溃缓冲区含 `com.android.phone` 的 `DeadSystemException`。记录了系统不稳定这一环境限制；没有据此认定微信不兼容或宣称底层原因已修复。选择系统对话框的“Wait”后继续等待，最终微信安装与首屏检查成功；未清userdata、未停止其他主机任务或更改系统验证规则。原始诊断与首屏记录只在本机临时目录保留。
+
+当前人工下一步：用户在模拟器自行完成两渠道登录，只反馈成功/受限及提示类别；不向聊天或公开Issue发送账号、验证码或原通知。拿到登录结果后再分别设计无资金的通知可达性验证；真实通知正文采集仍需明确许可，现有观察器的真实来源注册表未修改。
