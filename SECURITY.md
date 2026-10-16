@@ -1,6 +1,6 @@
 # 安全与隐私边界
 
-本项目已有首批基础状态页与构建隔离，尚无收款采集或支付功能。设计目标见 [设备安全规格](docs/specs/SPEC-005-device-security.md)，本批实现范围见 [SPEC-007](docs/specs/SPEC-007-build-baseline.md)。
+本项目已验证隔离模拟器合成通知采集、认证上报和测试充值闭环；真实来源规则与生产自动匹配未准入。安全边界见[设备安全规格](docs/specs/SPEC-005-device-security.md)，当前运行证据见[M3报告](docs/testing/M3-prototype-report.md)，发布前要求见[签名与发布检查表](docs/operations/release-checklist.md)。
 
 ## 公开仓库内容
 

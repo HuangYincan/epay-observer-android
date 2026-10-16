@@ -1,6 +1,6 @@
 # 构建与模拟器验证（#9 / #5 / #11 / #12 / #13 / #14）
 
-范围见 SPEC-007/008/009；当前有独立夹具、监听/解析、持久事件/队列及SPEC-016实际配对，尚无事件HTTP上传、匹配或充值能力。正式／测试应用 ID 是构建隔离，不是服务端身份认证。
+当前已有SPEC-007–026独立夹具、采集/队列、实际配对/上报及合成充值闭环，见[M3报告](../testing/M3-prototype-report.md)。下列早期阶段的测试计数保留为历史记录；当前主套件43+8，JVM32/147。正式／测试应用 ID 是构建隔离，不是服务端身份认证。
 
 ## 本机工具
 
@@ -26,7 +26,7 @@ app/gradle.lockfile 和 fixture/gradle.lockfile 锁定已解析的运行／测�
 - 测试客户端：`app/build/outputs/apk/fixture/debug/app-fixture-debug.apk`，包名 `dev.epay.observer.fixtureclient.debug`。
 - 正式边界产物：`app/build/outputs/apk/production/release/app-production-release-unsigned.apk`，包名 `dev.epay.observer`，不配置生产签名，不用于发布。
 - 正式源码调试变体 productionDebug 可供以后调试；fixtureRelease 在配置期禁用。
-- JVM 测试验证协议 golden、观察身份与容量／来源边界，不提供生产签名／上传实现。AndroidX Test、JUnit、JSON 仅在测试配置中。
+- JVM 测试验证协议 golden、观察身份与容量／来源边界，不提供生产签名；实际上传已按SPEC-017/018实现。AndroidX Test、JUnit、JSON 仅在测试配置中。
 
 ```sh
 python3 scripts/verify_apk.py app/build/outputs/apk/production/release/app-production-release-unsigned.apk --variant productionRelease
@@ -55,7 +55,7 @@ smoke helper 安装独立夹具、测试客户端及 runner；只给夹具授予
 
 reset helper 只清除 `dev.epay.observer.fixtureclient.debug` 的数据，再启动它。严禁拿 `-wipe-data` 或删除 AVD 代替日常重置，也不清理微信/支付宝/其他应用。冷启动可用 -no-snapshot-load；完整 AVD 重建应另用新名称并单独授权，不能破坏已有实例。
 
-AVD 的 10.0.2.2 是宿主访问路由，不会被本工程当作生产回调地址。API 37 的 localhost 明文默认例外已通过显式域规则禁用；所有测试沿用系统证书校验。safehttp 与受控回调链路仍属于后续 #29。
+AVD 的 10.0.2.2 是宿主访问路由，不会被本工程当作生产回调地址。API 37 的 localhost 明文默认例外已通过显式域规则禁用；所有测试沿用系统证书校验。受限本地回调按SPEC-024实现，默认safehttp不变。
 
 ## CI
 
@@ -78,6 +78,8 @@ Android verification workflow 使用 ubuntu-24.04、Temurin 25.0.3+9（setup-jav
 
 SPEC-009定义两组独立规则，116条语料在docs/testing/parsing-v1。当前production单测22项、fixture136项（公共测试重复执行）；AVD helper要求25项主套件及2个独立跨进程阶段，涵盖采集、解析、Room持久身份/队列和实际Android JCA签名、KeyStore导入/幂等/删除与跨进程密钥恢复。详细证据见M1-parsing-report、M2-outbox-report与M2-signing-core-report。
 
-追加夹具命令：parse-wx、parse-ali、parse-wx-update，以及 wx-/ali- 前缀的 conflict、currency、refund、chat、promotion、inbox、precision、subtext。两个独立CheckBox控制预览和后续新观察的解析，偏好保存在本应用私有空间。持久层保存采集时开关；旧身份不会在重新启用时追溯制造事件。运行时尚未配对，无网络发送；开关不能使正式构建信任夹具。
+追加夹具命令：parse-wx、parse-ali、parse-wx-update，以及 wx-/ali- 前缀的 conflict、currency、refund、chat、promotion、inbox、precision、subtext。两个独立CheckBox控制预览和后续新观察的解析，偏好保存在本应用私有空间。持久层保存采集时开关；旧身份不会在重新启用时追溯制造事件。开关控制预览及新观察的解析；配对后可按普通队列上传，但开关不能使正式构建信任夹具或重解释旧证据。
 
-实际配对HTTPS及临时CA/默认构建恢复：[配对复现](pairing-local.md)。当前smoke要求28项主套件和8个真实进程阶段；网络配对单独执行，不能把离线恢复套件当作网络通过。
+实际配对HTTPS及临时CA/默认构建恢复：[配对复现](pairing-local.md)。当前smoke要求43项主套件和8个真实进程阶段；网络配对单独执行，不能把离线恢复套件当作网络通过。
+
+人工操作请使用带窗口AVD，保留userdata，避免重复启动同一实例。自动化脚本结束会清理自身adb reverse；本地HTTPS手工验收需按[清单](../testing/manual-acceptance.md)恢复该任务路由。不要把已有配对状态的客户端直接用于要求未绑定的基础测试，先归档并明确使用独立测试数据。
