@@ -71,3 +71,5 @@
 - [真机双渠道计划与准入门槛](testing/real-device-plan.md)（计划，实测Not run）
 - [签名、产物与发布检查表](operations/release-checklist.md)（规划，未发布）
 - [SPEC-027人工验收准备](specs/SPEC-027-manual-acceptance-readiness.md)
+
+- [人工配对时钟漂移与正常恢复报告](testing/manual-clock-recovery-report.md)（#59）。

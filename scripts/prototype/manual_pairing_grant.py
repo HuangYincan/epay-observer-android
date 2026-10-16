@@ -2,9 +2,13 @@
 """Create a short-lived grant for a human to paste into the existing pairing UI."""
 import argparse
 import json
+from email.utils import parsedate_to_datetime
 import os
 from pathlib import Path
 import ssl
+import subprocess
+import time
+import re
 import urllib.request
 from lab_state import load_runtime, require_container
 
@@ -14,12 +18,38 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
+def check_emulator_clock(server_date, received_at, serial):
+    try:
+        timestamp = parsedate_to_datetime(server_date)
+        if timestamp.tzinfo is None:
+            raise ValueError('timezone required')
+        server_ms = timestamp.timestamp() * 1000
+    except (TypeError, ValueError, OverflowError):
+        raise RuntimeError('网关未提供有效Date，无法预检时钟；未创建配对授权。') from None
+    sdk = Path(os.environ.get('ANDROID_HOME') or os.environ.get('ANDROID_SDK_ROOT')
+        or Path.home() / 'Library/Android/sdk')
+    adb = sdk / 'platform-tools/adb'
+    if not adb.is_file():
+        raise RuntimeError('请将ANDROID_HOME指向已有SDK；未创建配对授权。')
+    try:
+        device_ms = int(subprocess.check_output([str(adb), '-s', serial, 'shell', 'date', '+%s'],
+            text=True, stderr=subprocess.PIPE, timeout=5).strip()) * 1000
+    except (OSError, subprocess.SubprocessError, ValueError):
+        raise RuntimeError('无法读取指定模拟器时间，请检查ADB连接；未创建配对授权。') from None
+    expected_ms = server_ms + (time.monotonic() - received_at) * 1000
+    if abs(device_ms - expected_ms) > 3000:
+        raise RuntimeError('模拟器与网关时钟偏差超过3秒，请先校时或保留数据冷启动AVD；未创建配对授权。')
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('directory', type=Path)
     p.add_argument('provider', choices=['wxpay', 'alipay'])
     p.add_argument('--mode', choices=['rotate', 'replace'], default='rotate')
+    p.add_argument('--serial', default='emulator-5554', help='Explicit emulator-NNNN for clock preflight; never a physical device')
     args = p.parse_args()
+    if not re.fullmatch(r'emulator-[0-9]+', args.serial):
+        p.error('只允许显式emulator-NNNN目标，未创建配对授权')
     lab = args.directory.resolve()
     meta = load_runtime(lab)
     require_container(meta, 'gateway')
@@ -36,13 +66,15 @@ def main():
             headers['Authorization'] = 'Bearer ' + token
         request = urllib.request.Request(origin + path, json.dumps(data).encode(), headers)
         with client.open(request, timeout=15) as response:
-            return json.load(response)
+            received_at = time.monotonic()
+            return json.load(response), response.headers.get('Date'), received_at
 
     account = json.loads((lab / 'private-accounts.json').read_text())['gateway_admin']
-    login = post('/api/admin/auth/login', account)
+    login, server_date, received_at = post('/api/admin/auth/login', account)
     if login.get('code') != 0:
         raise RuntimeError('administrator login rejected')
-    grant = post('/api/admin/observer/grants', {'schema_version': 1, 'receiver_id': receiver,
+    check_emulator_clock(server_date, received_at, args.serial)
+    grant, _, _ = post('/api/admin/observer/grants', {'schema_version': 1, 'receiver_id': receiver,
         'mode': args.mode}, login['data']['token'])
     expected = {'schema_version': 1, 'origin': origin, 'environment': meta['environment'],
         'source_class': 'synthetic', 'provider': args.provider, 'receiver_id': receiver, 'mode': args.mode}
@@ -60,4 +92,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except RuntimeError as failure:
+        raise SystemExit(str(failure)) from None

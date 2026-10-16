@@ -11,3 +11,5 @@
 ## 用户重跑后的下一批
 
 用户已亲自从空数据复现两渠道成功和10项回调故障，并验证暂停恢复不升级（4条收入/消费/topup，quota130,000,000）。现按SPEC-027进入人工界面验收：保留原数据，已改为可见AVD、恢复本地TLS路由，短期人工配对辅助工具通过创建/inspect；用户确认配对及逐项体验仍待操作。#35交付真机计划、#37交付签名发布规划，不能将规划完成视为真实实测或已发布。具体入口见manual-acceptance.md、real-device-plan.md及release-checklist.md。
+
+人工验收后续发现#59：AVD慢约433秒，现有支付宝实际HTTPS健康DENIED；保留数据冷启动校时后同凭据AUTHORIZED，过期微信pending按正常协议撤销/替换恢复。授权辅助脚本增加发放前时钟预检，安全窗口不变；报告manual-clock-recovery-report.md。

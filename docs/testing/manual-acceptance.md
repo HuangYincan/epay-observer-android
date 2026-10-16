@@ -58,7 +58,9 @@ open -t "$observer_lab/manual-pairing-wxpay.json"
 - 完成后点“检查网关授权”，仍应两渠道通过；历史事件保持原身份，不会再次充值。
 - 支付宝同理：脚本参数改为alipay，文件名为manual-pairing-alipay.json，确认渠道alipay / 范围lab-receiver-ali。
 
-授权只有5分钟；到期时重新发放，不修改时间或放宽检查。不要使用已被自动化消费的avd-grants.json。`--mode replace`用于确需替换设备的明确操作，会替代旧绑定，当前保留数据的轮换验收不需要它。脚本只在私有lab写0600文件，不复制设备密钥或替用户执行确认。
+授权只有5分钟；脚本现在先比较明确指定AVD（默认emulator-5554）和TLS网关Date，超过3秒差异或无法核对时不会发放。其他模拟器编号用`--serial emulator-NNNN`。AVD长时间运行或宿主休眠后先核对时间；`adb shell cmd network_time_update_service force_refresh`失败时，保留userdata正常冷启动同一AVD并恢复reverse，绝不wipe或修改协议时间窗口。
+
+到期且尚未确认时可以重新发放；如果已经点击确认并留下待完成配对，不能直接重复粘贴新token。先保留现场，由管理员核对对应provider/绑定代次，按SPEC-016撤销过期绑定，再取消本机待完成配对并用replace建立新绑定。已提交的收入和事件不能重写；不要仅凭通用错误文字判断某个绑定需要撤销。不要使用已被自动化消费的avd-grants.json。`--mode replace`用于确需替换设备的明确操作，会替代旧绑定，当前保留数据的轮换验收不需要它。脚本只在私有lab写0600文件，不复制设备密钥或替用户执行确认。
 
 本批已验证辅助脚本的真实TLS创建/inspect和文件权限；用户通过UI确认轮换仍为待验收。若显示待恢复，先用“重试恢复配对”；到期或撤销按SPEC-016修复，不删Room或改历史事件。
 
@@ -72,3 +74,5 @@ python3 scripts/prototype/stop_lab.py "$observer_lab"
 ```
 
 真实微信/支付宝、真机、真实资金以及生产自动匹配不在本轮人工验收范围。
+
+2026-10-16实际发现并修复时钟漂移及已过期pending恢复，见[时钟故障报告](manual-clock-recovery-report.md)。恢复是正常协议自动执行的修复证据，不计为用户手工轮换验收通过。
