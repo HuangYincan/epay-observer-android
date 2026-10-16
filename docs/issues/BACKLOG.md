@@ -1,6 +1,6 @@
 # Issue 驱动任务索引
 
-日期：2026-10-16。#9/#5、#11/#12、#13/#14 已合并；#16/#19 实现持久身份和队列，PR #47，见 [队列报告](../testing/M2-outbox-report.md)。原有42个Issues不重复创建；没有上传或支付功能。
+日期：2026-10-16。M1/M2及M3模拟器合成通知自动充值已通过，最终PR Android #57 / epay-go #21；[完整报告](../testing/M3-prototype-report.md)和[当前后续边界](../development/NEXT.md)。原42个Issues不重复创建，真实收款准入#8与M4真实App/真机/发布继续保留。
 
 开发顺序：需求／研究／关键规格 → 模拟器采集 → 可靠上报 → 自动充值测试闭环 → 真机兼容性与发布准备。自动充值是首版目标；未知或歧义事件不能强行入账。
 
@@ -8,7 +8,7 @@
 
 需求、许可证、通知身份、协议与匹配策略收敛。规划完成不等于授权开始实现。
 
-研究结果：#1/#2/#3/#4/#6/#7 已按研究验收关闭，#8/#10 的范围／集成准入仍需决策；不因 M0 报告存在就关闭下游实现任务。跨库映射：#15/#20/#25 → epay-go #6；#8/#18/#22/#32 → epay-go #7；#26/#27/#28 → epay-go #8；#10/#27/#29 → epay-go #9。具体链接见 [M0 报告](../research/M0-review.md)。
+研究结果：#1/#2/#3/#4/#6/#7 已按研究验收关闭，#10固定金额补丁已完成；#8真实收款准入仍需证据/决策；不因 M0 报告存在就关闭下游实现任务。跨库映射：#15/#20/#25 → epay-go #6；#8/#18/#22/#32 → epay-go #7；#26/#27/#28 → epay-go #8；#10/#27/#29 → epay-go #9。具体链接见 [M0 报告](../research/M0-review.md)。
 
 Epic：[[Epic] 规格、研究与跨仓库开发基线](https://github.com/HuangYincan/epay-observer-android/issues/38)
 
@@ -43,7 +43,7 @@ Epic：[[Epic] 安卓模拟器中的微信／支付宝双通道采集](https://g
 
 ## M2 · 可靠认证上报
 
-设备绑定、持久队列、协议双方和故障一致性。#19已合并本地outbox；#21实际签名/退避、#20/#25的Go纯协议子集已实施。#15身份/证据模型与#17 KeyStore子集已在epay-go PR #13和观察器PR #49交付，见M2-identity-vault-report；完整配对、HTTP上传/接收事务与跨端故障验收仍待完成。
+设备绑定、持久队列、实际HTTPS配对/上传/接收、后台恢复和诊断均已交付，见M2系列报告及最终M3真实联调证据。
 
 Epic：[[Epic] 设备认证与可靠事件上报](https://github.com/HuangYincan/epay-observer-android/issues/40)
 
@@ -60,7 +60,7 @@ Epic：[[Epic] 设备认证与可靠事件上报](https://github.com/HuangYincan
 
 ## M3 · 自动充值测试闭环
 
-唯一匹配、事务幂等、New API自动入账、异常测试与Release隔离。
+唯一匹配、事务幂等、New API自动入账、异常测试与Release隔离已在合成原型范围验证。
 
 Epic：[[Epic] epay-go 到 New API 自动充值测试闭环](https://github.com/HuangYincan/epay-observer-android/issues/41)
 

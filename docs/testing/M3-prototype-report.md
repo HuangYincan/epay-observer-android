@@ -56,6 +56,13 @@
 
 ## 审查与边界
 
-Standards：已修复清理/跨库审计和历史评审发现，最终无实质遗留。Spec：已修复synthetic资格缺口与订单追踪状态缺口，最终无实质遗留。文档/脚本最终复审和CI关联在本报告的交付记录补充。
+Standards：已修复清理/跨库审计和历史评审发现，最终无实质遗留。Spec：已修复synthetic资格缺口与订单追踪状态缺口，最终无实质遗留。文档/脚本最终两轴复审无实质遗留；CI由下列PR检查记录跟踪。
 
 真实App签名/通知样本、真实付款归属、真机后台行为未验证；生产自动匹配关闭，#8及M4真实兼容性任务继续阻塞。永久金额占用是保守的合成策略，不能无限复用金额运营。当前没有人工到账旁路；待核对需独立真实账单，不能用同一通知证明自身。KEK重封装及生产发布运维不在该隔离原型交付内。
+
+## 交付记录
+
+- Android PR #57：`feat/30-recharge-integration`；epay-go PR #21：`feat/observer-recharge-integration`。两端PR说明关联规格/Issue和完整验收，正常检查通过后合并，不绕过保护。
+- 首轮本批Android CI38892027072（b2165cc），网关CI38892032583/38891924545（2bdaef3）；最终文档头及合并结果以PR Checks和Issue关闭证据为准，不将正在运行的检查记作通过。
+- 历史已合并基础：Android #55/#56、epay-go #19/#20；其CI见各子报告。当前工作包含这些已通过基础和最终集成。
+- [最终Android测试汇总](recharge-v1/evidence/android-tests.json)：production JVM32、fixture JVM147、0失败/跳过；AVD43+8。默认APK与显式CA演示APK分目录归档于本地`build/prototype-delivery/`，不公开发布。
