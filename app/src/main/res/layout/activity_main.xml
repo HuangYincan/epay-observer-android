@@ -76,6 +76,12 @@
             android:layout_height="wrap_content" android:text="重试恢复配对" />
         <Button android:id="@+id/cancel_pairing" android:layout_width="match_parent"
             android:layout_height="wrap_content" android:text="取消待完成配对" />
+        <TextView android:id="@+id/upload_status" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textColor="#172C34" />
+        <Button android:id="@+id/upload_now" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="立即尝试发送" />
+        <Button android:id="@+id/retry_upload" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="修复网络或时间后恢复发送" />
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginTop="18dp" android:text="@string/parser_title" android:textColor="#172C34" />
         <CheckBox android:id="@+id/wx_parser" android:layout_width="match_parent"

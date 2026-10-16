@@ -18,6 +18,8 @@ class PairingStore(private val db: ObserverDatabase) {
         db.observerDao().putMetadata(MetadataRow(epochName(value.binding.provider), java.util.UUID.randomUUID().toString()))
         OutboxStore(db).activate(value.binding)
         db.outboxDao().resumePairing(value.binding.scope)
+        db.observerDao().putMetadata(MetadataRow(uploadName(value.binding.provider), ""))
+        db.outboxDao().resumeAuthorizedScope(value.binding.scope)
     }
     fun active(provider: Provider): ActiveCredential? = db.runInTransaction(Callable {
         val value = db.observerDao().metadata(name(provider))?.let(::decode) ?: return@Callable null
@@ -27,12 +29,31 @@ class PairingStore(private val db: ObserverDatabase) {
         }
     })
     fun revoke(provider: Provider) { OutboxStore(db).revoke(provider) }
+    fun uploadHold(provider: Provider): String? = db.observerDao().metadata(uploadName(provider))?.takeIf { it.isNotEmpty() }
+    fun uploadAllowed(value: ActiveCredential): Boolean = db.runInTransaction(Callable {
+        active(value.binding.provider)?.let { it.keyId == value.keyId && it.captureEpoch == value.captureEpoch } == true &&
+            db.observerDao().metadata(uploadName(value.binding.provider)).isNullOrEmpty()
+    })
+    fun pauseUploads(value: ActiveCredential, reason: HoldReason) = db.runInTransaction {
+        if (active(value.binding.provider)?.keyId == value.keyId) {
+            db.observerDao().putMetadata(MetadataRow(uploadName(value.binding.provider), reason.name))
+            db.outboxDao().holdScope(value.binding.scope, reason.name)
+        }
+    }
+    /** Explicit retry after repair. Server authorization is still checked on the next request. */
+    fun resumeUploads(provider: Provider) = db.runInTransaction {
+        active(provider)?.let {
+            db.observerDao().putMetadata(MetadataRow(uploadName(provider), ""))
+            db.outboxDao().resumeAuthorizedScope(it.binding.scope)
+        }
+    }
     fun pause(provider: Provider) = db.runInTransaction {
         db.observerDao().putMetadata(MetadataRow("binding:${provider.name.lowercase(java.util.Locale.ROOT)}", "pairing"))
         db.observerDao().putMetadata(MetadataRow(epochName(provider), "paused"))
         db.outboxDao().pausePairing(provider.name.lowercase(java.util.Locale.ROOT))
     }
     private fun name(provider: Provider) = "pairing:${provider.name}"
+    private fun uploadName(provider: Provider) = "upload-hold:${provider.name}"
     companion object { internal fun epochName(provider: Provider) = "capture-epoch:${provider.name}" }
     private fun encode(value: ActiveCredential): String = ByteArrayOutputStream().use { buffer ->
         DataOutputStream(buffer).use { out ->

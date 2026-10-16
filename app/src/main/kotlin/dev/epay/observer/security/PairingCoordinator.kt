@@ -42,7 +42,13 @@ class PairingCoordinator(context: Context, database: ObserverDatabase,
         journal.save(pending) // Must commit before any redeem request.
         complete(pending)
     }
-    fun recover(): ActiveCredential? = locked { journal.read()?.let(::complete) }
+    fun recover(): ActiveCredential? = locked {
+        val pending = try { journal.read() } catch (failure: Exception) {
+            Provider.entries.forEach(store::pause)
+            throw failure
+        }
+        pending?.let(::complete)
+    }
     fun active(): Map<Provider, ActiveCredential> = Provider.entries.mapNotNull { provider ->
         store.active(provider)?.let { current ->
             if (PairingPolicy.permits(current.binding.sourceClass) && current.expiresAt > System.currentTimeMillis() &&

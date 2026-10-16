@@ -50,7 +50,7 @@ object PairingRuntime {
                 val result = action()
                 active = coordinator.active()
                 status = if (active.isEmpty()) "未绑定" else active.keys.joinToString(" / ") { if (it == Provider.WXPAY) "微信已配对" else "支付宝已配对" }
-                main.post { busy = false; CaptureState.changed(); success(result) }
+                main.post { busy = false; CaptureState.changed(); success(result); dev.epay.observer.protocol.UploadRuntime.kick() }
             } catch (failure: Exception) {
                 active = try { coordinator.active() } catch (_: Exception) { emptyMap() }
                 val code = (failure as? PairingFailure)?.code
@@ -60,7 +60,7 @@ object PairingRuntime {
                     "redirect_rejected" -> "网关重定向被拒绝；请核对 HTTPS 地址"
                     else -> "配对未完成；请核对网络、证书和设备时间后重试恢复"
                 }
-                main.post { busy = false; CaptureState.changed() }
+                main.post { busy = false; CaptureState.changed(); dev.epay.observer.protocol.UploadRuntime.kick() }
             }
         }
     }

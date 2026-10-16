@@ -8,7 +8,7 @@ import java.util.concurrent.Callable
 data class DeliveryLease(val eventId: String, val token: String, val until: Long, val attempt: Long, val body: ByteArray)
 data class ReceiptAck(val schemaVersion: Int, val eventId: String, val httpStatus: Int,
     val receiptStatus: String, val processingStatus: String, val receivedAt: Long)
-enum class HoldReason { AUTHENTICATION, SCOPE, CONFLICT }
+enum class HoldReason { AUTHENTICATION, SCOPE, CONFLICT, REDIRECT, UNEXPECTED_RESPONSE, CLOCK_RANGE }
 enum class TerminalReason { INVALID_PAYLOAD, UNSUPPORTED_VERSION, BODY_TOO_LARGE, UNSUPPORTED_MEDIA_TYPE }
 
 class OutboxStore(private val database: ObserverDatabase) {

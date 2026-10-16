@@ -34,5 +34,5 @@
     <string name="persistence_database_error">存储失败：部分观察可能未保存，请检查本地存储。</string>
     <string name="persistence_capacity">身份存储已满，新观察暂不能保存；已有记录保留。</string>
     <string name="persistence_gap">检测到保存缺口，可能漏采；请核对来源记录。</string>
-    <string name="local_events">%1$d 个本地候选，未上报</string>
+    <string name="local_events">%1$d 个本地候选，回执不代表充值</string>
 </resources>

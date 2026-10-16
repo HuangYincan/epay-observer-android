@@ -38,7 +38,10 @@ object DurableCapture {
         val now = System.currentTimeMillis()
         val credentials = dev.epay.observer.security.PairingRuntime.active
             .filterValues { it.notBefore <= now && now < it.expiresAt }
-        submit { it.record(input, configuration, credentialsAtCapture = credentials) }
+        submit {
+            it.record(input, configuration, credentialsAtCapture = credentials)
+            dev.epay.observer.protocol.UploadRuntime.kick()
+        }
     }
     fun removed(user: Long, packageName: String, key: String) { submit { it.removed(user, packageName, key) } }
     private fun publish(value: StorageStats?, failure: String?) {

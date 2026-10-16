@@ -52,6 +52,7 @@ class MainActivity : Activity() {
             else getString(R.string.local_events, persisted.events)
         parserPreview.render()
         pairingUi.render()
+        findViewById<TextView>(R.id.upload_status).text = dev.epay.observer.protocol.UploadRuntime.status
         findViewById<Button>(R.id.reconnect).isEnabled = granted && !CaptureState.connected
     }
 
@@ -60,6 +61,8 @@ class MainActivity : Activity() {
         setContentView(R.layout.activity_main)
         parserPreview = dev.epay.observer.parsing.ParserPreview(this)
         pairingUi = dev.epay.observer.security.PairingUi(this)
+        findViewById<Button>(R.id.upload_now).setOnClickListener { dev.epay.observer.protocol.UploadRuntime.kick() }
+        findViewById<Button>(R.id.retry_upload).setOnClickListener { dev.epay.observer.protocol.UploadRuntime.kick(retryAfterRepair = true) }
 
         findViewById<Button>(R.id.permission_settings).setOnClickListener {
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
