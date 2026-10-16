@@ -2,7 +2,7 @@
 
 面向个人收款场景的 Android 微信／支付宝通知观察器，计划对接 [epay-go](https://github.com/HuangYincan/epay-go)，再通过易支付协议为 New API 自动充值。
 
-**当前状态：双渠道合成通知已可经真实 HTTPS 签名上传，并获得网关持久接收 ACK。** 已实现配对、KeyStore、Room队列、接收事务、防重放及错误处理，见[上传报告](docs/testing/M2-receive-upload-report.md)。后台持久调度与模拟器恢复已按[后台报告](docs/testing/M2-background-report.md)验证；[状态、脱敏诊断与独立授权检查](docs/testing/M2-status-health-report.md)已验证；订单匹配与New API充值尚未交付；ACK仅表示证据已接收。正式构建继续拒绝未验证通知来源，真实微信／支付宝尚未验证。
+**当前状态：双渠道合成通知已可经真实 HTTPS 签名上传，并获得网关持久接收 ACK。** 已实现配对、KeyStore、Room队列、接收事务、防重放及错误处理，见[上传报告](docs/testing/M2-receive-upload-report.md)。后台持久调度与模拟器恢复已按[后台报告](docs/testing/M2-background-report.md)验证；[状态、脱敏诊断与独立授权检查](docs/testing/M2-status-health-report.md)已验证；[合成匹配与事务入账](docs/testing/M3-matching-credit-report.md)已在隔离PostgreSQL验证；商户回调与New API充值尚未交付；ACK仅表示证据已接收。正式构建继续拒绝未验证通知来源，真实微信／支付宝尚未验证。
 
 ## 已确认的范围
 

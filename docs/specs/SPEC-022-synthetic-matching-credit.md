@@ -6,7 +6,7 @@
 
 入口只接受持久event内部PK，不接收order_id或候选提示。默认构建及缺少显式OBSERVER_SYNTHETIC_ENVIRONMENT时拒绝匹配；真实notification来源不准自动确认。事务依次锁environment→receiver→当前device/binding/credential→claim→event→order→merchant，接收事务不锁订单。
 
-当前environment/receiver/device启用、原binding仍为单活跃版本、原credential active且在当前有效期、测试merchant授权与商户本身启用均必须满足；否则留下可解释的终局拒绝，不通过重新绑定或恢复扫描放行。source必须synthetic；仅微信fixture-wx-v1、支付宝fixture-ali-v1，identity_confidence=distinct，合成事件不携带provider_transaction_id。已有event_conflicts阻止自动处理。
+当前environment/receiver/device启用、原binding仍为单活跃版本、原credential active且在当前有效期、测试merchant授权与商户本身启用均必须满足；否则留下可解释的终局拒绝，不通过重新绑定或恢复扫描放行。source必须synthetic；仅微信fixture-wx-v1、支付宝fixture-ali-v1，identity_confidence=distinct，合成事件不携带provider_transaction_id。已有event_conflicts阻止自动处理。同scope/金额若存在更早持久event（receiver锁内接收顺序，以event PK排序），后来的新event视为duplicate_suspected；包括先到但无候选/未知身份的历史证据，不能靠新event_id重试解除。
 
 授权认证在接收时完成，匹配不重新伪造请求/验签；必须存在与该事件first_key/first_request相连的已提交observer_request接收记录。直接RecordEvidence存储原语不构成可结算输入。
 
@@ -26,7 +26,7 @@
 
 matched决定、event consumption、order.paid、merchant balance、income ledger和notify_status=pending在同一事务提交。consumption分别UNIQUE(event_pk)、UNIQUE(order_id)，关联具体收入ledger；数据库延迟约束检查匹配决定/消费/订单/流水/credited状态一致，历史决定和消费不可改写或删除。抽取现有ProcessPayNotify的事务内收入函数，传统provider和observer复用；observer api_trade_no为NULL，不用event_id冒充流水。
 
-已有相同event决定只返回原决定；新event_id/新通知key同内容遇已消费原单只记录duplicate_suspected。worker每次有界扫描pending并逐事件事务处理，可多实例安全重复；不在事务中发网络回调。提交前进程退出全部回滚，提交后退出/重启不重复收入。订单行现有notify worker负责持久回调，独立网络投递验证留后续批次。
+已有相同event决定只返回原决定；新event_id/新通知key同内容遇已消费原单只记录duplicate_suspected。worker每批最多50条/20秒，每个事件事务最多5秒；单条数据库错误保留pending并继续同批其他事件，取消/批次超时及时结束。失败在独立协调表持久保存次数/下次时刻（60秒指数退避，上限15分钟）；扫描按到期时刻（新事件用first_received_at）排序，避免每轮固定失败前缀。候选扫描先在短事务用FOR UPDATE OF event SKIP LOCKED跳过已锁事件，释放后才进入标准锁序；退避登记失败也不能截断其他事件。写退避先锁event并复查pending，终局决定同事务清理退避；不修改事件字节或首次候选。可多实例安全重复；不在事务中发网络回调。提交前进程退出全部回滚，提交后退出/重启不重复收入。订单行现有notify worker负责持久回调，独立网络投递验证留后续批次。
 
 processing_status增加数据库credited值（Android现有ACK解析已允许）；共享receipts向量增加credited重复ACK成功例。客户端仍只标“网关已接收”，不能把ACK的业务标签当成New API余额查询。
 

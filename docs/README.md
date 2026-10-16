@@ -56,3 +56,5 @@
 - [SPEC-019状态/诊断](specs/SPEC-019-status-and-diagnostics.md)、[SPEC-020认证健康检查](specs/SPEC-020-authenticated-health.md)、[验证报告](testing/M2-status-health-report.md)。
 
 - [SPEC-021合成永久金额占用](specs/SPEC-021-synthetic-order-claims.md)、[M3占用子批次报告](testing/M3-amount-claims-report.md)：真实PostgreSQL并发及默认构建拒绝，尚无匹配/记账。
+
+- [SPEC-022合成匹配/原子入账](specs/SPEC-022-synthetic-matching-credit.md)、[M3事务验证报告](testing/M3-matching-credit-report.md)：首次候选快照、真实子进程恢复及TLS重复ACK；New API未验收。
