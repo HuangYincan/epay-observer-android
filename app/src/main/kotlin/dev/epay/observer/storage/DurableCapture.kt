@@ -33,7 +33,12 @@ object DurableCapture {
     }
     fun accept(input: ObservationInput) {
         val configuration = enabledProviders.toSet()
-        submit { it.record(input, configuration) }
+        // Freeze authority when the notification enters, not when the queued DB
+        // task eventually runs after a possible pairing/rotation transition.
+        val now = System.currentTimeMillis()
+        val bindings = dev.epay.observer.security.PairingRuntime.active
+            .filterValues { it.notBefore <= now && now < it.expiresAt }.mapValues { it.value.binding }
+        submit { it.record(input, configuration, bindingsAtCapture = bindings) }
     }
     fun removed(user: Long, packageName: String, key: String) { submit { it.removed(user, packageName, key) } }
     private fun publish(value: StorageStats?, failure: String?) {

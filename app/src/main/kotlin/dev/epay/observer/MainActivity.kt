@@ -16,6 +16,7 @@ import android.view.WindowInsets
 
 class MainActivity : Activity() {
     private lateinit var parserPreview: dev.epay.observer.parsing.ParserPreview
+    private lateinit var pairingUi: dev.epay.observer.security.PairingUi
     private val component get() = ComponentName(this, ObserverListener::class.java)
     private val stateChanged: () -> Unit = { runOnUiThread { render() } }
 
@@ -50,6 +51,7 @@ class MainActivity : Activity() {
         findViewById<TextView>(R.id.events_status).text = if (persisted.events == 0) getString(R.string.events_empty)
             else getString(R.string.local_events, persisted.events)
         parserPreview.render()
+        pairingUi.render()
         findViewById<Button>(R.id.reconnect).isEnabled = granted && !CaptureState.connected
     }
 
@@ -57,6 +59,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         parserPreview = dev.epay.observer.parsing.ParserPreview(this)
+        pairingUi = dev.epay.observer.security.PairingUi(this)
 
         findViewById<Button>(R.id.permission_settings).setOnClickListener {
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))

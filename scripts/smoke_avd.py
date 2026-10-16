@@ -23,6 +23,7 @@ for relative in [
 args.report.parent.mkdir(parents=True, exist_ok=True)
 runner = 'dev.epay.observer.fixtureclient.debug.test/androidx.test.runner.AndroidJUnitRunner'
 process_class = 'dev.epay.observer.IdentityProcessTest'
+pairing_process_class = 'dev.epay.observer.PairingProcessTest'
 
 def instrument(report_path, expected_count, extra):
     with report_path.open('w') as report:
@@ -37,10 +38,15 @@ def instrument(report_path, expected_count, extra):
     if any(marker in output for marker in ['FAILURES!!!', 'INSTRUMENTATION_FAILED', 'shortMsg=']):
         raise SystemExit(f'Instrumentation failure; inspect {report_path}')
 
-instrument(args.report, 25, ['-e', 'notClass', process_class])
+instrument(args.report, 28, ['-e', 'notClass', process_class + ',' + pairing_process_class])
 instrument(args.report.with_name(args.report.stem + '-process-prepare.txt'), 1,
     ['-e', 'class', process_class, '-e', 'identityPhase', 'prepare'])
 subprocess.run(adb + ['shell', 'am', 'force-stop', 'dev.epay.observer.fixtureclient.debug'], check=True, timeout=15)
 instrument(args.report.with_name(args.report.stem + '-process-verify.txt'), 1,
     ['-e', 'class', process_class, '-e', 'identityPhase', 'verify'])
-print(f'AVD: 25/25 suite tests plus 2/2 cross-process phases passed; report {args.report}')
+instrument(args.report.with_name(args.report.stem + '-pairing-prepare.txt'), 1,
+    ['-e', 'class', pairing_process_class, '-e', 'pairingPhase', 'prepare'])
+subprocess.run(adb + ['shell', 'am', 'force-stop', 'dev.epay.observer.fixtureclient.debug'], check=True, timeout=15)
+instrument(args.report.with_name(args.report.stem + '-pairing-verify.txt'), 1,
+    ['-e', 'class', pairing_process_class, '-e', 'pairingPhase', 'verify'])
+print(f'AVD: 28/28 suite tests plus 4/4 cross-process phases passed; report {args.report}')

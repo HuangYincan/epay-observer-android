@@ -20,6 +20,8 @@ class FoundationInstrumentedTest {
     private val context = instrumentation.targetContext
 
     @Test fun isolatedClientLaunchesWithHonestInitialState() {
+        dev.epay.observer.security.PairingRuntime.awaitIdle()
+        instrumentation.waitForIdleSync()
         assertEquals("dev.epay.observer.fixtureclient.debug", context.packageName)
         val activity = instrumentation.startActivitySync(
             Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK),
