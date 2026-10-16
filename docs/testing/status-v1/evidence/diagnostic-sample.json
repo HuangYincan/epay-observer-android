@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "scope": "aggregate-only",
+  "app_version": "0.1.0-fixture",
+  "android_api": 37,
+  "mode": "synthetic-test",
+  "notification_permission": false,
+  "listener_connected": false,
+  "local_bindings": {
+    "wxpay": true,
+    "alipay": true
+  },
+  "storage": {
+    "observations": 5,
+    "events": 4,
+    "conflicts": 0,
+    "capture_gap": false,
+    "capacity_blocked": false
+  },
+  "delivery_counts": {
+    "READY": 0,
+    "RETRY": 0,
+    "IN_FLIGHT": 0,
+    "ACKED": 2,
+    "HELD": 0,
+    "TERMINAL": 0,
+    "OTHER": 0
+  },
+  "has_durable_ack": true,
+  "payment_status": "not_queried",
+  "merchant_notification_status": "not_queried"
+}

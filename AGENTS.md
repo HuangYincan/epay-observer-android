@@ -30,3 +30,5 @@
 SPEC-017实际事件接收/上传与ACK已实现（#20/#21/#25），33项AVD及8个进程阶段通过；后台调度、匹配/记账/回调/New API仍未完成。后续从#23/#24推进，Goal仍active，不把ACK当充值。历史首批状态以NEXT和最近报告为准。
 
 SPEC-018后台WorkManager与模拟器恢复已通过38+8及5类实际场景；fixture局域网约束按source-set隔离，正式构建保持默认CONNECTED与TLS。下一步#24完整诊断，再M3；仍无订单匹配/记账/回调/New API充值。
+
+SPEC-019/020已实现本地事件状态、冻结可预览汇总导出及独立签名health；实际双渠道HTTPS验证通过，见M2-status-health-report。后续继续M3完整合成充值，不能把授权或ACK当作充值。

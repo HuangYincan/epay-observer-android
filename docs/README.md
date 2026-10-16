@@ -52,3 +52,5 @@
 - [SPEC-017：事务接收、实际上传与ACK](specs/SPEC-017-receive-and-upload.md)、[上传验证报告](testing/M2-receive-upload-report.md)。
 
 - [SPEC-018后台调度](specs/SPEC-018-background-delivery.md)、[后台恢复报告](testing/M2-background-report.md)：38+8主套件/进程阶段及5类实际隔离恢复；fixture网络条件与production边界单独记录。
+
+- [SPEC-019状态/诊断](specs/SPEC-019-status-and-diagnostics.md)、[SPEC-020认证健康检查](specs/SPEC-020-authenticated-health.md)、[验证报告](testing/M2-status-health-report.md)。

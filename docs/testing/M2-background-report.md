@@ -54,4 +54,4 @@
 
 - Android实现 `41e5ba9` / `f8f47e4`，[PR #52](https://github.com/HuangYincan/epay-observer-android/pull/52)。
 - 网关仅测试桥 `184887b` / `2b8350d`，[PR #16](https://github.com/HuangYincan/epay-go/pull/16)。
-- 最终head CI以两端PR Checks为准；未通过的远端检查不以本地成功替代。
+- 两端最终head CI通过：Android38859861080、Go38859867545/38859860209。合并64e0a2b/910effd；合并后main CI38860679635/38860684317均success（2026-10-16查询）。
