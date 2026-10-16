@@ -55,7 +55,8 @@ class IdentityStore(private val database: ObserverDatabase, private val capacity
             val binding = (bindingAtCapture ?: credential?.binding)?.takeIf {
                 candidate != null && OutboundPolicy.permits(it, candidate) && dao.metadata(it.metadataKey) == it.scope
             }
-            val wire = binding?.let { EventWire.encode(proposedId!!, candidate!!, input.wallTime, it) }
+            val wire = binding?.let { EventWire.encode(proposedId!!, candidate!!, input.wallTime, it,
+                OutboundPolicy.identityForNewObservation(input, candidate, it, dao.metadata("ingress_gap") == "true")) }
             val full = payload != null && (dao.payloadBytes() + outbox.payloadBytes() + payload.size + (wire?.size ?: 0) > payloadBudget ||
                 wire != null && outbox.count() >= queueCapacity)
             if (full) {
