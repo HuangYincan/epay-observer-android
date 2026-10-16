@@ -15,6 +15,7 @@ import android.os.Bundle
 import android.view.WindowInsets
 
 class MainActivity : Activity() {
+    private lateinit var parserPreview: dev.epay.observer.parsing.ParserPreview
     private val component get() = ComponentName(this, ObserverListener::class.java)
     private val stateChanged: () -> Unit = { runOnUiThread { render() } }
 
@@ -38,12 +39,14 @@ class MainActivity : Activity() {
             CaptureState.error != null -> R.string.capture_error
             else -> R.string.capture_memory_only
         })
+        parserPreview.render()
         findViewById<Button>(R.id.reconnect).isEnabled = granted && !CaptureState.connected
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        parserPreview = dev.epay.observer.parsing.ParserPreview(this)
 
         findViewById<Button>(R.id.permission_settings).setOnClickListener {
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))

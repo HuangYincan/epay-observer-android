@@ -30,6 +30,6 @@ with args.report.open('w') as report:
         raise SystemExit(f'Instrumentation timed out; partial report: {args.report}')
 output = args.report.read_text()
 # Android's shell command can exit zero even if JUnit fails.
-if 'OK (5 tests)' not in output or 'FAILURES!!!' in output or 'INSTRUMENTATION_FAILED' in output:
+if 'OK (6 tests)' not in output or 'FAILURES!!!' in output or 'INSTRUMENTATION_FAILED' in output:
     raise SystemExit(f'Instrumentation did not pass; inspect {args.report}')
-print(f'AVD capture + foundation: 5/5 tests passed; report {args.report}')
+print(f'AVD capture + foundation: 6/6 tests passed; report {args.report}')

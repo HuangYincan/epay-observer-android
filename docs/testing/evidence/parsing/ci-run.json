@@ -1,0 +1,117 @@
+{
+  "conclusion": "success",
+  "createdAt": "2026-10-15T23:26:27Z",
+  "databaseId": 38823578072,
+  "headSha": "b8941afa761f5d41821a7f6abffbe84cebda4a70",
+  "jobs": [
+    {
+      "completedAt": "2026-10-15T23:28:40Z",
+      "conclusion": "success",
+      "databaseId": 116725675732,
+      "name": "build",
+      "startedAt": "2026-10-15T23:26:30Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-15T23:26:34Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-15T23:26:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T23:26:35Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-15T23:26:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T23:26:42Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961",
+          "number": 3,
+          "startedAt": "2026-10-15T23:26:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T23:26:48Z",
+          "conclusion": "success",
+          "name": "Run gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a",
+          "number": 4,
+          "startedAt": "2026-10-15T23:26:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T23:26:55Z",
+          "conclusion": "success",
+          "name": "Provision pinned SDK packages on the CI runner",
+          "number": 5,
+          "startedAt": "2026-10-15T23:26:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T23:28:09Z",
+          "conclusion": "success",
+          "name": "Build, JVM contract tests and lint",
+          "number": 6,
+          "startedAt": "2026-10-15T23:26:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T23:28:35Z",
+          "conclusion": "success",
+          "name": "Check packaged build isolation",
+          "number": 7,
+          "startedAt": "2026-10-15T23:28:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T23:28:37Z",
+          "conclusion": "success",
+          "name": "Save verification reports",
+          "number": 8,
+          "startedAt": "2026-10-15T23:28:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T23:28:37Z",
+          "conclusion": "success",
+          "name": "Post Run gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a",
+          "number": 14,
+          "startedAt": "2026-10-15T23:28:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T23:28:37Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961",
+          "number": 15,
+          "startedAt": "2026-10-15T23:28:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T23:28:38Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 16,
+          "startedAt": "2026-10-15T23:28:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-15T23:28:38Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-10-15T23:28:38Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/HuangYincan/epay-observer-android/actions/runs/38823578072/job/116725675732"
+    }
+  ],
+  "updatedAt": "2026-10-15T23:28:41Z",
+  "url": "https://github.com/HuangYincan/epay-observer-android/actions/runs/38823578072"
+}
