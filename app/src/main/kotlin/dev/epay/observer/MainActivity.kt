@@ -39,6 +39,16 @@ class MainActivity : Activity() {
             CaptureState.error != null -> R.string.capture_error
             else -> R.string.capture_memory_only
         })
+        val persisted = dev.epay.observer.storage.DurableCapture.stats
+        val storageError = dev.epay.observer.storage.DurableCapture.error
+        findViewById<TextView>(R.id.persistence_status).text = when {
+            storageError == "database" -> getString(R.string.persistence_database_error)
+            storageError == "capacity" || persisted.observations >= 10_000 -> getString(R.string.persistence_capacity)
+            storageError == "ingress_gap" || persisted.gap -> getString(R.string.persistence_gap)
+            else -> getString(R.string.persistence_counts, persisted.observations, persisted.events, persisted.conflicts)
+        }
+        findViewById<TextView>(R.id.events_status).text = if (persisted.events == 0) getString(R.string.events_empty)
+            else getString(R.string.local_events, persisted.events)
         parserPreview.render()
         findViewById<Button>(R.id.reconnect).isEnabled = granted && !CaptureState.connected
     }

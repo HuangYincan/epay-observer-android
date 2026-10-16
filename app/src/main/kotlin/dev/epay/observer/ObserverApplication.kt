@@ -1,0 +1,11 @@
+package dev.epay.observer
+
+import android.app.Application
+import dev.epay.observer.storage.DurableCapture
+
+class ObserverApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        DurableCapture.start(this)
+    }
+}

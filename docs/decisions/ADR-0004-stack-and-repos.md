@@ -1,12 +1,12 @@
 # ADR-0004 Android 技术栈与可复现基线
 
-状态：Accepted for #9/#5 foundation，2026-10-15；用户已批准首批工程。Kotlin/Views、编译 SDK 和工具链已用于本地成功构建；不扩展到 Room/WorkManager 的功能实现。证据见工程基线报告。
+状态：Accepted for #9/#5 foundation，2026-10-15；用户已批准首批工程。Kotlin/Views、编译 SDK 和工具链已用于本地成功构建；2026-10-16 的后续开发已接入 Room；WorkManager 留到上传调度任务。证据见工程基线报告。
 
 | 项目 | 候选固定值 | 理由／验证边界 |
 | --- | --- | --- |
 | 语言 | Kotlin，AGP 内置 KGP 2.2.10 | 原生通知／Keystore／调度，无跨平台桥接；不额外应用旧 Kotlin Android plugin |
 | UI | Android Views + XML，最小 Activity | 当前只有权限、绑定、队列、诊断；比 Compose 少一组编译器/BOM 组合 |
-| 持久化 | Room + SQLite，显式迁移 | 事件、身份映射、发送 body 同一事务；KSP/Room 在 #16/#19 实际接入时锁定，首批无数据库依赖 |
+| 持久化 | Room + SQLite，显式迁移 | 事件、身份映射、发送 body 同一事务；Room 2.8.5 + KSP 2.3.6 在 #16 接入，显式事务、schema 导出，无破坏性迁移 |
 | 后台 | WorkManager；连接态可触发短任务 | 重启恢复、持久调度；优于无限线程/WakeLock；不承诺秒级 SLA 或补回漏投通知 |
 | 网络／签名 | OkHttp、JCA HmacSHA256、Android Keystore | #9 仅以测试代码验证 JCA golden/默认 HTTPS；OkHttp 在 #21 接入时锁定，不提前实现上传 |
 | minSdk | 29（Android 10） | 可直接检查 opPkg／UID，减少旧平台分支；不表示 API 29 已实测；低 RAM Q 监听限制仍适用 |
@@ -33,4 +33,10 @@ Studio/SDK/JBR 已存在，不能继续写“尚未安装”。Docker Engine 28.
 - [Gradle 固定校验值](https://services.gradle.org/distributions/gradle-9.4.1-bin.zip.sha256)
 - [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager)、[Keystore](https://developer.android.com/privacy-and-security/keystore)
 
-本仓库负责 APK、fixture、协议；epay-go 负责认证、匹配、事务和管理。当前仅 #9/#5 获准，允许项目固定构建依赖和现有模拟器使用；后续功能、额外环境安装、服务部署及真实支付仍不在本批范围。New API 金额核对差异须解决后验收 M3。
+本仓库负责 APK、fixture、协议；epay-go 负责认证、匹配、事务和管理。用户于 2026-10-16 授权按依赖持续开发与已有 AVD 验证；额外全局工具安装、服务部署及真实支付仍不在范围内。New API 金额核对差异须解决后验收 M3。
+
+## 持久化依赖验证（2026-10-16）
+
+Room 2.8.5 / KSP 2.3.6 已与内置 KGP 2.2.10、AGP 9.2.1、JBR25 完成本地构建与 API37 SQLite 测试。固定可用组合，不追逐预览版。Gradle module 中 runtime 的文件别名是 room-runtime.aar，与带版本发布 URL 不同；发布 SHA-256 与缓存／verification metadata 一致。直接 runtime/compiler/KSP 的核对见 identity/dependency-checks.json；传递依赖全部锁定并严格校验，未宣称每个传递制品都有独立签名核验。
+
+主来源：AndroidX Room release notes；Google Maven androidx/room 2.8.5 POM/module/checksum；Maven Central com/google/devtools/ksp 2.3.6 POM/module/checksum。无第三方旧项目源码复用。Room 的 MultiInstanceInvalidationService 随库清单存在，exported=false，APK 检查明确核验，不扩大外部调用面。

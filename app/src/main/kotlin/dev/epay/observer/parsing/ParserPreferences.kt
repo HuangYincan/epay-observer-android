@@ -8,5 +8,6 @@ class ParserPreferences(context: Context) {
     fun enabled(): Set<Provider> = Provider.entries.filter { preferences.getBoolean(it.name, true) }.toSet()
     fun setEnabled(provider: Provider, enabled: Boolean) {
         preferences.edit().putBoolean(provider.name, enabled).apply()
+        dev.epay.observer.storage.DurableCapture.providerChanged(provider, enabled)
     }
 }

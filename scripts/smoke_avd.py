@@ -21,15 +21,26 @@ for relative in [
 ]:
     subprocess.run(adb + ['install', '-r', str(root / relative)], check=True, timeout=180)
 args.report.parent.mkdir(parents=True, exist_ok=True)
-with args.report.open('w') as report:
-    try:
-        subprocess.run(adb + ['shell', 'am', 'instrument', '-w', '-r',
-            'dev.epay.observer.fixtureclient.debug.test/androidx.test.runner.AndroidJUnitRunner'],
-            stdout=report, stderr=subprocess.STDOUT, text=True, check=True, timeout=240)
-    except subprocess.TimeoutExpired:
-        raise SystemExit(f'Instrumentation timed out; partial report: {args.report}')
-output = args.report.read_text()
-# Android's shell command can exit zero even if JUnit fails.
-if 'OK (6 tests)' not in output or 'FAILURES!!!' in output or 'INSTRUMENTATION_FAILED' in output:
-    raise SystemExit(f'Instrumentation did not pass; inspect {args.report}')
-print(f'AVD capture + foundation: 6/6 tests passed; report {args.report}')
+runner = 'dev.epay.observer.fixtureclient.debug.test/androidx.test.runner.AndroidJUnitRunner'
+process_class = 'dev.epay.observer.IdentityProcessTest'
+
+def instrument(report_path, expected_count, extra):
+    with report_path.open('w') as report:
+        try:
+            subprocess.run(adb + ['shell', 'am', 'instrument', '-w', '-r'] + extra + [runner],
+                stdout=report, stderr=subprocess.STDOUT, text=True, check=True, timeout=240)
+        except subprocess.TimeoutExpired:
+            raise SystemExit(f'Instrumentation timed out; partial report: {report_path}')
+    output = report_path.read_text()
+    if f'OK ({expected_count} tests)' not in output and not (expected_count == 1 and 'OK (1 test)' in output):
+        raise SystemExit(f'Instrumentation did not pass; inspect {report_path}')
+    if any(marker in output for marker in ['FAILURES!!!', 'INSTRUMENTATION_FAILED', 'shortMsg=']):
+        raise SystemExit(f'Instrumentation failure; inspect {report_path}')
+
+instrument(args.report, 12, ['-e', 'notClass', process_class])
+instrument(args.report.with_name(args.report.stem + '-process-prepare.txt'), 1,
+    ['-e', 'class', process_class, '-e', 'identityPhase', 'prepare'])
+subprocess.run(adb + ['shell', 'am', 'force-stop', 'dev.epay.observer.fixtureclient.debug'], check=True, timeout=15)
+instrument(args.report.with_name(args.report.stem + '-process-verify.txt'), 1,
+    ['-e', 'class', process_class, '-e', 'identityPhase', 'verify'])
+print(f'AVD: 12/12 suite tests plus 2/2 cross-process phases passed; report {args.report}')

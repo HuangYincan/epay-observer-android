@@ -6,5 +6,7 @@ import android.service.notification.StatusBarNotification
 /** Empty until real source certificates, versions and templates have verified evidence. */
 object SourcePolicy {
     @Suppress("UNUSED_PARAMETER")
+    fun isCandidate(sbn: StatusBarNotification): Boolean = false
+    @Suppress("UNUSED_PARAMETER")
     fun resolve(context: Context, sbn: StatusBarNotification): SourceIdentity? = null
 }

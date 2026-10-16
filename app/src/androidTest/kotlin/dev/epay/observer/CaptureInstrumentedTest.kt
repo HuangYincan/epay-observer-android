@@ -53,6 +53,14 @@ class CaptureInstrumentedTest {
             post("alipay"); await("ali fixture") { record(102) != null }
             assertEquals("到账 10.00 元", record(102)!!.latest.fields.text)
             assertTrue(record(101)!!.latest.source.signers.isNotEmpty())
+            dev.epay.observer.storage.DurableCapture.awaitIdle()
+            val database = dev.epay.observer.storage.ObserverDatabase.open(context)
+            try {
+                val store = dev.epay.observer.storage.IdentityStore(database)
+                val observed = record(101)!!.latest
+                val identity = dev.epay.observer.storage.IdentityEncoding.identity(store.epoch(), observed.source.user, observed.source.packageName, observed.key)
+                assertNotNull("system delivery persisted", database.observerDao().observation(identity))
+            } finally { database.close() }
             val first = record(101)!!.firstWallTime
             post("identical-pair"); await("two distinct keys") { record(201) != null && record(202) != null }
             assertEquals(record(201)!!.latest.fields, record(202)!!.latest.fields)

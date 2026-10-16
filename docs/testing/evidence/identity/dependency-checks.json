@@ -1,0 +1,23 @@
+[
+  {
+    "coordinate": "androidx.room:room-runtime-android:2.8.5",
+    "gradle_artifact": "room-runtime.aar",
+    "publisher_url": "https://dl.google.com/dl/android/maven2/androidx/room/room-runtime-android/2.8.5/room-runtime-android-2.8.5.aar.sha256",
+    "sha256": "ab6f951f6e7b63ed419eaf740b34dbe51560532f78289fd9c5dadabf46401dba",
+    "matches": true
+  },
+  {
+    "coordinate": "androidx.room:room-compiler:2.8.5",
+    "gradle_artifact": "room-compiler-2.8.5.jar",
+    "publisher_url": "https://dl.google.com/dl/android/maven2/androidx/room/room-compiler/2.8.5/room-compiler-2.8.5.jar.sha256",
+    "sha256": "9c253ed45e1b0cbfde8a62ff0bd7a2405fb9099176e0f0f9d11a57135cce95bb",
+    "matches": true
+  },
+  {
+    "coordinate": "com.google.devtools.ksp:symbol-processing-gradle-plugin:2.3.6",
+    "gradle_artifact": "symbol-processing-gradle-plugin-2.3.6.jar",
+    "publisher_url": "https://repo.maven.apache.org/maven2/com/google/devtools/ksp/symbol-processing-gradle-plugin/2.3.6/symbol-processing-gradle-plugin-2.3.6.jar.sha256",
+    "sha256": "156c7c85c2f13b84d9f1fc03b61fd659237ebe59dc12d14ae4c6f4eb3ddb6b45",
+    "matches": true
+  }
+]
