@@ -1,0 +1,18 @@
+{
+  "productionDebug": {
+    "tests": 16,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "fixtureDebug": {
+    "tests": 130,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "schema_sha256": {
+    "1.json": "5cfde4366ea857348a14150d34bc34fbbc43a96ff17e4831df62dc661c81b90b",
+    "2.json": "bded9db14e1574994cb623d929dfb5c02fec41f35c7a648f337af232f285e632"
+  }
+}

@@ -43,7 +43,7 @@ class MainActivity : Activity() {
         val storageError = dev.epay.observer.storage.DurableCapture.error
         findViewById<TextView>(R.id.persistence_status).text = when {
             storageError == "database" -> getString(R.string.persistence_database_error)
-            storageError == "capacity" || persisted.observations >= 10_000 -> getString(R.string.persistence_capacity)
+            storageError == "capacity" || persisted.capacityBlocked || persisted.observations >= 10_000 -> getString(R.string.persistence_capacity)
             storageError == "ingress_gap" || persisted.gap -> getString(R.string.persistence_gap)
             else -> getString(R.string.persistence_counts, persisted.observations, persisted.events, persisted.conflicts)
         }

@@ -2,6 +2,8 @@ package dev.epay.observer.storage
 
 import android.content.Context
 import androidx.room.*
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Entity(tableName = "metadata")
 data class MetadataRow(@PrimaryKey val name: String, val value: String)
@@ -26,7 +28,7 @@ data class LocalEventRow(
     val observedAt: Long, val payload: ByteArray, val state: String,
 )
 
-data class StorageStats(val observations: Int, val events: Int, val conflicts: Int, val gap: Boolean)
+data class StorageStats(val observations: Int, val events: Int, val conflicts: Int, val gap: Boolean, val capacityBlocked: Boolean = false)
 
 @Dao
 interface ObserverDao {
@@ -40,17 +42,26 @@ interface ObserverDao {
     @Query("SELECT * FROM local_events WHERE eventId = :id") fun event(id: String): LocalEventRow?
     @Query("SELECT * FROM local_events ORDER BY eventId") fun events(): List<LocalEventRow>
     @Query("SELECT COUNT(*) FROM observation_identities") fun observationCount(): Int
+    @Query("SELECT COALESCE(SUM(length(payload)), 0) FROM local_events") fun payloadBytes(): Long
     @Query("SELECT COUNT(*) FROM local_events") fun eventCount(): Int
     @Query("SELECT COUNT(*) FROM local_events WHERE state = 'IDENTITY_CONFLICT'") fun conflictCount(): Int
 }
 
-@Database(entities = [MetadataRow::class, ObservationRow::class, LocalEventRow::class], version = 1, exportSchema = true)
+@Database(entities = [MetadataRow::class, ObservationRow::class, LocalEventRow::class, OutboxRow::class], version = 2, exportSchema = true)
 abstract class ObserverDatabase : RoomDatabase() {
     abstract fun observerDao(): ObserverDao
+    abstract fun outboxDao(): OutboxDao
     companion object {
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS outbox (eventId TEXT NOT NULL, scope TEXT NOT NULL, provider TEXT NOT NULL, origin TEXT NOT NULL, environment TEXT NOT NULL, body BLOB NOT NULL, state TEXT NOT NULL, attempts INTEGER NOT NULL, nextAttemptAt INTEGER NOT NULL, leaseToken TEXT, leaseUntil INTEGER, receivedAt INTEGER, reason TEXT, PRIMARY KEY(eventId), FOREIGN KEY(eventId) REFERENCES local_events(eventId) ON UPDATE NO ACTION ON DELETE RESTRICT)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_outbox_scope_state_nextAttemptAt ON outbox (scope, state, nextAttemptAt)")
+            }
+        }
         fun open(context: Context, name: String = "observer.db"): ObserverDatabase =
             Room.databaseBuilder(context.applicationContext, ObserverDatabase::class.java, name)
                 .setJournalMode(JournalMode.WRITE_AHEAD_LOGGING)
+                .addMigrations(MIGRATION_1_2)
                 .build() // No destructive migration fallback; no main-thread queries.
     }
 }

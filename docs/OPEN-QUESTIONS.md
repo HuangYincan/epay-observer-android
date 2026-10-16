@@ -14,7 +14,7 @@
 | 问题 | 影响 | 解决方式 |
 | --- | --- | --- |
 | 旧项目许可证 | 已核对 vmqApk MIT、内嵌 ZXing Apache-2.0；系列其他仓库须独立核查 | #2 研究交付；本仓库 MIT 已确认并添加 LICENSE，未复制第三方实现 |
-| 技术栈／工具链 | Kotlin/Views、AGP 9.2.1/Gradle 9.4.1/JBR25/API37，min29 已用于首批 | #9 本地构建与依赖锁已验证；Room/WorkManager 在实际消费任务接入 |
+| 技术栈／工具链 | Kotlin/Views、AGP 9.2.1/Gradle 9.4.1/JBR25/API37，min29 已用于首批 | #9 本地构建与依赖锁已验证；Room2.8.5/KSP2.3.6 已接入并验证；WorkManager待 #23 |
 | 通知身份 | key/postTime 不等于交易；相同输入无法必然区分两笔付款 | #4 ADR-0005；真实规则和证书样本未验证 |
 | 同额与迟到 | 有限保护期不能证明安全；测试选择永久 claim，真实自动准入未满足 | #8 保持开放待范围确认；不是调大 TTL 就能解决 |
 | 无真实平台流水 | observer evidence 独立保存，api_trade_no 缺失不伪造 | #15/#26 实施项，当前只有规格 |

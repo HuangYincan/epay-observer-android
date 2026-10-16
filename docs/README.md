@@ -1,6 +1,6 @@
 # 文档索引
 
-更新日期：2026-10-15。M0 与 #9/#5 已合并；#11/#12 已合并；本批 #13/#14 按 [SPEC-009](specs/SPEC-009-synthetic-receipt-parsing.md) 实施双通道合成解析。其余 Spec 仍为评审候选／待实现；#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
+更新日期：2026-10-16。#9/#5、#11/#12、#13/#14 已合并；#16/#19 本批实现 [持久身份](specs/SPEC-010-durable-observation-identity.md) 与 [队列](specs/SPEC-011-durable-outbox.md)。其余 Spec 仍为评审候选／待实现；#8 的真实收款准入与 #10 的 New API 金额契约仍开放。
 
 ## 建议阅读顺序
 
@@ -26,6 +26,8 @@
 - [首批工程基线验证报告](testing/M1-foundation-report.md)
 - [通知采集验证报告](testing/M1-capture-report.md)
 - [双通道解析报告](testing/M1-parsing-report.md) 与 [116 例合成语料](testing/parsing-v1/README.md)
+
+- [持久身份报告](testing/M1-identity-report.md) 与 [队列恢复／迁移报告](testing/M2-outbox-report.md)
 
 ## 架构决策
 
