@@ -70,6 +70,7 @@
 - [支付宝本地通知计数验证](testing/alipay-delivery-probe.md)与[SPEC-028](specs/SPEC-028-local-notification-probe.md)：已确认支付宝登录，用户反馈真实来源计数增加；自动化结果及局限见[支付宝自动验收](testing/alipay-probe-automation.md)。
 - [支付宝探针接管检查与下一批范围](testing/alipay-probe-takeover.md)：2026-10-17只读核对基线、当前环境和四笔账务；真实触发端/keyguard门槛单列，不重复已完成矩阵。
 - [支付宝普通消息单窗口驱动与实际尝试](testing/alipay-live-message-window.md)：用户按提示发送，两次120秒窗口均0回调，实际发送时点与窗口关系待澄清；不新增投递通过项。
+- [支付宝本地开始控制页](testing/alipay-local-start-control.md)：用户在本地页点击才开窗，同页显示倒计时/计数；单会话仅一次，仍不读取正文或自动重开。宿主/页面验证与实际投递证据分开记录。
 - [真实App来源与环境预检](research/M4-real-app-d0.md)：#33，官方产物核验、安装与首次启动已完成；支付宝已由用户确认登录，微信登录/真实通知仍待验证。
 - [手动打开App、授权、轮换配对与查看状态](testing/manual-acceptance.md)
 - [真机双渠道计划与准入门槛](testing/real-device-plan.md)（计划，实测Not run）
