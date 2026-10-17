@@ -4,7 +4,6 @@ import android.app.KeyguardManager
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Intent
-import android.net.ConnectivityManager
 import android.os.Bundle
 import android.os.PowerManager
 import android.os.SystemClock
@@ -71,6 +70,15 @@ class ProbeLifecycleTest {
     private fun running() {
         assertTrue("listener connected", window.snapshot().connected)
         assertEquals(ProbeWindow.Phase.RUNNING, window.snapshot().phase)
+    }
+
+    private fun hasSystemDefaultNetwork(): Boolean {
+        // The probe intentionally lacks INTERNET. Its UID's activeNetwork is not
+        // a valid measure of the emulator-wide route; query only this shell metadata.
+        val output = shell("dumpsys connectivity | grep '^Active default network:'")
+        val match = Regex("Active default network: (none|[0-9]+)").matchEntire(output)
+        assertNotNull("System default network metadata available", match)
+        return match!!.groupValues[1] != "none"
     }
 
     @Test fun automate() {
@@ -141,27 +149,21 @@ class ProbeLifecycleTest {
         val mobile = shell("settings get global mobile_data")
         assertTrue("Known Wi-Fi state", wifi in setOf("0", "1"))
         assertTrue("Known mobile data state", mobile in setOf("0", "1"))
-        instrumentation.uiAutomation.adoptShellPermissionIdentity("android.permission.ACCESS_NETWORK_STATE")
-        val connectivity = context.getSystemService(ConnectivityManager::class.java)
+        assertTrue("Baseline system default network required", hasSystemDefaultNetwork())
+        start()
+        var offlineCallbacks = 0
         try {
-            assertNotNull("Baseline default network required", connectivity.activeNetwork)
-            start()
-            var offlineCallbacks = 0
-            try {
-                shell("svc wifi disable"); shell("svc data disable")
-                await("default network offline") { connectivity.activeNetwork == null }
-                val before = window.snapshot().callbacks
-                hold(15); running()
-                offlineCallbacks = window.snapshot().callbacks - before
-            } finally {
-                shell("svc wifi ${if (wifi == "1") "enable" else "disable"}")
-                shell("svc data ${if (mobile == "1") "enable" else "disable"}")
-            }
-            await("default network restored") { connectivity.activeNetwork != null }
-            running(); report("network_offline_restore", mapOf("offline_seconds" to 15), offlineCallbacks)
+            shell("svc wifi disable"); shell("svc data disable")
+            await("system default network offline") { !hasSystemDefaultNetwork() }
+            val before = window.snapshot().callbacks
+            hold(15); running()
+            offlineCallbacks = window.snapshot().callbacks - before
         } finally {
-            instrumentation.uiAutomation.dropShellPermissionIdentity()
+            shell("svc wifi ${if (wifi == "1") "enable" else "disable"}")
+            shell("svc data ${if (mobile == "1") "enable" else "disable"}")
         }
+        await("system default network restored") { hasSystemDefaultNetwork() }
+        running(); report("network_offline_restore", mapOf("offline_seconds" to 15), offlineCallbacks)
     }
 
     private fun doze() {
