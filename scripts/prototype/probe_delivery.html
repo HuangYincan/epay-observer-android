@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>支付宝通知测试 · 仅本地</title>
+<style nonce="{{NONCE}}">
+:root{font-family:system-ui,sans-serif;color:#183444;background:#eef4f5}*{box-sizing:border-box}body{margin:0;padding:36px 20px}main{max-width:650px;margin:auto}header p{color:#526b75;font-size:15px}h1{font-size:30px;margin:10px 0}section{background:white;border:1px solid #dce7e9;border-radius:20px;padding:28px;margin:24px 0;box-shadow:0 12px 38px #284b5910}#signal{font-size:26px;font-weight:700;margin:0 0 12px}#detail{color:#526b75;line-height:1.7;min-height:3.4em}.metrics{display:flex;gap:30px;margin:22px 0}.metric span{display:block;color:#607680;font-size:14px}.metric strong{display:block;font-size:42px;font-variant-numeric:tabular-nums;margin-top:6px}.actions{display:flex;flex-wrap:wrap;gap:10px}button{font:inherit;border:1px solid #c5d7dc;border-radius:10px;padding:13px 18px;cursor:pointer;background:white;color:#254955}button.primary{background:#176779;color:white;border-color:#176779}button:disabled{opacity:.4;cursor:default}button:focus-visible{outline:3px solid #f2b354;outline-offset:3px}.live{border-color:#4d9b75;background:#f3fcf6}.live #signal{color:#17663c}footer{font-size:14px;color:#607680;line-height:1.8}#mode{color:#9b4e00;font-weight:600}#confirmation{font-size:14px;color:#607680;min-height:1.5em}@media(max-width:480px){body{padding:20px 14px}section{padding:22px}h1{font-size:25px}.metric strong{font-size:36px}}
+</style>
+<main>
+<header><p>仅在这台电脑运行</p><h1>支付宝通知测试</h1><p>准备好另一端的普通消息，再开始这一次测试。</p><p id="mode"></p></header>
+<section id="panel" aria-live="polite">
+<p id="signal">正在连接本地控制器</p><p id="detail">先不要发消息。</p>
+<div class="metrics"><div class="metric"><span>可发送秒数</span><strong id="remaining">—</strong></div><div class="metric"><span>窗口内回调</span><strong id="callbacks">0</strong></div></div>
+<div class="actions"><button id="start" class="primary" disabled>开始这一次测试</button><button id="sent" disabled>我已发 1 条</button><button id="stop" disabled>停止观察</button></div>
+<p id="confirmation"></p>
+</section>
+<footer>只发普通聊天消息，不转账、不付款。<br>仅统计固定支付宝来源的回调，不读取消息正文。回调次数不等于独立消息数或付款笔数。<br>一次最多两分钟，结束后不会自动再开始。</footer>
+</main>
+<script nonce="{{NONCE}}">
+const token = location.hash.slice(1);
+if (token) sessionStorage.setItem('probeControlToken', token);
+const controlToken = token || sessionStorage.getItem('probeControlToken') || '';
+history.replaceState(null, '', '/');
+const el = id => document.getElementById(id);
+let state = null, received = 0, connected = false, polling = false;
+const messages = {
+ WAITING:['准备好后再开始','点“开始这一次测试”，等这里变绿、显示“现在发消息”后再发。'],
+ PREPARING:['正在自动检查，请稍候','先不要发。正在核对模拟器、监听和原有账务。'],
+ OBSERVING:['正在确认窗口状态','先不要发，等待最新状态。'],
+ CLEANING:['观察已停止，正在恢复','不要再发。正在停止探针并核对设置和原有账务。'],
+ FINISHED:['本次观察已结束','不要再发。计数只代表这个窗口观察到的回调。'],
+ FAILED:['检查未完成，已停止','先不要发。请让代理检查私有报告及恢复结果。'],
+ CANCELLED:['本次测试已取消','不要再发。本页面不会自动重新开始。']
+};
+function render(){
+ const age=(performance.now()-received)/1000;
+ const remaining=state ? Math.max(0,state.remaining_seconds-Math.ceil(age)) : 0;
+ const fresh=connected && age<3;
+ const live=fresh && state && state.can_send && remaining>0;
+ const message=state ? messages[state.state] : ['正在连接本地控制器','先不要发消息。'];
+ el('signal').textContent=live ? '现在发 1 条普通消息' : (fresh ? message[0] : '连接未确认，先不要发');
+ el('detail').textContent=live ? '发出消息后，可点“我已发 1 条”记录时点；不用回聊天里赶时间。' : (fresh ? message[1] : '等待本地状态恢复。这里不会自动重开观察窗口。');
+ el('panel').classList.toggle('live',live);
+ el('remaining').textContent=live ? remaining : '—';
+ el('callbacks').textContent=state ? state.callbacks : 0;
+ el('start').disabled=!(fresh && state && state.can_start);
+ el('sent').disabled=!(live && !state.user_confirmed);
+ el('stop').disabled=!(fresh && state && ['PREPARING','OBSERVING'].includes(state.state));
+ el('confirmation').textContent=state && state.user_confirmed ? '已记录你的发送确认。' : '';
+ el('mode').textContent=state && state.layer==='page_test' ? '页面检查：不连接模拟器，不代表真实通知结果' : '';
+}
+async function request(path,method='GET'){
+ const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),2000);
+ try{
+  const response=await fetch(path,{method,headers:{'X-Probe-Token':controlToken},cache:'no-store',signal:controller.signal});
+  if(!response.ok && response.status!==409)throw new Error('unavailable');
+  const next=await response.json();
+  if(!state || next.revision>=state.revision){state=next;received=performance.now();}
+  connected=true;
+ }catch{connected=false;}finally{clearTimeout(timer);render();}
+}
+el('start').onclick=()=>{el('start').disabled=true;request('/api/start','POST');};
+el('sent').onclick=()=>{el('sent').disabled=true;request('/api/sent','POST');};
+el('stop').onclick=()=>request('/api/stop','POST');
+async function poll(){if(polling)return;polling=true;try{await request('/api/state');}finally{polling=false;}}
+setInterval(poll,500);setInterval(render,100);poll();
+</script>
+</html>
