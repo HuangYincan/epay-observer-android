@@ -16,14 +16,18 @@ spec.loader.exec_module(driver)
 
 
 class DriverTest(unittest.TestCase):
-    def invoke(self, directory, check_output, run, serial='emulator-5554'):
+    def invoke(self, directory, check_output, run, serial='emulator-5554', stages=None):
         argv = ['probe_lifecycle_avd.py', serial, '--lab', '/tmp/epay-observer-unit', '--directory', str(directory)]
+        if stages:
+            argv += ['--stages', *stages]
         with patch('sys.argv', argv), patch.object(driver.subprocess, 'check_output', side_effect=check_output), \
                 patch.object(driver.subprocess, 'run', side_effect=run), contextlib.redirect_stdout(io.StringIO()), \
                 contextlib.redirect_stderr(io.StringIO()):
-            with self.assertRaises(SystemExit) as caught:
+            try:
                 driver.main()
-        return caught.exception.code
+            except SystemExit as error:
+                return error.code
+        return 0
 
     def testPhysicalSerialRejectedBeforeAnyCommand(self):
         def unexpected(*args, **kwargs):
@@ -38,11 +42,15 @@ class DriverTest(unittest.TestCase):
             self.assertEqual(2, self.invoke(root, unexpected, unexpected))
             self.assertEqual('preserve', path.read_text())
 
-    def environment(self, fail_at='offline', battery_override=False, lock_disabled=False):
+    def environment(self, fail_at='offline', battery_override=False, lock_disabled=False, wrong_audit=False):
         state = {'wifi': '1', 'mobile': '1', 'battery': battery_override, 'doze': False, 'access': True, 'awake': True}
         commands = []
         audit = {'audited_orders': 4, 'distinct_event_consumptions': 4,
                  'distinct_income_ledger_rows': 4, 'newapi_topups_success': 4, 'quota_added': 30000000}
+
+        if wrong_audit:
+            audit['quota_added'] = 1
+        boot = ['00000000-0000-0000-0000-000000000001']
 
         def check_output(parts, **kwargs):
             if parts[0] == 'python3':
@@ -52,9 +60,15 @@ class DriverTest(unittest.TestCase):
                 return 'emulator-5554 tcp:18443 tcp:18443\n'
             if args == ['reverse', 'tcp:18443', 'tcp:18443']:
                 return ''
+            if args == ['reboot']:
+                boot[0] = '00000000-0000-0000-0000-000000000002'
+                return ''
+            if args == ['wait-for-device']:
+                return ''
             self.assertEqual('shell', args[0])
             c = args[1]; commands.append(c)
             values = {
+                'cat /proc/sys/kernel/random/boot_id': boot[0], 'getprop sys.boot_completed': '1',
                 'getprop ro.kernel.qemu': '1', 'am get-current-user': '0',
                 'locksettings get-disabled --user 0': str(lock_disabled).lower(),
                 'dumpsys battery': 'UPDATES STOPPED' if state['battery'] else 'normal battery',
@@ -128,6 +142,29 @@ class DriverTest(unittest.TestCase):
             self.assertNotIn('locked', by_case)
             self.assertFalse(any('locksettings set-disabled' in c for c in commands))
             self.assertTrue(report['cleanup']['lockscreen_policy_matches'])
+
+    def testFreshEvidenceSurvivesRebootFreshStage(self):
+        with tempfile.TemporaryDirectory(prefix='observer-probe-auto-test-', dir='/tmp') as root:
+            _, _, check_output, run = self.environment()
+            out = Path(root) / 'run'
+            self.assertEqual(0, self.invoke(out, check_output, run, stages=['fresh', 'reboot']))
+            report = json.loads((out / 'report.json').read_text())
+            self.assertEqual(['fresh', 'reboot_fresh'], [r['stage'] for r in report['cases']])
+            self.assertTrue((out / 'fresh.txt').is_file())
+            self.assertTrue((out / 'reboot_fresh.txt').is_file())
+            self.assertTrue(report['reboot_identity_changed'])
+
+    def testWrongStableAuditIsNotAccepted(self):
+        with tempfile.TemporaryDirectory(prefix='observer-probe-auto-test-', dir='/tmp') as root:
+            _, commands, check_output, run = self.environment(wrong_audit=True)
+            out = Path(root) / 'run'
+            self.assertEqual(1, self.invoke(out, check_output, run, stages=['fresh']))
+            report = json.loads((out / 'report.json').read_text())
+            self.assertFalse(report['audit_baseline_matches'])
+            self.assertTrue(report['audit_unchanged'])
+            self.assertFalse(report['audit_expected_after'])
+            self.assertEqual([], report['cases'])
+            self.assertFalse((out / 'fresh.txt').exists())
 
     def testOnlyStructuredProbeResultLinesAreParsed(self):
         row = {'case': 'locked_1', 'callbacks': 0, 'notification_delivery': 'Not exercised'}

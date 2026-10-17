@@ -34,8 +34,11 @@ class ProbeLifecycleTest {
         while (!predicate() && SystemClock.elapsedRealtime() < end) SystemClock.sleep(100)
         assertTrue(label, predicate())
     }
-    private fun hold(seconds: Int) {
-        repeat(seconds) { SystemClock.sleep(1000) }
+    private fun hold(seconds: Int, verify: () -> Unit = {}): Long {
+        val began = SystemClock.elapsedRealtime()
+        verify()
+        repeat(seconds) { SystemClock.sleep(1000); verify() }
+        return SystemClock.elapsedRealtime() - began
     }
     private fun wake() {
         shell("input keyevent KEYCODE_WAKEUP")
@@ -75,7 +78,18 @@ class ProbeLifecycleTest {
     private fun hasSystemDefaultNetwork(): Boolean {
         // The probe intentionally lacks INTERNET. Its UID's activeNetwork is not
         // a valid measure of the emulator-wide route; query only this shell metadata.
-        val output = shell("dumpsys connectivity | grep '^Active default network:'")
+        if (android.os.Build.VERSION.SDK_INT < 31) error("Network metadata automation requires API 31+")
+        // UiAutomation executes a program directly, not a shell pipeline. Feed the
+        // fixed command to sh over stdin; only the filtered metadata reaches us.
+        val pipes = instrumentation.uiAutomation.executeShellCommandRw("sh")
+        val output = pipes[0].use { stdout ->
+            pipes[1].use { stdin ->
+                java.io.FileOutputStream(stdin.fileDescriptor).use { writer ->
+                    writer.write("dumpsys connectivity | grep '^Active default network:'\n".toByteArray())
+                }
+            }
+            java.io.FileInputStream(stdout.fileDescriptor).bufferedReader().use { it.readText().trim() }
+        }
         val match = Regex("Active default network: (none|[0-9]+)").matchEntire(output)
         assertNotNull("System default network metadata available", match)
         return match!!.groupValues[1] != "none"
@@ -117,10 +131,12 @@ class ProbeLifecycleTest {
                 "locked", "screen_off" -> repeat(3) { round ->
                     start(); lock(requireKeyguard = scenario == "locked")
                     val before = window.snapshot().callbacks
-                    hold(20)
-                    assertFalse("screen remained off during locked interval", power.isInteractive)
-                    if (scenario == "locked") assertTrue("keyguard remained locked during interval", keyguard.isKeyguardLocked)
-                    running(); report("${scenario}_${round + 1}", mapOf("held_seconds" to 20,
+                    val elapsed = hold(20) {
+                        assertFalse("screen remained off during interval", power.isInteractive)
+                        if (scenario == "locked") assertTrue("keyguard remained locked during interval", keyguard.isKeyguardLocked)
+                        running()
+                    }
+                    report("${scenario}_${round + 1}", mapOf("minimum_seconds" to 20, "elapsed_ms" to elapsed,
                         "keyguard_locked" to keyguard.isKeyguardLocked), window.snapshot().callbacks - before)
                     window.stop(); wake()
                 }
@@ -129,11 +145,10 @@ class ProbeLifecycleTest {
                 "idle" -> {
                     start(); lock(requireKeyguard = false)
                     val before = window.snapshot().callbacks
-                    hold(135)
-                    assertFalse(power.isInteractive)
+                    val elapsed = hold(135) { assertFalse("screen remained off", power.isInteractive) }
                     assertTrue(window.snapshot().connected)
                     assertEquals(ProbeWindow.Phase.EXPIRED, window.snapshot().phase)
-                    report("idle_window_expired", mapOf("held_seconds" to 135, "counting_limit_seconds" to 120), window.snapshot().callbacks - before)
+                    report("idle_window_expired", mapOf("minimum_seconds" to 135, "elapsed_ms" to elapsed, "counting_limit_seconds" to 120), window.snapshot().callbacks - before)
                 }
             }
         } finally {
@@ -152,18 +167,22 @@ class ProbeLifecycleTest {
         assertTrue("Baseline system default network required", hasSystemDefaultNetwork())
         start()
         var offlineCallbacks = 0
+        var elapsed = 0L
         try {
             shell("svc wifi disable"); shell("svc data disable")
             await("system default network offline") { !hasSystemDefaultNetwork() }
             val before = window.snapshot().callbacks
-            hold(15); running()
+            elapsed = hold(15) {
+                assertFalse("system default network remained offline", hasSystemDefaultNetwork())
+                running()
+            }
             offlineCallbacks = window.snapshot().callbacks - before
         } finally {
             shell("svc wifi ${if (wifi == "1") "enable" else "disable"}")
             shell("svc data ${if (mobile == "1") "enable" else "disable"}")
         }
         await("system default network restored") { hasSystemDefaultNetwork() }
-        running(); report("network_offline_restore", mapOf("offline_seconds" to 15), offlineCallbacks)
+        running(); report("network_offline_restore", mapOf("minimum_seconds" to 15, "elapsed_ms" to elapsed), offlineCallbacks)
     }
 
     private fun doze() {
@@ -175,9 +194,12 @@ class ProbeLifecycleTest {
             shell("dumpsys deviceidle force-idle")
             await("device entered forced Doze") { power.isDeviceIdleMode }
             val before = window.snapshot().callbacks
-            hold(15); running()
-            assertTrue("forced Doze persisted", power.isDeviceIdleMode)
-            report("forced_doze", mapOf("held_seconds" to 15, "forced" to true), window.snapshot().callbacks - before)
+            val elapsed = hold(15) {
+                assertTrue("forced Doze persisted", power.isDeviceIdleMode)
+                assertFalse("screen remained off in Doze", power.isInteractive)
+                running()
+            }
+            report("forced_doze", mapOf("minimum_seconds" to 15, "elapsed_ms" to elapsed, "forced" to true), window.snapshot().callbacks - before)
         } finally {
             shell("dumpsys deviceidle unforce")
             shell("dumpsys battery reset")

@@ -37,3 +37,5 @@
 重启须确认boot_id变化且sys.boot_completed=1，容忍设备切换期离线；boot_id仅在进程内比较，不输出到报告。诊断后可用`--stages`只补跑受影响阶段，报告列出本次计划项；缺失阶段不可补记通过。实时日志仅解析完整结构化行，避免读取一半的ready行触发错误故障。
 
 网络状态使用shell侧`dumpsys connectivity`的单行`Active default network`元数据，不读取网络地址或业务流量；无INTERNET权限探针的UID视角不能代替系统默认网络。只验证默认网络断开/恢复，不据此宣称平台服务器连接或积压通知成功恢复。
+
+条件等待按约每秒采样复核熄屏/keyguard、离线默认路由或强制Doze；结束采样通过后才取计数差值。采样不能证明两个检查点之间无短暂变化；记录minimum_seconds及实际elapsed_ms，不能把shell检查耗时写成精确15秒。每次fresh使用独立阶段名和排他创建日志，禁止覆盖先前证据。audit前后均须匹配四笔/总增额30,000,000的固定基线，仅相等不足以通过。网络单行过滤由测试端通过UiAutomation的sh标准输入执行（API31+），不把管道字符直接传给dumpsys。

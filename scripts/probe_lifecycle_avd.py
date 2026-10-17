@@ -16,6 +16,8 @@ ACTIVITY = PROBE + '/dev.epay.observer.probe.ProbeActivity'
 SOURCE_ACTIVITY = SOURCE + '/com.eg.android.AlipayGphone.AlipayLogin'
 RUNNER = PROBE + '.test/androidx.test.runner.AndroidJUnitRunner'
 RESULT_PREFIX = 'INSTRUMENTATION_STATUS: probe_automation_result='
+EXPECTED_AUDIT = {'audited_orders': 4, 'distinct_event_consumptions': 4,
+                  'distinct_income_ledger_rows': 4, 'newapi_topups_success': 4, 'quota_added': 30000000}
 STAGES = ['fresh', 'locked', 'offline', 'doze', 'idle', 'probe_process',
           'probe_force_stop', 'alipay_force_stop_reopen', 'reboot']
 
@@ -87,11 +89,12 @@ def main():
                                          text=True, stderr=subprocess.PIPE, timeout=30)
         return json.loads(output)
 
-    def stage(name, timeout=120):
-        report['active_stage'] = name
+    def stage(name, timeout=120, stage_id=None):
+        stage_id = stage_id or name
+        report['active_stage'] = stage_id
         save()
-        path = directory / (name + '.txt')
-        with path.open('w') as stream:
+        path = directory / (stage_id + '.txt')
+        with path.open('x') as stream:
             result = subprocess.run(adb + ['shell', 'am', 'instrument', '-w', '-r', '-e', 'probeAutomation', 'true',
                 '-e', 'probeScenario', name, '-e', 'class', 'dev.epay.observer.probe.ProbeLifecycleTest', RUNNER],
                 stdout=stream, stderr=subprocess.STDOUT, timeout=timeout)
@@ -100,9 +103,11 @@ def main():
         if result.returncode != 0 or 'OK (1 test)' not in text or not rows or any(
                 bad in text for bad in ('FAILURES!!!', 'INSTRUMENTATION_FAILED', 'shortMsg=')):
             raise RuntimeError('instrumentation did not pass; inspect private stage log')
+        for row in rows:
+            row['stage'] = stage_id
         report['cases'].extend(rows)
         save()
-        print(name + ': infrastructure passed; actual callback counts ' + str([r['callbacks'] for r in rows]), flush=True)
+        print(stage_id + ': infrastructure passed; actual callback counts ' + str([r['callbacks'] for r in rows]), flush=True)
 
     def package_stopped(package):
         # Report only the boolean from current Android user 0, never the full package dump.
@@ -123,7 +128,7 @@ def main():
         report['active_stage'] = 'probe_' + kind
         save()
         path = directory / ('arm-' + kind + '.txt')
-        with path.open('w') as stream:
+        with path.open('x') as stream:
             child = subprocess.Popen(adb + ['shell', 'am', 'instrument', '-w', '-r', '-e', 'probeAutomation', 'true',
                 '-e', 'probeScenario', 'arm_fault', '-e', 'class', 'dev.epay.observer.probe.ProbeLifecycleTest', RUNNER],
                 stdout=stream, stderr=subprocess.STDOUT)
@@ -151,7 +156,7 @@ def main():
                     except subprocess.TimeoutExpired:
                         child.kill(); child.wait(timeout=5)
         shell('am start -n ' + ACTIVITY)
-        stage('fresh')
+        stage('fresh', stage_id='probe_' + kind + '_fresh')
         report['cases'][-1]['case'] = 'probe_' + kind + '_fresh_process'
         save()
 
@@ -186,7 +191,10 @@ def main():
                    'screen_awake': wakefulness[1] in {'Awake', 'Dreaming'}, 'reverse': mappings}
         report['initial'] = initial
         report['audit_before'] = audit()
+        report['audit_baseline_matches'] = report['audit_before'] == EXPECTED_AUDIT
         save()
+        if not report['audit_baseline_matches']:
+            raise RuntimeError('Expected four-order synthetic baseline required')
         launch_source()
         lock_stage = 'screen_off' if initial['lockscreen_disabled'] else 'locked'
         if initial['lockscreen_disabled'] and 'locked' in args.stages:
@@ -206,7 +214,7 @@ def main():
                 raise RuntimeError('source force-stop was not observed')
             launch_source()
             report['cases'].append({'case': 'alipay_force_stop_reopen', 'infrastructure': 'Passed',
-                                    'notification_delivery': 'Not exercised', 'login_after_reopen': 'Not inspected'})
+                                    'notification_delivery': 'Not assessed', 'login_after_reopen': 'Not inspected'})
             save()
         if 'reboot' in args.stages:
             report['active_stage'] = 'reboot'
@@ -220,7 +228,7 @@ def main():
             report['reboot_identity_changed'] = True  # Do not export the boot identifier.
             for mapping in mappings:
                 run('reverse', *mapping)
-            stage('fresh', 120)
+            stage('fresh', 120, stage_id='reboot_fresh')
             report['cases'][-1]['case'] = 'reboot_fresh_process'
         report['completed'] = True
     except (RuntimeError, subprocess.SubprocessError, OSError, ValueError) as error:
@@ -269,14 +277,15 @@ def main():
                 report['cleanup']['lockscreen_policy_matches'] = (shell('locksettings get-disabled --user 0') ==
                     str(initial['lockscreen_disabled']).lower())
                 report['audit_after'] = audit()
-                report['audit_unchanged'] = 'audit_before' in report and report['audit_before'] == report['audit_after']
+                report['audit_unchanged'] = report.get('audit_before') == report['audit_after']
+                report['audit_expected_after'] = report['audit_after'] == EXPECTED_AUDIT
             except (subprocess.SubprocessError, OSError, RuntimeError, ValueError):
                 report['cleanup']['final_check'] = 'FAILED'
         save()
     print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
     verified = ['network_settings_match', 'probe_access_matches', 'battery_reset_verified',
                 'doze_unforced_verified', 'screen_matches', 'source_stopped_flag_clear', 'reverse_restored', 'lockscreen_policy_matches']
-    if not report.get('completed') or not report.get('audit_unchanged') or 'FAILED' in report['cleanup'].values() or any(report['cleanup'].get(k) is not True for k in verified):
+    if not report.get('completed') or not report.get('audit_unchanged') or not report.get('audit_baseline_matches') or not report.get('audit_expected_after') or 'FAILED' in report['cleanup'].values() or any(report['cleanup'].get(k) is not True for k in verified):
         raise SystemExit(1)
 
 
