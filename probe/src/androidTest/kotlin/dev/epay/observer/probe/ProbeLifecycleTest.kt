@@ -40,8 +40,9 @@ class ProbeLifecycleTest {
     }
     private fun wake() {
         shell("input keyevent KEYCODE_WAKEUP")
-        shell("wm dismiss-keyguard")
         await("screen interactive") { power.isInteractive }
+        if (keyguard.isKeyguardLocked) shell("wm dismiss-keyguard")
+        await("non-secure keyguard fully dismissed") { !keyguard.isKeyguardLocked }
     }
     private fun lock() {
         shell("input keyevent KEYCODE_SLEEP")
@@ -108,8 +109,8 @@ class ProbeLifecycleTest {
                     start(); lock()
                     val before = window.snapshot().callbacks
                     hold(20)
-                    assertFalse(power.isInteractive)
-                    assertTrue(keyguard.isKeyguardLocked)
+                    assertFalse("screen remained off during locked interval", power.isInteractive)
+                    assertTrue("keyguard remained locked during interval", keyguard.isKeyguardLocked)
                     running(); report("locked_${round + 1}", mapOf("held_seconds" to 20), window.snapshot().callbacks - before)
                     window.stop(); wake()
                 }
