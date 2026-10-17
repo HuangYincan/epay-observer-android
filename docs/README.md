@@ -67,7 +67,7 @@
 
 ## 人工验收与M4准备
 
-- [支付宝本地通知计数验证](testing/alipay-delivery-probe.md)与[SPEC-028](specs/SPEC-028-local-notification-probe.md)：已确认支付宝登录，先独立验证支付宝；真实通知正向触发仍待测。
+- [支付宝本地通知计数验证](testing/alipay-delivery-probe.md)与[SPEC-028](specs/SPEC-028-local-notification-probe.md)：已确认支付宝登录，用户反馈真实来源计数增加；自动化结果及局限见[支付宝自动验收](testing/alipay-probe-automation.md)。
 - [真实App来源与环境预检](research/M4-real-app-d0.md)：#33，官方产物核验、安装与首次启动已完成；支付宝已由用户确认登录，微信登录/真实通知仍待验证。
 - [手动打开App、授权、轮换配对与查看状态](testing/manual-acceptance.md)
 - [真机双渠道计划与准入门槛](testing/real-device-plan.md)（计划，实测Not run）

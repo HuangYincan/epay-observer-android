@@ -1,0 +1,208 @@
+package dev.epay.observer.probe
+
+import android.app.KeyguardManager
+import android.app.NotificationManager
+import android.content.ComponentName
+import android.content.Intent
+import android.os.Bundle
+import android.os.PowerManager
+import android.os.SystemClock
+import android.widget.Button
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import org.json.JSONObject
+import org.junit.Assert.*
+import org.junit.Test
+import org.junit.runner.RunWith
+
+/** Opt-in test driver only. Reads aggregate probe state, never notification content. */
+@RunWith(AndroidJUnit4::class)
+class ProbeLifecycleTest {
+    private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private val context = instrumentation.targetContext
+    private val window get() = ProbeRuntime.window
+    private val power get() = context.getSystemService(PowerManager::class.java)
+    private val keyguard get() = context.getSystemService(KeyguardManager::class.java)
+    private val component get() = ComponentName(context, AlipayListener::class.java)
+    private lateinit var screen: ProbeActivity
+
+    private fun shell(command: String) = instrumentation.uiAutomation.executeShellCommand(command).use {
+        java.io.FileInputStream(it.fileDescriptor).bufferedReader().use { reader -> reader.readText() }.trim()
+    }
+    private fun await(label: String, predicate: () -> Boolean) {
+        val end = SystemClock.elapsedRealtime() + 20_000
+        while (!predicate() && SystemClock.elapsedRealtime() < end) SystemClock.sleep(100)
+        assertTrue(label, predicate())
+    }
+    private fun hold(seconds: Int, verify: () -> Unit = {}): Long {
+        val began = SystemClock.elapsedRealtime()
+        verify()
+        repeat(seconds) { SystemClock.sleep(1000); verify() }
+        return SystemClock.elapsedRealtime() - began
+    }
+    private fun wake() {
+        shell("input keyevent KEYCODE_WAKEUP")
+        await("screen interactive") { power.isInteractive }
+        if (keyguard.isKeyguardLocked) shell("wm dismiss-keyguard")
+        await("non-secure keyguard fully dismissed") { !keyguard.isKeyguardLocked }
+    }
+    private fun lock(requireKeyguard: Boolean = true) {
+        shell("input keyevent KEYCODE_SLEEP")
+        await("screen off") { !power.isInteractive }
+        if (requireKeyguard) await("keyguard locked") { keyguard.isKeyguardLocked }
+    }
+    private fun start() {
+        wake()
+        instrumentation.waitForIdleSync()
+        instrumentation.runOnMainSync { screen.findViewById<Button>(R.id.probe_start).performClick() }
+        assertEquals(ProbeWindow.Phase.RUNNING, window.snapshot().phase)
+    }
+    private fun report(name: String, extra: Map<String, Any> = emptyMap(), conditionCallbacks: Int? = null) {
+        val state = window.snapshot()
+        val result = JSONObject(mapOf("case" to name, "infrastructure" to "Passed",
+            "connected" to state.connected, "phase" to state.phase.name, "callbacks" to state.callbacks,
+            "condition_callbacks" to (conditionCallbacks ?: JSONObject.NULL),
+            "notification_delivery" to when {
+                conditionCallbacks == null -> "Not assessed"
+                conditionCallbacks > 0 -> "Observed"
+                else -> "Not exercised"
+            },
+            "instrumented_process" to true) + extra)
+        instrumentation.sendStatus(2, Bundle().apply { putString("probe_automation_result", result.toString()) })
+    }
+    private fun running() {
+        assertTrue("listener connected", window.snapshot().connected)
+        assertEquals(ProbeWindow.Phase.RUNNING, window.snapshot().phase)
+    }
+
+    private fun hasSystemDefaultNetwork(): Boolean {
+        // The probe intentionally lacks INTERNET. Its UID's activeNetwork is not
+        // a valid measure of the emulator-wide route; query only this shell metadata.
+        if (android.os.Build.VERSION.SDK_INT < 31) error("Network metadata automation requires API 31+")
+        // UiAutomation executes a program directly, not a shell pipeline. Feed the
+        // fixed command to sh over stdin; only the filtered metadata reaches us.
+        val pipes = instrumentation.uiAutomation.executeShellCommandRw("sh")
+        val output = pipes[0].use { stdout ->
+            pipes[1].use { stdin ->
+                java.io.FileOutputStream(stdin.fileDescriptor).use { writer ->
+                    writer.write("dumpsys connectivity | grep '^Active default network:'\n".toByteArray())
+                }
+            }
+            java.io.FileInputStream(stdout.fileDescriptor).bufferedReader().use { it.readText().trim() }
+        }
+        val match = Regex("Active default network: (none|[0-9]+)").matchEntire(output)
+        assertNotNull("System default network metadata available", match)
+        return match!!.groupValues[1] != "none"
+    }
+
+    @Test fun automate() {
+        val args = InstrumentationRegistry.getArguments()
+        assertEquals("Explicit local automation opt-in required", "true", args.getString("probeAutomation"))
+        assertTrue("Emulator only", android.os.Build.MODEL.startsWith("sdk_gphone"))
+        assertFalse("Secure device lock is not bypassed", keyguard.isDeviceSecure)
+        assertEquals(InstalledSource.Status.MATCH, InstalledSource.check(context))
+        val scenario = args.getString("probeScenario")
+        assertTrue(scenario in setOf("fresh", "locked", "screen_off", "offline", "doze", "idle", "arm_fault"))
+        if (scenario == "fresh") {
+            assertEquals("New process must not auto-arm", ProbeWindow.Phase.IDLE, window.snapshot().phase)
+            assertEquals(0, window.snapshot().callbacks)
+        }
+        val manager = context.getSystemService(NotificationManager::class.java)
+        val hadAccess = manager.isNotificationListenerAccessGranted(component)
+        val wasInteractive = power.isInteractive
+        window.stop()
+        try {
+            wake()
+            shell("cmd notification allow_listener ${component.flattenToString()}")
+            await("listener connected") { window.snapshot().connected }
+            screen = instrumentation.startActivitySync(Intent(context, ProbeActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as ProbeActivity
+            when (scenario) {
+                "fresh" -> {
+                    assertEquals(ProbeWindow.Phase.IDLE, window.snapshot().phase)
+                    assertEquals(0, window.snapshot().callbacks)
+                    report("fresh_process_stopped")
+                }
+                "arm_fault" -> {
+                    start(); report("armed_for_fault", mapOf("pid" to android.os.Process.myPid()))
+                    hold(60)
+                    fail("Host must perform the explicitly requested process fault")
+                }
+                "locked", "screen_off" -> repeat(3) { round ->
+                    start(); lock(requireKeyguard = scenario == "locked")
+                    val before = window.snapshot().callbacks
+                    val elapsed = hold(20) {
+                        assertFalse("screen remained off during interval", power.isInteractive)
+                        if (scenario == "locked") assertTrue("keyguard remained locked during interval", keyguard.isKeyguardLocked)
+                        running()
+                    }
+                    report("${scenario}_${round + 1}", mapOf("minimum_seconds" to 20, "elapsed_ms" to elapsed,
+                        "keyguard_locked" to keyguard.isKeyguardLocked), window.snapshot().callbacks - before)
+                    window.stop(); wake()
+                }
+                "offline" -> offline()
+                "doze" -> doze()
+                "idle" -> {
+                    start(); lock(requireKeyguard = false)
+                    val before = window.snapshot().callbacks
+                    val elapsed = hold(135) { assertFalse("screen remained off", power.isInteractive) }
+                    assertTrue(window.snapshot().connected)
+                    assertEquals(ProbeWindow.Phase.EXPIRED, window.snapshot().phase)
+                    report("idle_window_expired", mapOf("minimum_seconds" to 135, "elapsed_ms" to elapsed, "counting_limit_seconds" to 120), window.snapshot().callbacks - before)
+                }
+            }
+        } finally {
+            window.stop()
+            if (::screen.isInitialized) instrumentation.runOnMainSync { screen.finish() }
+            if (!hadAccess) shell("cmd notification disallow_listener ${component.flattenToString()}")
+            if (wasInteractive) wake() else shell("input keyevent KEYCODE_SLEEP")
+        }
+    }
+
+    private fun offline() {
+        val wifi = shell("settings get global wifi_on")
+        val mobile = shell("settings get global mobile_data")
+        assertTrue("Known Wi-Fi state", wifi in setOf("0", "1"))
+        assertTrue("Known mobile data state", mobile in setOf("0", "1"))
+        assertTrue("Baseline system default network required", hasSystemDefaultNetwork())
+        start()
+        var offlineCallbacks = 0
+        var elapsed = 0L
+        try {
+            shell("svc wifi disable"); shell("svc data disable")
+            await("system default network offline") { !hasSystemDefaultNetwork() }
+            val before = window.snapshot().callbacks
+            elapsed = hold(15) {
+                assertFalse("system default network remained offline", hasSystemDefaultNetwork())
+                running()
+            }
+            offlineCallbacks = window.snapshot().callbacks - before
+        } finally {
+            shell("svc wifi ${if (wifi == "1") "enable" else "disable"}")
+            shell("svc data ${if (mobile == "1") "enable" else "disable"}")
+        }
+        await("system default network restored") { hasSystemDefaultNetwork() }
+        running(); report("network_offline_restore", mapOf("minimum_seconds" to 15, "elapsed_ms" to elapsed), offlineCallbacks)
+    }
+
+    private fun doze() {
+        assertFalse("Existing forced idle not modified", power.isDeviceIdleMode)
+        assertFalse("Existing battery simulation not modified", shell("dumpsys battery").contains("UPDATES STOPPED"))
+        start()
+        try {
+            shell("dumpsys battery unplug"); lock(requireKeyguard = false)
+            shell("dumpsys deviceidle force-idle")
+            await("device entered forced Doze") { power.isDeviceIdleMode }
+            val before = window.snapshot().callbacks
+            val elapsed = hold(15) {
+                assertTrue("forced Doze persisted", power.isDeviceIdleMode)
+                assertFalse("screen remained off in Doze", power.isInteractive)
+                running()
+            }
+            report("forced_doze", mapOf("minimum_seconds" to 15, "elapsed_ms" to elapsed, "forced" to true), window.snapshot().callbacks - before)
+        } finally {
+            shell("dumpsys deviceidle unforce")
+            shell("dumpsys battery reset")
+        }
+    }
+}
