@@ -1,6 +1,6 @@
 # 兼容性矩阵
 
-2026-10-16：API37模拟器合成通知完整充值及用户重跑已通过，见[M3报告](M3-prototype-report.md)。真实App已完成安装与首次启动，登录/通知兼容性仍Not run；实体设备Not run。人工界面验收按[清单](manual-acceptance.md)逐项记录。
+API37模拟器合成通知完整充值及用户重跑已通过，见[M3报告](M3-prototype-report.md)。2026-10-16真实App已完成安装与首次启动；登录结果按渠道单独记录，通知兼容性仍Not run，实体设备Not run。人工界面验收按[清单](manual-acceptance.md)逐项记录。
 
 | 层次 | 来源 | Android / 镜像 | 设备 / ABI | 支付 App 版本 | 结果 | 样本与报告 |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -8,7 +8,7 @@
 | 模拟器夹具 | 微信形态 | API 37.0 Google Play rev 6 | Medium_Phone / arm64-v8a | 不适用 | Passed | [M3闭环与故障报告](M3-prototype-report.md) |
 | 模拟器夹具 | 支付宝形态 | API 37.0 Google Play rev 6 | Medium_Phone / arm64-v8a | 不适用 | Passed | [M3闭环与故障报告](M3-prototype-report.md) |
 | 模拟器真实 App | 微信 | API37 / Android17 | Medium_Phone / arm64-v8a | 已安装8.0.79 (3200) | Not run | [安装及首次登录入口Passed，登录/通知未测](../research/M4-real-app-d0.md) |
-| 模拟器真实 App | 支付宝 | API37 / Android17 | Medium_Phone / arm64-v8a | 已安装12.12.30.8000 (212310) | Not run | [安装及首次隐私提示Passed，登录/通知未测](../research/M4-real-app-d0.md) |
+| 模拟器真实 App | 支付宝 | API37 / Android17 | Medium_Phone / arm64-v8a | 已安装12.12.30.8000 (212310) | Not run | [安装/首屏通过，用户确认登录；真实通知未测](alipay-delivery-probe.md) |
 | 实体真机 | 微信 | 待后续设备 | TBD | TBD | Not run | TBD |
 | 实体真机 | 支付宝 | 待后续设备 | TBD | TBD | Not run | TBD |
 
@@ -17,3 +17,5 @@
 真实样本提交公开仓库前需脱敏并经用户允许。若脱敏改变识别语义，用合成复现样本说明差异，不上传原文。不得将 test fixture 的 package／title 样本描述为真实 App 取样。
 
 真机计划、待输入项和停止条件见[real-device-plan](real-device-plan.md)。通知可读取、正确解析与真实订单归属分别判定，不以其中一项替代其余项。
+
+2026-10-17：用户确认支付宝登录通过，微信尚未登录。支付宝系统通知权限及独立本地探针来源/监听/起停已验证，实际支付宝正向回调仍待已知非资金触发场景；不能把探针自动化测试当作真实通知可达性通过。见[支付宝单渠道报告](alipay-delivery-probe.md)。

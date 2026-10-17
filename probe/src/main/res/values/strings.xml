@@ -1,0 +1,29 @@
+<resources>
+    <string name="title">支付宝通知可达性</string>
+    <string name="boundary">仅本地实验 · 不读取通知正文\n不联网、不保存、不解析收款，也不充值。进程退出后计数清零。</string>
+    <string name="status">通知访问：%1$s\n监听服务：%2$s\n支付宝来源：%3$s\n观察状态：%4$s\n窗口内回调次数：%5$d\n剩余秒数：%6$d\n</string>
+    <string name="allowed">已授权</string>
+    <string name="denied">未授权</string>
+    <string name="connected">已连接</string>
+    <string name="not_connected">未连接</string>
+    <string name="source_match">当前版本和签名匹配</string>
+    <string name="source_missing">未安装</string>
+    <string name="source_mismatch">版本或签名不匹配</string>
+    <string name="source_unavailable">无法核对</string>
+    <string name="idle">尚未开始</string>
+    <string name="running">正在观察</string>
+    <string name="stopped">手工停止</string>
+    <string name="expired">两分钟窗口已结束</string>
+    <string name="disconnected">断连，已停止；请重新开始</string>
+    <string name="source_changed">来源校验失败，已停止</string>
+    <string name="capacity">达到500次上限，已停止</string>
+    <string name="clock_error">单调时钟异常，已停止</string>
+    <string name="permission">设置通知访问权限</string>
+    <string name="reconnect">重新连接监听</string>
+    <string name="start">开始两分钟观察（清零计数）</string>
+    <string name="stop">立即停止观察</string>
+    <string name="instructions">准备好后开始观察，把支付宝放到后台，再自行触发一条普通通知。\n\n计数只表示系统回调，更新或重投也可能计数；不是独立通知、交易或付款笔数。\n\n零次只表示这个窗口没有观察到回调，不能证明支付宝从不通知。结束实验后可在系统设置撤销探针通知访问权限。</string>
+    <item name="probe_status" type="id" />
+    <item name="probe_start" type="id" />
+    <item name="probe_stop" type="id" />
+</resources>
