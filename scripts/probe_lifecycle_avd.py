@@ -16,10 +16,23 @@ ACTIVITY = PROBE + '/dev.epay.observer.probe.ProbeActivity'
 SOURCE_ACTIVITY = SOURCE + '/com.eg.android.AlipayGphone.AlipayLogin'
 RUNNER = PROBE + '.test/androidx.test.runner.AndroidJUnitRunner'
 RESULT_PREFIX = 'INSTRUMENTATION_STATUS: probe_automation_result='
+STAGES = ['fresh', 'locked', 'offline', 'doze', 'idle', 'probe_process',
+          'probe_force_stop', 'alipay_force_stop_reopen', 'reboot']
 
 
 def results_from_log(text):
-    return [json.loads(line[len(RESULT_PREFIX):]) for line in text.splitlines() if line.startswith(RESULT_PREFIX)]
+    # Live fault preparation may be read mid-write; only consume complete lines.
+    return [json.loads(line[len(RESULT_PREFIX):]) for line in text.splitlines(keepends=True)
+            if line.endswith('\n') and line.startswith(RESULT_PREFIX)]
+
+
+def reboot_complete(shell, previous_boot):
+    try:
+        current = shell('cat /proc/sys/kernel/random/boot_id', timeout=10)
+        return bool(re.fullmatch(r'[0-9a-f-]{36}', current)) and current != previous_boot and shell(
+            'getprop sys.boot_completed', timeout=10) == '1'
+    except (subprocess.SubprocessError, OSError):
+        return False
 
 
 def main():
@@ -27,6 +40,8 @@ def main():
     p.add_argument('serial')
     p.add_argument('--lab', type=Path, required=True, help='Existing isolated lab; read-only audit before/after')
     p.add_argument('--directory', type=Path, required=True, help='New /tmp/observer-probe-auto-* evidence directory')
+    p.add_argument('--stages', nargs='+', choices=STAGES, default=STAGES,
+                   help='Run a subset after a diagnosed failure; default is the full matrix')
     args = p.parse_args()
     if not re.fullmatch(r'emulator-[0-9]+', args.serial):
         p.error('Explicit emulator-NNNN required; physical devices are not supported')
@@ -46,8 +61,7 @@ def main():
     report = {'schema_version': 1, 'utc_started': datetime.datetime.now(datetime.timezone.utc).isoformat(),
               'scope': 'Alipay metadata-only probe lifecycle; no message or payment trigger',
               'cases': [], 'cleanup': {}, 'completed': False, 'instrumentation_priority_limitation': True,
-              'planned_stages': ['fresh', 'locked', 'offline', 'doze', 'idle', 'probe_process',
-                                 'probe_force_stop', 'alipay_force_stop_reopen', 'reboot']}
+              'planned_stages': args.stages}
 
     def save():
         temporary = directory / 'report.json.tmp'
@@ -153,6 +167,9 @@ def main():
         mobile = shell('settings get global mobile_data')
         if wifi not in {'0', '1'} or mobile not in {'0', '1'}:
             raise RuntimeError('Unknown network setting; no tests started')
+        lock_disabled = shell('locksettings get-disabled --user 0')
+        if lock_disabled not in {'true', 'false'}:
+            raise RuntimeError('Unknown lockscreen policy; no tests started')
         mappings = []
         for line in run('reverse', '--list').splitlines():
             parts = line.split()
@@ -164,33 +181,47 @@ def main():
         if wakefulness is None:
             raise RuntimeError('Unknown screen state; no tests started')
         initial = {'wifi': wifi, 'mobile': mobile,
+                   'lockscreen_disabled': lock_disabled == 'true',
                    'probe_access': COMPONENT in shell('settings get secure enabled_notification_listeners').split(':'),
                    'screen_awake': wakefulness[1] in {'Awake', 'Dreaming'}, 'reverse': mappings}
         report['initial'] = initial
         report['audit_before'] = audit()
         save()
         launch_source()
+        lock_stage = 'screen_off' if initial['lockscreen_disabled'] else 'locked'
+        if initial['lockscreen_disabled'] and 'locked' in args.stages:
+            report['cases'].append({'case': 'keyguard_lock', 'infrastructure': 'Blocked',
+                'notification_delivery': 'Not assessed', 'reason': 'AVD lockscreen disabled; policy unchanged'})
         for name, timeout in [('fresh', 90), ('locked', 180), ('offline', 150), ('doze', 120), ('idle', 210)]:
-            stage(name, timeout)
-        process_fault('process')
-        process_fault('force_stop')
-        report['active_stage'] = 'alipay_force_stop_reopen'
-        shell('am force-stop ' + SOURCE)
-        if not package_stopped(SOURCE) or shell('pidof ' + SOURCE + ' || true'):
-            raise RuntimeError('source force-stop was not observed')
-        launch_source()
-        report['cases'].append({'case': 'alipay_force_stop_reopen', 'infrastructure': 'Passed',
-                                'notification_delivery': 'Not exercised', 'login_after_reopen': 'Not inspected'})
-        save()
-        report['active_stage'] = 'reboot'
-        save()
-        run('reboot')
-        run('wait-for-device', timeout=150)
-        wait_for('boot incomplete', lambda: shell('getprop sys.boot_completed', timeout=10) == '1', 150)
-        for mapping in mappings:
-            run('reverse', *mapping)
-        stage('fresh', 120)
-        report['cases'][-1]['case'] = 'reboot_fresh_process'
+            if name in args.stages:
+                stage(lock_stage if name == 'locked' else name, timeout)
+        if 'probe_process' in args.stages:
+            process_fault('process')
+        if 'probe_force_stop' in args.stages:
+            process_fault('force_stop')
+        if 'alipay_force_stop_reopen' in args.stages:
+            report['active_stage'] = 'alipay_force_stop_reopen'
+            shell('am force-stop ' + SOURCE)
+            if not package_stopped(SOURCE) or shell('pidof ' + SOURCE + ' || true'):
+                raise RuntimeError('source force-stop was not observed')
+            launch_source()
+            report['cases'].append({'case': 'alipay_force_stop_reopen', 'infrastructure': 'Passed',
+                                    'notification_delivery': 'Not exercised', 'login_after_reopen': 'Not inspected'})
+            save()
+        if 'reboot' in args.stages:
+            report['active_stage'] = 'reboot'
+            save()
+            previous_boot = shell('cat /proc/sys/kernel/random/boot_id')
+            if not re.fullmatch(r'[0-9a-f-]{36}', previous_boot):
+                raise RuntimeError('Boot identity unavailable; no reboot attempted')
+            run('reboot')
+            run('wait-for-device', timeout=150)
+            wait_for('new boot incomplete', lambda: reboot_complete(shell, previous_boot), 150)
+            report['reboot_identity_changed'] = True  # Do not export the boot identifier.
+            for mapping in mappings:
+                run('reverse', *mapping)
+            stage('fresh', 120)
+            report['cases'][-1]['case'] = 'reboot_fresh_process'
         report['completed'] = True
     except (RuntimeError, subprocess.SubprocessError, OSError, ValueError) as error:
         report['completed'] = False
@@ -235,6 +266,8 @@ def main():
                 final_power = re.search(r'mWakefulness=(Awake|Asleep|Dozing|Dreaming)\b', shell('dumpsys power'))
                 report['cleanup']['screen_matches'] = final_power is not None and (final_power[1] in {'Awake', 'Dreaming'}) == initial['screen_awake']
                 report['cleanup']['source_stopped_flag_clear'] = not package_stopped(SOURCE)
+                report['cleanup']['lockscreen_policy_matches'] = (shell('locksettings get-disabled --user 0') ==
+                    str(initial['lockscreen_disabled']).lower())
                 report['audit_after'] = audit()
                 report['audit_unchanged'] = 'audit_before' in report and report['audit_before'] == report['audit_after']
             except (subprocess.SubprocessError, OSError, RuntimeError, ValueError):
@@ -242,7 +275,7 @@ def main():
         save()
     print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
     verified = ['network_settings_match', 'probe_access_matches', 'battery_reset_verified',
-                'doze_unforced_verified', 'screen_matches', 'source_stopped_flag_clear', 'reverse_restored']
+                'doze_unforced_verified', 'screen_matches', 'source_stopped_flag_clear', 'reverse_restored', 'lockscreen_policy_matches']
     if not report.get('completed') or not report.get('audit_unchanged') or 'FAILED' in report['cleanup'].values() or any(report['cleanup'].get(k) is not True for k in verified):
         raise SystemExit(1)
 

@@ -38,7 +38,7 @@ class DriverTest(unittest.TestCase):
             self.assertEqual(2, self.invoke(root, unexpected, unexpected))
             self.assertEqual('preserve', path.read_text())
 
-    def environment(self, fail_at='offline', battery_override=False):
+    def environment(self, fail_at='offline', battery_override=False, lock_disabled=False):
         state = {'wifi': '1', 'mobile': '1', 'battery': battery_override, 'doze': False, 'access': True, 'awake': True}
         commands = []
         audit = {'audited_orders': 4, 'distinct_event_consumptions': 4,
@@ -56,6 +56,7 @@ class DriverTest(unittest.TestCase):
             c = args[1]; commands.append(c)
             values = {
                 'getprop ro.kernel.qemu': '1', 'am get-current-user': '0',
+                'locksettings get-disabled --user 0': str(lock_disabled).lower(),
                 'dumpsys battery': 'UPDATES STOPPED' if state['battery'] else 'normal battery',
                 'dumpsys deviceidle': 'mForceIdle=' + str(state['doze']).lower(),
                 'settings get global wifi_on': state['wifi'], 'settings get global mobile_data': state['mobile'],
@@ -115,10 +116,42 @@ class DriverTest(unittest.TestCase):
             self.assertTrue(state['battery'])
             self.assertNotIn('dumpsys battery reset', commands)
 
+    def testDisabledLockscreenIsReportedSeparatelyFromScreenOff(self):
+        with tempfile.TemporaryDirectory(prefix='observer-probe-auto-test-', dir='/tmp') as root:
+            state, commands, check_output, run = self.environment(lock_disabled=True)
+            out = Path(root) / 'run'
+            self.assertEqual(1, self.invoke(out, check_output, run))
+            report = json.loads((out / 'report.json').read_text())
+            by_case = {r['case']: r for r in report['cases']}
+            self.assertEqual('Blocked', by_case['keyguard_lock']['infrastructure'])
+            self.assertEqual('Passed', by_case['screen_off']['infrastructure'])
+            self.assertNotIn('locked', by_case)
+            self.assertFalse(any('locksettings set-disabled' in c for c in commands))
+            self.assertTrue(report['cleanup']['lockscreen_policy_matches'])
+
     def testOnlyStructuredProbeResultLinesAreParsed(self):
         row = {'case': 'locked_1', 'callbacks': 0, 'notification_delivery': 'Not exercised'}
         text = 'unrelated output\n' + driver.RESULT_PREFIX + json.dumps(row) + '\nOK (1 test)\n'
         self.assertEqual([row], driver.results_from_log(text))
+
+    def testPartialLiveLineWaitsForCompletion(self):
+        row = {'case': 'armed_for_fault', 'pid': 123}
+        text = driver.RESULT_PREFIX + json.dumps(row)
+        self.assertEqual([], driver.results_from_log(text))
+        self.assertEqual([], driver.results_from_log(text[:30]))
+        self.assertEqual([row], driver.results_from_log(text + '\n'))
+
+    def testRebootRequiresChangedIdentityAndToleratesOfflineTransition(self):
+        before = '00000000-0000-0000-0000-000000000001'
+        after = '00000000-0000-0000-0000-000000000002'
+        def read(boot, complete):
+            return lambda command, **kwargs: boot if command.startswith('cat ') else complete
+        self.assertFalse(driver.reboot_complete(read(before, '1'), before))
+        self.assertFalse(driver.reboot_complete(read(after, ''), before))
+        self.assertTrue(driver.reboot_complete(read(after, '1'), before))
+        def offline(*args, **kwargs):
+            raise subprocess.CalledProcessError(1, 'adb')
+        self.assertFalse(driver.reboot_complete(offline, before))
 
 
 if __name__ == '__main__':

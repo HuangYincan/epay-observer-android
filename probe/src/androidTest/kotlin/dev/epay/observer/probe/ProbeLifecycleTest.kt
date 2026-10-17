@@ -44,9 +44,10 @@ class ProbeLifecycleTest {
         if (keyguard.isKeyguardLocked) shell("wm dismiss-keyguard")
         await("non-secure keyguard fully dismissed") { !keyguard.isKeyguardLocked }
     }
-    private fun lock() {
+    private fun lock(requireKeyguard: Boolean = true) {
         shell("input keyevent KEYCODE_SLEEP")
-        await("screen off and keyguard locked") { !power.isInteractive && keyguard.isKeyguardLocked }
+        await("screen off") { !power.isInteractive }
+        if (requireKeyguard) await("keyguard locked") { keyguard.isKeyguardLocked }
     }
     private fun start() {
         wake()
@@ -79,7 +80,7 @@ class ProbeLifecycleTest {
         assertFalse("Secure device lock is not bypassed", keyguard.isDeviceSecure)
         assertEquals(InstalledSource.Status.MATCH, InstalledSource.check(context))
         val scenario = args.getString("probeScenario")
-        assertTrue(scenario in setOf("fresh", "locked", "offline", "doze", "idle", "arm_fault"))
+        assertTrue(scenario in setOf("fresh", "locked", "screen_off", "offline", "doze", "idle", "arm_fault"))
         if (scenario == "fresh") {
             assertEquals("New process must not auto-arm", ProbeWindow.Phase.IDLE, window.snapshot().phase)
             assertEquals(0, window.snapshot().callbacks)
@@ -105,19 +106,20 @@ class ProbeLifecycleTest {
                     hold(60)
                     fail("Host must perform the explicitly requested process fault")
                 }
-                "locked" -> repeat(3) { round ->
-                    start(); lock()
+                "locked", "screen_off" -> repeat(3) { round ->
+                    start(); lock(requireKeyguard = scenario == "locked")
                     val before = window.snapshot().callbacks
                     hold(20)
                     assertFalse("screen remained off during locked interval", power.isInteractive)
-                    assertTrue("keyguard remained locked during interval", keyguard.isKeyguardLocked)
-                    running(); report("locked_${round + 1}", mapOf("held_seconds" to 20), window.snapshot().callbacks - before)
+                    if (scenario == "locked") assertTrue("keyguard remained locked during interval", keyguard.isKeyguardLocked)
+                    running(); report("${scenario}_${round + 1}", mapOf("held_seconds" to 20,
+                        "keyguard_locked" to keyguard.isKeyguardLocked), window.snapshot().callbacks - before)
                     window.stop(); wake()
                 }
                 "offline" -> offline()
                 "doze" -> doze()
                 "idle" -> {
-                    start(); lock()
+                    start(); lock(requireKeyguard = false)
                     val before = window.snapshot().callbacks
                     hold(135)
                     assertFalse(power.isInteractive)
@@ -167,7 +169,7 @@ class ProbeLifecycleTest {
         assertFalse("Existing battery simulation not modified", shell("dumpsys battery").contains("UPDATES STOPPED"))
         start()
         try {
-            shell("dumpsys battery unplug"); lock()
+            shell("dumpsys battery unplug"); lock(requireKeyguard = false)
             shell("dumpsys deviceidle force-idle")
             await("device entered forced Doze") { power.isDeviceIdleMode }
             val before = window.snapshot().callbacks
