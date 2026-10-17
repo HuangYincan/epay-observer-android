@@ -1,0 +1,45 @@
+# 支付宝通知可达性：本地计数验证
+
+2026-10-17；#33/#42，SPEC-028 PROBE-01..05。用户已确认支付宝登录，要求先验证支付宝；微信登录仍未完成，不作为本批前置。通知读取范围限于来源校验和回调计数，不含正文、key、账号、金额或交易身份。
+
+## 当前证据
+
+| 项目 | 结果 | 依据 |
+| --- | --- | --- |
+| 支付宝安装/首屏 | Passed | [D0报告](../research/M4-real-app-d0.md)，12.12.30.8000 / 212310 |
+| 支付宝登录 | Passed（用户反馈） | 用户明确“支付宝已登录”，未读取登录页面/账号 |
+| 系统通知权限/运行状态 | Passed（检查时） | POST_NOTIFICATIONS granted=true，appops默认allow，stopped=false |
+| 固定包/版本/签名/用户/UID拒绝边界 | Passed（JVM） | 6项测试内含多组来源反例 |
+| 窗口起停、超时、断连、容量 | Passed（JVM） | 120秒边界、倒退、500次上限、重连不自启 |
+| 构建/lint/产物隔离 | Passed | 严格依赖校验，lint无问题，APK检查无权限/内容读取调用，无release任务 |
+| 当前安装支付宝来源校验及监听/按钮 | Passed（AVD） | 实际instrumentation 1项通过，31.322秒；权限/监听、UI起停和断连重连 |
+| 两分钟被动窗口及实际超时 | Passed（窗口功能） | 界面从正在观察/剩余118秒到窗口已结束/剩余0秒，回调0次；未安排已知通知触发，不算支付宝正向通知通过 |
+| 实际支付宝正向通知 | Not run | 尚无用户安排的已知非资金通知触发，不能用测试夹具替代 |
+| 正文解析/收款/真实自动充值 | Not run | 本探针不具备这些功能，#8仍阻塞 |
+
+环境为原专用API37 / Android17 / arm64 AVD。模拟器此前出现系统ANR/系统服务异常；本轮探针再次启动的 `am start -W` 返回timeout，但后续UI层级读取正常，实际显示权限已授权、监听已连接、支付宝来源匹配及未开始。不能仅凭命令启动结果认定UI已通过；以实际按钮操作和状态变化补充证据，也不宣称模拟器稳定性问题已修复。
+
+原合成lab独立审计仍为4笔订单、4条独立消费、4条收入、4笔成功topup、总增额30,000,000。探针与原观察器使用不同包，无网络、无配对、无事件/账本模块依赖。
+
+## 用户操作
+
+1. 打开“支付宝通知探针 · 仅本地”，确认通知访问已授权、监听已连接、当前支付宝版本和签名匹配。必要时点“设置通知访问权限”，授权对象是探针，不是原收款观察器。
+2. 准备好一条非资金支付宝通知的触发方式后，点“开始两分钟观察”，把支付宝保持后台，再由用户自行安排另一端发送普通测试消息。不要转账或付款；代理不代用户发送消息。
+3. 返回探针看“窗口内回调次数”。非零只证明该固定来源产生系统通知回调；通知更新/重投也可能计数，不等于独立消息或交易笔数。记录具体前台/后台/锁屏条件，单次结果不代表后台稳定性。
+4. 两分钟后窗口停止；也可随时点“立即停止观察”。没有实际触发场景或零计数应保留待验证，不判定支付App永久不支持。结束实验可在系统设置撤销探针权限。
+
+计数仅存内存，关闭进程会清零；不提供正文/诊断文件导出。不要把真实消息内容、账号或验证码贴入Issue。真正的收款通知解析与订单归属需要另行获准样本和规格，不能由这个计数结果代替。
+
+## 复验命令
+
+```sh
+./gradlew --no-daemon --dependency-verification strict \
+  :probe:assembleDebug :probe:testDebugUnitTest :probe:lintDebug :probe:assembleDebugAndroidTest
+python3 scripts/verify_probe_apk.py probe/build/outputs/apk/debug/probe-debug.apk
+# 显式指定本项目专用模拟器；只作用于探针自身权限和窗口。
+adb -s emulator-5554 shell am instrument -w -r -e probeLocalAvd true \
+  -e class dev.epay.observer.probe.ProbeInstrumentedTest \
+  dev.epay.observer.probe.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+instrumentation不触发支付宝业务，不伪装其包名/签名，也不将人工登录状态做成自动断言。测试原先无监听权限时在结束后撤销，窗口始终停止；实际用户观察需重新准备窗口。

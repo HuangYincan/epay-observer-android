@@ -41,15 +41,19 @@ jobs:
           :app:assembleFixtureDebug :app:assembleProductionRelease
           :app:testProductionDebugUnitTest :app:testFixtureDebugUnitTest :app:assembleFixtureDebugAndroidTest
           :app:lintProductionRelease
+          :probe:assembleDebug :probe:testDebugUnitTest :probe:lintDebug :probe:assembleDebugAndroidTest
       - name: Check packaged build isolation
         run: |
           python3 scripts/verify_apk.py fixture/build/outputs/apk/debug/fixture-debug.apk --variant fixtureSender
           python3 scripts/verify_apk.py app/build/outputs/apk/production/release/app-production-release-unsigned.apk --variant productionRelease
           python3 scripts/verify_apk.py app/build/outputs/apk/fixture/debug/app-fixture-debug.apk --variant fixtureDebug
+          python3 scripts/verify_probe_apk.py probe/build/outputs/apk/debug/probe-debug.apk
           ./gradlew --no-daemon :app:tasks --all > /tmp/observer-tasks.txt
           python3 -c 'from pathlib import Path; s=Path("/tmp/observer-tasks.txt").read_text(); assert "assembleFixtureDebug" in s and "assembleProductionRelease" in s; assert "assembleFixtureRelease" not in s'
           ./gradlew --no-daemon :fixture:tasks --all > /tmp/fixture-tasks.txt
           python3 -c 'from pathlib import Path; s=Path("/tmp/fixture-tasks.txt").read_text(); assert "assembleRelease" not in s'
+          ./gradlew --no-daemon :probe:tasks --all > /tmp/probe-tasks.txt
+          python3 -c 'from pathlib import Path; s=Path("/tmp/probe-tasks.txt").read_text(); assert "assembleDebug" in s and "assembleRelease" not in s'
       - name: Save verification reports
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -57,6 +61,8 @@ jobs:
           name: android-reports
           path: |
             fixture/build/reports/
+            probe/build/reports/
+            probe/build/test-results/
             app/build/reports/
             app/build/test-results/
             build/reports/
