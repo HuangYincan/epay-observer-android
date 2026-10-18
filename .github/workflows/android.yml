@@ -21,8 +21,8 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Test isolated prototype helpers
         run: python3 -m unittest discover -s scripts/prototype/tests -p 'test_*.py'
-      - name: Test anonymous connection driver contracts
-        run: python3 -m unittest discover -s scripts/tests -p 'test_gateway_connection.py'
+      - name: Test gateway driver contracts
+        run: python3 -m unittest discover -s scripts/tests -p 'test_gateway_*.py'
       - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
