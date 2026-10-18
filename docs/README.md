@@ -87,3 +87,4 @@
 
 - [SPEC-033 notification候选诊断](specs/SPEC-033-notification-review.md)（Android #77 / epay-go #22）：首次认证接收即保存不可入账的候选检查与needs_review，不等同真实解析或自动充值。
 - [notification首次接收诊断验证](testing/notification-review-report.md)：独立PostgreSQL/签名TLS合成输入验证，不代表真实收款解析或充值。
+- [SPEC-034未付款后的单次扫码采样](specs/SPEC-034-unpaid-scan-retry.md)与[准备报告](testing/alipay-unpaid-scan-retry.md)：旧标记保留，仅新增固定slot，用户本地明确同意并点击才开窗。

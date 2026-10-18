@@ -15,10 +15,21 @@ object SampleRuntime {
 
     /** Called only by explicit androidTest on the service main thread. Never reset old markers. */
     @Synchronized fun prepareScanPaymentWindow(context: Context) {
+        prepare(context, "used-scan-payment-v1")
+    }
+
+    /** A separate fixed slot; explicit local consent never resets earlier windows. */
+    @Synchronized fun prepareUnpaidScanRetryWindow(context: Context) {
+        check(File(context.noBackupFilesDir, "used").exists())
+        check(File(context.noBackupFilesDir, "used-scan-payment-v1").exists())
+        prepare(context, "used-scan-payment-unpaid-retry-v1")
+    }
+
+    private fun prepare(context: Context, markerName: String) {
         val previous = instance?.snapshot()
         check(previous?.phase != SampleGate.Phase.RUNNING)
         check(!File(context.noBackupFilesDir, "samples.jsonl").exists())
-        instance = create(context, "used-scan-payment-v1").apply {
+        instance = create(context, markerName).apply {
             connection(previous?.connected == true)
         }
     }

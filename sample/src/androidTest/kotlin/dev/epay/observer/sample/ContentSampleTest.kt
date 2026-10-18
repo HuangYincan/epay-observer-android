@@ -15,6 +15,20 @@ import java.io.File
 
 @RunWith(AndroidJUnit4::class)
 class ContentSampleTest {
+    @Test fun prepareOnlyRetry() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        assertEquals("unpaid-scan-retry-prepare-only", InstrumentationRegistry.getArguments().getString("contentSampleConsent"))
+        assertTrue(android.os.Build.MODEL.startsWith("sdk_gphone"))
+        assertEquals(InstalledSource.Status.MATCH, InstalledSource.check(context))
+        assertTrue(File(context.noBackupFilesDir, "used").exists())
+        assertTrue(File(context.noBackupFilesDir, "used-scan-payment-v1").exists())
+        assertFalse(File(context.noBackupFilesDir, "used-scan-payment-unpaid-retry-v1").exists())
+        assertFalse(File(context.noBackupFilesDir, "samples.jsonl").exists())
+        assertNotEquals(SampleGate.Phase.RUNNING, SampleRuntime.gate(context).snapshot().phase)
+        assertFalse(context.getSystemService(NotificationManager::class.java)
+            .isNotificationListenerAccessGranted(ComponentName(context, AlipayListener::class.java)))
+    }
+
     @Test fun prepareOnly() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("scan-payment-prepare-only", InstrumentationRegistry.getArguments().getString("contentSampleConsent"))
@@ -32,13 +46,16 @@ class ContentSampleTest {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
         val consent = InstrumentationRegistry.getArguments().getString("contentSampleConsent")
-        assertTrue(consent in setOf("local-once-120s", "scan-payment-once-120s-v1"))
+        assertTrue(consent in setOf("local-once-120s", "scan-payment-once-120s-v1", "scan-payment-unpaid-retry-once-120s-v1"))
         assertTrue("Emulator only", android.os.Build.MODEL.startsWith("sdk_gphone"))
         assertEquals(InstalledSource.Status.MATCH, InstalledSource.check(context))
         assertTrue(context.getSystemService(NotificationManager::class.java)
             .isNotificationListenerAccessGranted(ComponentName(context, AlipayListener::class.java)))
         if (consent == "scan-payment-once-120s-v1") instrumentation.runOnMainSync {
             SampleRuntime.prepareScanPaymentWindow(context)
+        }
+        if (consent == "scan-payment-unpaid-retry-once-120s-v1") instrumentation.runOnMainSync {
+            SampleRuntime.prepareUnpaidScanRetryWindow(context)
         }
         val gate = SampleRuntime.gate(context)
         NotificationListenerService.requestRebind(ComponentName(context, AlipayListener::class.java))

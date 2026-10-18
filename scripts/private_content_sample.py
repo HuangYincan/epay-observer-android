@@ -12,6 +12,7 @@ import time
 
 STATE_PREFIX = 'INSTRUMENTATION_STATUS: content_sample_state='
 SCAN_MARKER = 'used-scan-payment-v1'
+UNPAID_RETRY_MARKER = 'used-scan-payment-unpaid-retry-v1'
 
 
 def state_rows(text):
@@ -142,9 +143,9 @@ class Driver:
         self.shell('run-as', PACKAGE, 'rm', '-f', 'no_backup/samples.jsonl')
         self.shell('run-as', PACKAGE, 'test', '!', '-e', 'no_backup/samples.jsonl')
 
-    def observe_receipt(self, log_path, progress, cancel):
+    def observe_receipt(self, log_path, progress, cancel, unpaid_retry=False):
         arguments = ['shell', 'am', 'instrument', '-w', '-r', '-e', 'contentSampleConsent',
-                     'scan-payment-once-120s-v1', '-e', 'class',
+                     'scan-payment-unpaid-retry-once-120s-v1' if unpaid_retry else 'scan-payment-once-120s-v1', '-e', 'class',
                      'dev.epay.observer.sample.ContentSampleTest#sampleOnce',
                      PACKAGE + '.test/androidx.test.runner.AndroidJUnitRunner']
         with log_path.open('xb') as log:
@@ -232,6 +233,9 @@ def audit(lab):
 def execute(args, progress=None, cancel=None):
     if not re.fullmatch(r'emulator-\d+', args.serial):
         raise ValueError('emulator required')
+    unpaid_retry = getattr(args, 'unpaid_retry', False)
+    if unpaid_retry and not getattr(args, 'receipt_window', False):
+        raise ValueError('retry requires local scan control')
     os.umask(0o077)
     if args.evidence.resolve().is_relative_to(REPO_ROOT):
         raise ValueError('private evidence must be outside repository')
@@ -246,6 +250,9 @@ def execute(args, progress=None, cancel=None):
     receipt_window = getattr(args, 'receipt_window', False)
     if receipt_window:
         report.update(spec='SPEC-032', issue=75, scope='user-started-scan-payment-title-text')
+    if unpaid_retry:
+        report.update(spec='SPEC-034', issue=79, scope='user-consented-unpaid-scan-retry-title-text',
+                      previous_payment_feedback='User reported not paid; not a platform record')
     try:
         if driver.shell('getprop', 'ro.kernel.qemu') != '1':
             raise ValueError('emulator required')
@@ -261,8 +268,11 @@ def execute(args, progress=None, cancel=None):
         driver.adb('install', '-r', str(args.runner), timeout=60)
         touched = True
         # Verify absence without listing names or printing contents.
-        marker = SCAN_MARKER if receipt_window else 'used'
+        marker = UNPAID_RETRY_MARKER if unpaid_retry else (SCAN_MARKER if receipt_window else 'used')
         driver.shell('run-as', PACKAGE, 'test', '!', '-e', 'no_backup/' + marker)
+        if unpaid_retry:
+            for previous in ['used', SCAN_MARKER]:
+                driver.shell('run-as', PACKAGE, 'test', '-e', 'no_backup/' + previous)
         if receipt_window:
             if progress is None or cancel is None or cancel.is_set():
                 raise ValueError('local control required')
@@ -271,7 +281,7 @@ def execute(args, progress=None, cancel=None):
             report['alipay_background_requested'] = True
         driver.shell('cmd', 'notification', 'allow_listener', COMPONENT)
         if receipt_window:
-            driver.observe_receipt(args.evidence / 'instrumentation.txt', progress, cancel)
+            driver.observe_receipt(args.evidence / 'instrumentation.txt', progress, cancel, unpaid_retry=unpaid_retry)
         else:
             with (args.evidence / 'instrumentation.txt').open('xb') as log:
                 driver.adb('shell', 'am', 'instrument', '-w', '-r', '-e', 'contentSampleConsent', 'local-once-120s',
