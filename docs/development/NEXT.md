@@ -33,3 +33,7 @@
 2026-10-18既有网关接入：用户已要求直接接入其现有 epay-go，New API 不重配，并授权自动执行至需要其介入。默认网关候选版本经隔离迁移/运行/TLS验证后完成受控切换，现有支付通道、New API 和共享隧道保留。实际 productionDebug APK 匿名 inspect 得到 401/invalid_grant，见[SPEC-029](../specs/SPEC-029-gateway-connection-preflight.md)、[结果与失败恢复](../testing/gateway-connection-report.md)、[运维步骤](../operations/existing-gateway-connection.md)。曾遇 AVD DNS 代理失效，复用宿主已有 IPv4 DNS、保留同一 userdata 冷启动恢复；未清数据、未改系统信任或伪装 UA。原四笔账务不变，观察器 receiver/binding/grant/event/request 均0，生产匹配继续关闭。下一步须由用户指定当前支付宝是否为实际收款账户，随后才配对/签名健康检查；通知正文、真实订单归属和充值均未验收。
 
 2026-10-18持久配对：用户明确确认当前支付宝就是收款账号，按[SPEC-030](../specs/SPEC-030-production-device-pairing.md)自动完成正常管理员grant、实际公网配对及新进程签名健康，见[报告](../testing/production-pairing-report.md)。稳定receiver/第一代活跃绑定/凭据各1，alias/event/request均0；业务表计数和原隔离四笔/总增额不变。短期bootstrap及临时管理员会话已清理，原KeyStore/Room持久凭据保留。正文/收款解析和真实归属仍未验收，生产采集及匹配关闭；不再要求用户重复登录、指定账号或手动配对。下一步先明确真实收款通知样本的采集范围，不重跑本批或既有生命周期验收。
+
+2026-10-18内容采样授权：用户明确允许一次120秒读取支付宝标题/正文（可能含普通消息），仅本机私有保存、提取脱敏模板后删除原文。按[SPEC-031](../specs/SPEC-031-private-content-sample.md)/#73新增独立无网络debug工具，不改原probe或production来源/解析/上报策略。实际单窗口结果与清理见[采样报告](../testing/alipay-private-content-sample.md)。不要求用户重复发消息，不代发消息或付款，不自动续窗；未采到样本不等于兼容性失败，普通消息或关键词不等于真实到账。已完成的普通消息回调、配对、签名健康和生命周期项目直接复用，#8/#33/#42仍开放。
+
+2026-10-18 03:07:50.042–03:09:50.222 UTC单次被动采样已结束：EXPIRED、120,176ms、0回调/0正文，通知Not exercised、真实收款Not assessed。没有原文产生，双方原文路径不存在，撤权/强停/监听列表恢复及原四笔账务审计通过。一次性标记保留，不自动再开；后续缺受控真实到账样本及新的限定采样范围。工具/合成测试通过不能升级为真实收款解析、归属或自动充值通过。

@@ -1,0 +1,5 @@
+<resources>
+    <string name="sample_notice">一次性本地采样\n不上传内容；回调数不等于付款笔数。</string>
+    <string name="sample_stop">立即停止</string>
+    <string name="sample_status">%1$s · 回调 %2$d</string>
+</resources>

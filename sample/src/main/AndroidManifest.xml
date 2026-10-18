@@ -1,0 +1,18 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <queries><package android:name="com.eg.android.AlipayGphone" /></queries>
+    <application android:label="支付宝一次采样 · 仅本地" android:allowBackup="false"
+        android:fullBackupContent="false" android:dataExtractionRules="@xml/data_extraction_rules"
+        android:icon="@android:drawable/ic_dialog_info" android:usesCleartextTraffic="false"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <activity android:name=".SampleActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <service android:name=".AlipayListener" android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter><action android:name="android.service.notification.NotificationListenerService" /></intent-filter>
+        </service>
+    </application>
+</manifest>
