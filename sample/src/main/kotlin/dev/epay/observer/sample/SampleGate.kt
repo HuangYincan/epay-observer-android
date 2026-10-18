@@ -5,7 +5,9 @@ class SampleGate(
     private val now: () -> Long,
     private val consumeOnce: () -> Boolean,
     private val persist: (String?, String?) -> Unit,
+    private val limit: Int = 32,
 ) {
+    init { require(limit in 1..32) }
     enum class Phase { IDLE, RUNNING, EXPIRED, STOPPED, DISCONNECTED, SOURCE_CHANGED, LIMIT, ERROR, USED }
     data class State(val phase: Phase, val count: Int, val connected: Boolean, val elapsedMs: Long)
     private var phase = Phase.IDLE
@@ -51,7 +53,7 @@ class SampleGate(
             if (!inWindow()) return
             persist(safeTitle, safeText)
             count++
-            if (count == 32) phase = Phase.LIMIT
+            if (count == limit) phase = Phase.LIMIT
         } catch (_: Exception) { phase = Phase.ERROR }
     }
 

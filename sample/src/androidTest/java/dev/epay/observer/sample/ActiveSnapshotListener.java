@@ -21,9 +21,21 @@ import java.security.MessageDigest;
 public final class ActiveSnapshotListener extends NotificationListenerService {
     private static final String PACKAGE = "com.eg.android.AlipayGphone";
     private static final String SIGNER = "389b49f7832f53e9017923220aa85e14dfaa4886ecd7428818bf339543cf498a";
-    private static final String CONSENT = "active-snapshot-once-max2-v1";
-    private static final String RECOVERY_CONSENT = "active-snapshot-recovery-once-max2-v1";
-    private static final String CLASSIFICATION_CONSENT = "active-snapshot-classification-once-max2-v1";
+    private enum Scope {
+        ORIGINAL("active-snapshot", false),
+        RECOVERY("active-snapshot-recovery", false),
+        CLASSIFICATION("active-snapshot-classification", true),
+        FIELD_ROLES("active-snapshot-field-roles", true);
+
+        final String prefix;
+        final boolean includeMetadata;
+        Scope(String prefix, boolean includeMetadata) {
+            this.prefix = prefix;
+            this.includeMetadata = includeMetadata;
+        }
+        String consent() { return prefix + "-once-max2-v1"; }
+        String marker() { return "used-" + prefix + "-max2-v1"; }
+    }
     private static final Object LOCK = new Object();
 
     @Override public void onNotificationPosted(StatusBarNotification notification) {
@@ -33,13 +45,17 @@ public final class ActiveSnapshotListener extends NotificationListenerService {
     @Override public void onListenerConnected() {
         super.onListenerConnected();
         synchronized (LOCK) {
-            boolean classification = new File(getFilesDir(), "active-snapshot-classification-consent").isFile();
-            boolean recovery = new File(getFilesDir(), "active-snapshot-recovery-consent").isFile();
-            String prefix = classification ? "active-snapshot-classification" : recovery ? "active-snapshot-recovery" : "active-snapshot";
-            String consentValue = classification ? CLASSIFICATION_CONSENT : recovery ? RECOVERY_CONSENT : CONSENT;
+            Scope scope = null;
+            for (Scope candidate : Scope.values()) {
+                if (new File(getFilesDir(), candidate.prefix + "-consent").isFile()) {
+                    if (scope != null) return; // Conflicting scopes never read fields.
+                    scope = candidate;
+                }
+            }
+            if (scope == null) return;
+            String prefix = scope.prefix;
             File consent = new File(getFilesDir(), prefix + "-consent");
-            File used = new File(getNoBackupFilesDir(), classification ? "used-active-snapshot-classification-max2-v1" : recovery ?
-                    "used-active-snapshot-recovery-max2-v1" : "used-active-snapshot-max2-v1");
+            File used = new File(getNoBackupFilesDir(), scope.marker());
             File raw = new File(getFilesDir(), prefix + "-raw.json");
             File status = new File(getFilesDir(), prefix + "-status.json");
             JSONObject report = new JSONObject();
@@ -47,9 +63,11 @@ public final class ActiveSnapshotListener extends NotificationListenerService {
             boolean consumed = false;
             try {
                 if (!consent.isFile() || consent.length() > 80 ||
-                        !consentValue.equals(new String(Files.readAllBytes(consent.toPath()), StandardCharsets.UTF_8).trim())) return;
-                if ((recovery || classification) && !previousAttemptComplete("active-snapshot", "used-active-snapshot-max2-v1")) return;
-                if (classification && !previousAttemptComplete("active-snapshot-recovery", "used-active-snapshot-recovery-max2-v1")) return;
+                        !scope.consent().equals(new String(Files.readAllBytes(consent.toPath()), StandardCharsets.UTF_8).trim())) return;
+                for (Scope previous : Scope.values()) {
+                    if (previous == scope) break;
+                    if (!previousAttemptComplete(previous.prefix, previous.marker())) return;
+                }
                 // Refuse pending raw data; never overwrite an earlier attempt.
                 if (raw.exists() || status.exists() || !used.createNewFile()) return;
                 consumed = true;
@@ -70,13 +88,13 @@ public final class ActiveSnapshotListener extends NotificationListenerService {
                     if (read == 2) break;
                     if (!PACKAGE.equals(sbn.getPackageName()) || !PACKAGE.equals(sbn.getOpPkg()) ||
                             sbn.getUid() != uid || !Process.myUserHandle().equals(sbn.getUser())) continue;
-                    // Only these three title/body presentations may cross the gate.
+                    // Only bounded presentations and explicitly scoped finite metadata cross the gate.
                     Notification notification = sbn.getNotification();
                     JSONObject record = new JSONObject();
                     record.put("title", bounded(notification, Notification.EXTRA_TITLE, 256));
                     record.put("text", bounded(notification, Notification.EXTRA_TEXT, 1024));
                     record.put("big_text", bounded(notification, Notification.EXTRA_BIG_TEXT, 1024));
-                    if (classification) record.put("metadata", metadata(sbn, notification));
+                    if (scope.includeMetadata) record.put("metadata", metadata(sbn, notification));
                     records.put(record);
                     read++;
                 }

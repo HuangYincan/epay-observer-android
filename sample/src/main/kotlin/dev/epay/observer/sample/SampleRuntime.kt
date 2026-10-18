@@ -25,6 +25,13 @@ object SampleRuntime {
         prepare(context, "used-scan-payment-unpaid-retry-v1")
     }
 
+    /** One user-started fresh template window after the historical record disappeared. */
+    @Synchronized fun prepareReceiptTemplateWindow(context: Context) {
+        for (previous in listOf("used", "used-scan-payment-v1", "used-scan-payment-unpaid-retry-v1"))
+            check(File(context.noBackupFilesDir, previous).exists())
+        prepare(context, "used-receipt-template-v1")
+    }
+
     private fun prepare(context: Context, markerName: String) {
         val previous = instance?.snapshot()
         check(previous?.phase != SampleGate.Phase.RUNNING)
@@ -48,6 +55,6 @@ object SampleRuntime {
             FileOutputStream(File(directory, "samples.jsonl"), true).use {
                 it.write(line.toByteArray(Charsets.UTF_8)); it.fd.sync()
             }
-        })
+        }, limit = if (markerName == "used-receipt-template-v1") 2 else 32)
     }
 }

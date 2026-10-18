@@ -14,7 +14,10 @@ from probe_delivery_avd import DeliverySession, acquire_control_lock, make_serve
 
 
 class ScanSession(DeliverySession):
-    def __init__(self, directory, runner, page_test=False, unpaid_retry=False):
+    def __init__(self, directory, runner, page_test=False, unpaid_retry=False, receipt_template=False):
+        if unpaid_retry and receipt_template:
+            raise ValueError('conflicting scope')
+        self.receipt_template = receipt_template
         self.unpaid_retry = unpaid_retry
         super().__init__(directory, runner, page_test)
         self.change(spec='SPEC-032', issue=75,
@@ -24,6 +27,9 @@ class ScanSession(DeliverySession):
         if unpaid_retry:
             self.change(spec='SPEC-034', issue=79, scope='User-consented additional unpaid scan title/text sample',
                         previous_payment_feedback='User reported not paid; not a platform record')
+
+        if receipt_template:
+            self.change(spec='SPEC-039', issue=82, scope='User-started fresh receipt template, 120s/max2; no recharge')
 
     def confirm_sent(self):
         with self.lock:
@@ -41,6 +47,7 @@ class ScanSession(DeliverySession):
             result['user_confirmed'] = self.report.get('user_payment_confirmation') is not None
             result['notification_delivery'] = self.report['notification_delivery']
             result['unpaid_retry'] = self.unpaid_retry
+            result['receipt_template'] = self.receipt_template
             return result
 
 
@@ -54,7 +61,7 @@ def run_sample(args, session):
                 session.change(state='CLEANING')
     sample_args = SimpleNamespace(serial=args.serial, adb=args.adb, lab=args.lab,
         evidence=session.directory / 'sample', receipt_window=True,
-        unpaid_retry=args.unpaid_retry,
+        unpaid_retry=args.unpaid_retry, receipt_template=args.receipt_template,
         apk=REPO_ROOT / 'sample/build/outputs/apk/debug/sample-debug.apk',
         runner=REPO_ROOT / 'sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk')
     code = execute(sample_args, progress, session.cancelled)
@@ -72,7 +79,9 @@ def main():
     parser.add_argument('--adb', required=True, type=Path)
     parser.add_argument('--lab', required=True, type=Path)
     parser.add_argument('--directory', required=True, type=Path)
-    parser.add_argument('--unpaid-retry', action='store_true', help='Prepare the fixed additional slot; user must consent locally')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--unpaid-retry', action='store_true', help='Prepare the fixed additional slot; user must consent locally')
+    mode.add_argument('--receipt-template', action='store_true', help='Prepare the fixed fresh template slot; local explicit start only')
     args = parser.parse_args()
     if not re.fullmatch(r'emulator-\d+', args.serial):
         parser.error('Explicit emulator required')
@@ -80,7 +89,7 @@ def main():
         parser.error('New private /private/tmp/observer-scan-* directory required')
     os.umask(0o077)
     control_lock = acquire_control_lock(args.serial)
-    session = ScanSession(args.directory, lambda current: run_sample(args, current), unpaid_retry=args.unpaid_retry)
+    session = ScanSession(args.directory, lambda current: run_sample(args, current), unpaid_retry=args.unpaid_retry, receipt_template=args.receipt_template)
     token = secrets.token_urlsafe(32)
     server = make_server(session, token, 'scan_sample.html')
     control = session.directory / 'control.json'

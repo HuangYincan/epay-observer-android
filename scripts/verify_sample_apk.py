@@ -62,6 +62,7 @@ for name in classes:
     assert 'Ldev/epay/observer/sample/SampleGate;->start(' not in code, name
     assert 'Ldev/epay/observer/sample/SampleRuntime;->prepareScanPaymentWindow(' not in code, name
     assert 'Ldev/epay/observer/sample/SampleRuntime;->prepareUnpaidScanRetryWindow(' not in code, name
+    assert 'Ldev/epay/observer/sample/SampleRuntime;->prepareReceiptTemplateWindow(' not in code, name
     for forbidden in ['->getFilesDir(', '->getCacheDir(', 'Ljava/io/FileWriter;', 'Ljava/io/PrintWriter;']:
         assert forbidden not in code, (name, forbidden)
     assert 'Ljava/io/File;->delete(' not in code, name

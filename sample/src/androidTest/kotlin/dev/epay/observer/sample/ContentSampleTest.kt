@@ -12,9 +12,32 @@ import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
+import android.os.ParcelFileDescriptor
 
 @RunWith(AndroidJUnit4::class)
 class ContentSampleTest {
+    private fun sourceRunning(): Boolean = ParcelFileDescriptor.AutoCloseInputStream(
+        InstrumentationRegistry.getInstrumentation().uiAutomation
+            .executeShellCommand("pidof com.eg.android.AlipayGphone")
+    ).bufferedReader().use { reader ->
+        reader.readLine()?.matches(Regex("[0-9]+(?: [0-9]+)*")) == true
+    }
+
+    @Test fun prepareOnlyReceiptTemplate() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        assertEquals("receipt-template-prepare-only", InstrumentationRegistry.getArguments().getString("contentSampleConsent"))
+        assertTrue("Source process present; this does not verify login", sourceRunning())
+        assertTrue(android.os.Build.MODEL.startsWith("sdk_gphone"))
+        assertEquals(InstalledSource.Status.MATCH, InstalledSource.check(context))
+        for (previous in listOf("used", "used-scan-payment-v1", "used-scan-payment-unpaid-retry-v1"))
+            assertTrue(File(context.noBackupFilesDir, previous).exists())
+        assertFalse(File(context.noBackupFilesDir, "used-receipt-template-v1").exists())
+        assertFalse(File(context.noBackupFilesDir, "samples.jsonl").exists())
+        assertNotEquals(SampleGate.Phase.RUNNING, SampleRuntime.gate(context).snapshot().phase)
+        assertFalse(context.getSystemService(NotificationManager::class.java)
+            .isNotificationListenerAccessGranted(ComponentName(context, AlipayListener::class.java)))
+    }
+
     @Test fun prepareOnlyRetry() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("unpaid-scan-retry-prepare-only", InstrumentationRegistry.getArguments().getString("contentSampleConsent"))
@@ -46,9 +69,11 @@ class ContentSampleTest {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
         val consent = InstrumentationRegistry.getArguments().getString("contentSampleConsent")
-        assertTrue(consent in setOf("local-once-120s", "scan-payment-once-120s-v1", "scan-payment-unpaid-retry-once-120s-v1"))
+        assertTrue(consent in setOf("local-once-120s", "scan-payment-once-120s-v1", "scan-payment-unpaid-retry-once-120s-v1", "receipt-template-once-120s-max2-v1"))
         assertTrue("Emulator only", android.os.Build.MODEL.startsWith("sdk_gphone"))
         assertEquals(InstalledSource.Status.MATCH, InstalledSource.check(context))
+        assertTrue("Source process must be present; login remains user-confirmed",
+            consent != "receipt-template-once-120s-max2-v1" || sourceRunning())
         assertTrue(context.getSystemService(NotificationManager::class.java)
             .isNotificationListenerAccessGranted(ComponentName(context, AlipayListener::class.java)))
         if (consent == "scan-payment-once-120s-v1") instrumentation.runOnMainSync {
@@ -56,6 +81,9 @@ class ContentSampleTest {
         }
         if (consent == "scan-payment-unpaid-retry-once-120s-v1") instrumentation.runOnMainSync {
             SampleRuntime.prepareUnpaidScanRetryWindow(context)
+        }
+        if (consent == "receipt-template-once-120s-max2-v1") instrumentation.runOnMainSync {
+            SampleRuntime.prepareReceiptTemplateWindow(context)
         }
         val gate = SampleRuntime.gate(context)
         NotificationListenerService.requestRebind(ComponentName(context, AlipayListener::class.java))
@@ -84,6 +112,8 @@ class ContentSampleTest {
                 if (InstalledSource.check(context) != InstalledSource.Status.MATCH)
                     gate.posted(false, { null }, { null })
                 if (SystemClock.elapsedRealtime() - lastEmit >= 1000) {
+                    if (consent == "receipt-template-once-120s-max2-v1" && !sourceRunning())
+                        gate.posted(false, { null }, { null })
                     emit("sample"); lastEmit = SystemClock.elapsedRealtime()
                 }
             }

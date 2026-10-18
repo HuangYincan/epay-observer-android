@@ -1,5 +1,9 @@
 # 文档索引
 
+- [SPEC-039：用户本地开始的新模板窗口](specs/SPEC-039-fresh-receipt-template-window.md)与[准备状态](testing/fresh-receipt-template-preparation.md)：最多120秒/2条、明确不充值；准备/刷新不采样。
+
+- [SPEC-038：已标注扫码收款样本的本机字段核验](specs/SPEC-038-alipay-receipt-field-roles.md)（#82/#84）：用户确认实际扫码来源；[字段核验工具与实际0条结果](testing/alipay-receipt-field-roles.md)，不升级历史订单。
+
 - [SPEC-036：真实付款单订单闭环](specs/SPEC-036-real-payment-pilot.md)（#82 / epay-go #24）：真实notification事务结算能力与实际启用分别验收；模板和真实增额证据仍缺。
 - [真实付款闭环开发进度](testing/real-payment-pilot-progress.md)：网关隔离验证已完成，真实收款模板和实际充值仍缺证据。
 - [现存两条通知检查结果](testing/alipay-active-snapshot.md)与[SPEC-037](specs/SPEC-037-active-notification-snapshot.md)：追加类型核验已完成并清理；固定前缀有证据，括号/正文和聊天伪装边界仍未知，真实充值未验收。
