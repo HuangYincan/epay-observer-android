@@ -102,3 +102,4 @@ Epic：[[Epic] 真实兼容性验证与发布准备](https://github.com/HuangYin
 
 - Android #77 / epay-go #22：SPEC-033首次认证接收notification的不可入账候选诊断；真实收款解析/订单归属/生产自动匹配仍由#33/#8/#42跟进。
 - Android #82 / epay-go #24：SPEC-036受控真实notification单订单事务结算；网关开发与合成测试独立交付，真实模板、Android准入、实际New API增额和Proposed试验政策仍待后续证据。#81后台诊断独立，不阻塞可完成的结算开发。
+- Android #84：SPEC-037现存最多2条私有通知检查；实际读取后宿主处理失败，原文删除、used保留；原子发布/部分JSON回归已修复，不能未经新增范围重读。
