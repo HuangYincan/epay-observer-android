@@ -10,17 +10,19 @@ import subprocess
 import time
 
 from private_content_sample import private_json, shape
-from snapshot_templates import classify_record
+from snapshot_templates import classify_record, classify_field_roles
 
 PACKAGE = 'dev.epay.observer.sample.debug.test'
 COMPONENT = PACKAGE + '/dev.epay.observer.sample.ActiveSnapshotListener'
 CONSENT = 'active-snapshot-once-max2-v1'
 RECOVERY_CONSENT = 'active-snapshot-recovery-once-max2-v1'
 CLASSIFICATION_CONSENT = 'active-snapshot-classification-once-max2-v1'
+FIELD_ROLES_CONSENT = 'active-snapshot-field-roles-once-max2-v1'
 SCOPES = {
     CONSENT: ('active-snapshot', 'used-active-snapshot-max2-v1'),
     RECOVERY_CONSENT: ('active-snapshot-recovery', 'used-active-snapshot-recovery-max2-v1'),
     CLASSIFICATION_CONSENT: ('active-snapshot-classification', 'used-active-snapshot-classification-max2-v1'),
+    FIELD_ROLES_CONSENT: ('active-snapshot-field-roles', 'used-active-snapshot-field-roles-max2-v1'),
 }
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -108,11 +110,7 @@ def main():
         report['stage'] = 'unused_gate_checks'
         absent = []
         present = []
-        previous_scopes = []
-        if args.consent in {RECOVERY_CONSENT, CLASSIFICATION_CONSENT}:
-            previous_scopes.append(SCOPES[CONSENT])
-        if args.consent == CLASSIFICATION_CONSENT:
-            previous_scopes.append(SCOPES[RECOVERY_CONSENT])
+        previous_scopes = list(SCOPES.values())[:list(SCOPES).index(args.consent)]
         for old_stem, old_marker in previous_scopes:
             present.append('no_backup/' + old_marker)
             previous = snapshot_state(call('exec-out', 'run-as', PACKAGE, 'cat', f'files/{old_stem}-status.json'))
@@ -159,6 +157,9 @@ def main():
             raise ValueError('raw count')
         templates = []
         for row in rows:
+            if args.consent == FIELD_ROLES_CONSENT:
+                templates.append(classify_field_roles(row))
+                continue
             if args.consent == CLASSIFICATION_CONSENT:
                 templates.append(classify_record(row))
                 continue
