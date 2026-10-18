@@ -81,3 +81,4 @@
 - [人工配对时钟漂移与正常恢复报告](testing/manual-clock-recovery-report.md)（#59）。
 - [既有网关 HTTPS 入口预检规格](specs/SPEC-029-gateway-connection-preflight.md)（#69）：仅匿名认证入口与实际 Android TLS，不证明真实收款或充值。
 - [既有网关连接报告](testing/gateway-connection-report.md)与[接入步骤](operations/existing-gateway-connection.md)：实际 APK 认证入口已通；指定收款账户、配对、正文和归属分别验收。
+- [SPEC-030 持久设备配对](specs/SPEC-030-production-device-pairing.md)与[实测报告](testing/production-pairing-report.md)：用户指定支付宝已配对，新进程签名健康通过；生产采集/匹配未开启。
