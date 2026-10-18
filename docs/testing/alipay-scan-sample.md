@@ -51,4 +51,6 @@ python3 scripts/scan_sample_control.py \
 
 私有run3报告宿主起止04:55:57.552334–04:58:41.166916 UTC（含准备和清理）；Android gate为EXPIRED、elapsed_ms=120423、samples=0。没有窗口内付款确认记录；这不证明用户未付款，也不证明付款漏通知。通知投递Not exercised，真实付款/收款/订单归属/New API充值均Not assessed。
 
+用户后续明确反馈“我还没付”。此项补充是用户反馈，原窗口0结果不变，不判收款通知失败；后续仅准备[SPEC-034新增单次等待页](alipay-unpaid-scan-retry.md)，仍需用户在明确新增范围的本地页同意并点击，不重置本批标记。
+
 临时通知权限撤销、sample强停、双方原文删除和原监听列表恢复均通过；前后仍4 orders / 4 consumptions / 4 income ledger / 4 topups，总增额30,000,000。没有生成正文或脱敏模板。新标记已消费，失败/零结果不自动续窗、不重置标记。私有证据为`/private/tmp/observer-scan-local-20261018-run3/sample/report.json`，不提交原文、控制token或设备标识。

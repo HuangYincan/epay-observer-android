@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from private_content_sample import Driver, STATE_PREFIX, state_rows
+from private_content_sample import Driver, STATE_PREFIX, state_rows, execute, BASELINE
 from scan_sample_control import ScanSession
 from probe_delivery_avd import make_server
 
@@ -24,6 +24,61 @@ def line(value):
 
 
 class ScanContracts(unittest.TestCase):
+    def test_unpaid_retry_waiting_scope_is_explicit_and_does_not_start(self):
+        with tempfile.TemporaryDirectory() as root:
+            runner = Mock()
+            session = ScanSession(Path(root) / 'retry', runner, page_test=True, unpaid_retry=True)
+            self.assertTrue(session.public()['unpaid_retry'])
+            self.assertEqual('SPEC-034', session.snapshot()['spec'])
+            self.assertEqual('WAITING', session.public()['state'])
+            self.assertFalse(session.snapshot()['start_claimed'])
+            runner.assert_not_called()
+            self.assertFalse(session.confirm_sent())
+
+    def test_unpaid_retry_driver_selects_only_fixed_consent_and_can_cancel_before_launch(self):
+        with tempfile.TemporaryDirectory() as root:
+            child = Mock(); child.poll.return_value = 0; child.returncode = 0
+            cancel = Mock(); cancel.is_set.return_value = False
+            path = Path(root) / 'log'
+            def launch(arguments, **kwargs):
+                kwargs['stdout'].write((line(row()) + line(row('finished', 'EXPIRED', elapsed=120001, remaining=0))).encode())
+                kwargs['stdout'].flush()
+                self.assertIn('scan-payment-unpaid-retry-once-120s-v1', arguments)
+                self.assertNotIn('scan-payment-once-120s-v1', arguments)
+                return child
+            with patch('private_content_sample.subprocess.Popen', side_effect=launch):
+                Driver(Path('/existing/adb'), 'emulator-5554').observe_receipt(path, Mock(), cancel, unpaid_retry=True)
+            cancel.is_set.return_value = True
+            with patch('private_content_sample.subprocess.Popen') as spawn, self.assertRaises(InterruptedError):
+                Driver(Path('/existing/adb'), 'emulator-5554').observe_receipt(Path(root) / 'cancel-log', Mock(), cancel, unpaid_retry=True)
+            spawn.assert_not_called()
+
+    def test_retry_cannot_use_uncontrolled_old_cli(self):
+        from types import SimpleNamespace
+        with self.assertRaises(ValueError):
+            execute(SimpleNamespace(serial='emulator-5554', unpaid_retry=True, receipt_window=False))
+
+    def test_retry_missing_previous_marker_never_grants_or_launches(self):
+        from types import SimpleNamespace
+        for previous in ['used', 'used-scan-payment-v1']:
+            with self.subTest(previous=previous), tempfile.TemporaryDirectory() as root:
+                driver = Mock()
+                driver.adb.return_value = b'List of devices attached\nemulator-5554\tdevice\n'
+                def shell(*arguments):
+                    if arguments == ('getprop', 'ro.kernel.qemu'): return '1'
+                    if arguments[-3:] == ('test', '-e', 'no_backup/' + previous):
+                        raise ValueError('missing previous marker')
+                    return ''
+                driver.shell.side_effect = shell
+                args = SimpleNamespace(serial='emulator-5554', adb=Path('/existing/adb'),
+                    evidence=Path(root) / 'private', lab=Path(root), apk=Path('/existing/sample.apk'),
+                    runner=Path('/existing/runner.apk'), receipt_window=True, unpaid_retry=True)
+                cancel = Mock(); cancel.is_set.return_value = False
+                with patch('private_content_sample.Driver', return_value=driver), patch('private_content_sample.audit', return_value=BASELINE):
+                    self.assertEqual(1, execute(args, Mock(), cancel))
+                driver.observe_receipt.assert_not_called()
+                self.assertFalse(any('allow_listener' in call.args for call in driver.shell.call_args_list))
+
     def test_fixed_states_half_lines_and_private_fields_rejected(self):
         armed = row()
         self.assertEqual([armed], state_rows(line(armed) + line(row('sample', elapsed=1000, remaining=119))[:-1]))
