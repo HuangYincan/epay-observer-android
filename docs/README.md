@@ -82,3 +82,4 @@
 - [既有网关 HTTPS 入口预检规格](specs/SPEC-029-gateway-connection-preflight.md)（#69）：仅匿名认证入口与实际 Android TLS，不证明真实收款或充值。
 - [既有网关连接报告](testing/gateway-connection-report.md)与[接入步骤](operations/existing-gateway-connection.md)：实际 APK 认证入口已通；指定收款账户、配对、正文和归属分别验收。
 - [SPEC-030 持久设备配对](specs/SPEC-030-production-device-pairing.md)与[实测报告](testing/production-pairing-report.md)：用户指定支付宝已配对，新进程签名健康通过；生产采集/匹配未开启。
+- [SPEC-031 一次性私有内容采样](specs/SPEC-031-private-content-sample.md)与[采样报告](testing/alipay-private-content-sample.md)：独立无网络debug工具，用户仅授权一次120秒标题/正文窗口，脱敏后删除原文；不重复既有验收，不等同真实收款验证。
