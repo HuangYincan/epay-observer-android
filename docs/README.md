@@ -1,5 +1,8 @@
 # 文档索引
 
+- [SPEC-036：真实付款单订单闭环](specs/SPEC-036-real-payment-pilot.md)（#82 / epay-go #24）：真实notification事务结算能力与实际启用分别验收；模板和真实增额证据仍缺。
+- [真实付款闭环开发进度](testing/real-payment-pilot-progress.md)：网关隔离验证已完成，真实采样与实际充值尚未运行。
+
 更新日期：2026-10-16。M1采集、M2可靠认证上报和M3双渠道模拟器合成充值已验证；[最终原型报告](testing/M3-prototype-report.md)、[演示手册](operations/prototype-demo.md)和[验收账本](development/PROTOTYPE-GOAL.md)为当前状态。各阶段历史报告只表示当时范围；New API本地金额补丁已验证，#8真实收款准入仍阻塞。
 
 ## 建议阅读顺序
