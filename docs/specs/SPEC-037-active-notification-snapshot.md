@@ -1,5 +1,13 @@
 # SPEC-037 现存两条支付宝通知的单次私有检查
 
+## 追加类型核验（2026-10-18，#84/#82）
+
+用户明确允许最多两条现存标题/正文及通知类型、样式、分组元数据，并允许本任务必要核验自主推进。新增固定 `active-snapshot-classification-once-max2-v1`、独立prefix `active-snapshot-classification` 和marker `used-active-snapshot-classification-max2-v1`；不得覆盖两代旧状态/marker，须确认两代COMPLETE/2及旧原文不存在。仍只连接后一次snapshot、posted为空、不读key/账号、无网络。
+
+除原三个文本字段，仅输出白名单category/style枚举、channel是否存在、消息extra是否存在（不读其内容）、是否分组/summary、ongoing/auto-cancel标志；不输出channel/group字符串。宿主仅保留公共固定支付词和占位符，并对完整固定标题模式作本地布尔匹配；未知部分不得推断。校验所有字段类型/上限；成功失败均删除原文、撤权/强停并核对旧marker与设置、隔离账务。旧通知只用于规则研究，不成为新付款证据。
+
+验收：类型/文本结构与拒绝条件宿主合成回归；受影响AndroidTest构建/lint；实际历史snapshot、脱敏清理和恢复单列。模板无明确结果则解析继续阻塞，不用泛化关键词替代。
+
 2026-10-18；#84，关联#82/#33/#42/#8。宿主仅查询通知key数量时为2，未读正文；用户随后明确“允许”一次只读现存最多2条标题/正文（可能含普通消息），本机私有保存、脱敏后删除，不监听新通知、不要求付款。
 
 - 仅androidTest APK独立服务，无生产/Release入口，无网络调用。固定consent `active-snapshot-once-max2-v1`，原子创建永久used marker，读取一次activeNotifications；连接恢复/重复授权不重读。旧窗口marker不动。最多读取2条当前用户、固定官方包/opPkg/UID、版本12.12.30.8000/code212310和已固定证书的通知，来源失败则零正文。

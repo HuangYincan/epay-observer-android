@@ -23,6 +23,7 @@ public final class ActiveSnapshotListener extends NotificationListenerService {
     private static final String SIGNER = "389b49f7832f53e9017923220aa85e14dfaa4886ecd7428818bf339543cf498a";
     private static final String CONSENT = "active-snapshot-once-max2-v1";
     private static final String RECOVERY_CONSENT = "active-snapshot-recovery-once-max2-v1";
+    private static final String CLASSIFICATION_CONSENT = "active-snapshot-classification-once-max2-v1";
     private static final Object LOCK = new Object();
 
     @Override public void onNotificationPosted(StatusBarNotification notification) {
@@ -32,11 +33,12 @@ public final class ActiveSnapshotListener extends NotificationListenerService {
     @Override public void onListenerConnected() {
         super.onListenerConnected();
         synchronized (LOCK) {
+            boolean classification = new File(getFilesDir(), "active-snapshot-classification-consent").isFile();
             boolean recovery = new File(getFilesDir(), "active-snapshot-recovery-consent").isFile();
-            String prefix = recovery ? "active-snapshot-recovery" : "active-snapshot";
-            String consentValue = recovery ? RECOVERY_CONSENT : CONSENT;
+            String prefix = classification ? "active-snapshot-classification" : recovery ? "active-snapshot-recovery" : "active-snapshot";
+            String consentValue = classification ? CLASSIFICATION_CONSENT : recovery ? RECOVERY_CONSENT : CONSENT;
             File consent = new File(getFilesDir(), prefix + "-consent");
-            File used = new File(getNoBackupFilesDir(), recovery ?
+            File used = new File(getNoBackupFilesDir(), classification ? "used-active-snapshot-classification-max2-v1" : recovery ?
                     "used-active-snapshot-recovery-max2-v1" : "used-active-snapshot-max2-v1");
             File raw = new File(getFilesDir(), prefix + "-raw.json");
             File status = new File(getFilesDir(), prefix + "-status.json");
@@ -46,7 +48,8 @@ public final class ActiveSnapshotListener extends NotificationListenerService {
             try {
                 if (!consent.isFile() || consent.length() > 80 ||
                         !consentValue.equals(new String(Files.readAllBytes(consent.toPath()), StandardCharsets.UTF_8).trim())) return;
-                if (recovery && !previousAttemptComplete()) return;
+                if ((recovery || classification) && !previousAttemptComplete("active-snapshot", "used-active-snapshot-max2-v1")) return;
+                if (classification && !previousAttemptComplete("active-snapshot-recovery", "used-active-snapshot-recovery-max2-v1")) return;
                 // Refuse pending raw data; never overwrite an earlier attempt.
                 if (raw.exists() || status.exists() || !used.createNewFile()) return;
                 consumed = true;
@@ -73,6 +76,7 @@ public final class ActiveSnapshotListener extends NotificationListenerService {
                     record.put("title", bounded(notification, Notification.EXTRA_TITLE, 256));
                     record.put("text", bounded(notification, Notification.EXTRA_TEXT, 1024));
                     record.put("big_text", bounded(notification, Notification.EXTRA_BIG_TEXT, 1024));
+                    if (classification) record.put("metadata", metadata(sbn, notification));
                     records.put(record);
                     read++;
                 }
@@ -96,17 +100,39 @@ public final class ActiveSnapshotListener extends NotificationListenerService {
         }
     }
 
-    private boolean previousAttemptComplete() throws Exception {
-        if (!new File(getNoBackupFilesDir(), "used-active-snapshot-max2-v1").isFile() ||
-                new File(getFilesDir(), "active-snapshot-consent").exists() ||
-                new File(getFilesDir(), "active-snapshot-raw.json").exists() ||
-                new File(getFilesDir(), "active-snapshot-raw.json.pending").exists()) return false;
-        File status = new File(getFilesDir(), "active-snapshot-status.json");
+    private boolean previousAttemptComplete(String prefix, String marker) throws Exception {
+        if (!new File(getNoBackupFilesDir(), marker).isFile() ||
+                new File(getFilesDir(), prefix + "-consent").exists() ||
+                new File(getFilesDir(), prefix + "-raw.json").exists() ||
+                new File(getFilesDir(), prefix + "-raw.json.pending").exists()) return false;
+        File status = new File(getFilesDir(), prefix + "-status.json");
         if (!status.isFile() || status.length() > 1024) return false;
         JSONObject previous = new JSONObject(new String(Files.readAllBytes(status.toPath()), StandardCharsets.UTF_8));
         return previous.length() == 5 && "COMPLETE".equals(previous.optString("phase")) &&
                 previous.optInt("records", -1) == 2 && previous.optInt("limit", -1) == 2 &&
                 previous.optBoolean("historical_snapshot", false) && !previous.optBoolean("new_notifications_read", true);
+    }
+
+    private static JSONObject metadata(StatusBarNotification sbn, Notification notification) throws Exception {
+        JSONObject result = new JSONObject();
+        String category = notification.category;
+        result.put("category", category == null ? "none" :
+                java.util.Arrays.asList("msg", "email", "service", "status", "promo", "sys", "progress", "event", "reminder", "transport", "call", "alarm", "err", "recommendation", "social", "navigation", "workout", "location", "stopwatch", "missed_call").contains(category) ? category : "other");
+        Object style = notification.extras.get(Notification.EXTRA_TEMPLATE);
+        String styleName = style instanceof String ? (String) style : "";
+        String styleEnum = "other";
+        if (style == null) styleEnum = "none";
+        for (String known : new String[]{"BigTextStyle", "BigPictureStyle", "InboxStyle", "MessagingStyle", "MediaStyle", "DecoratedCustomViewStyle", "CallStyle"}) {
+            if (("android.app.Notification$" + known).equals(styleName)) styleEnum = known;
+        }
+        result.put("style", styleEnum);
+        result.put("channel_present", notification.getChannelId() != null);
+        result.put("messages_present", notification.extras.containsKey(Notification.EXTRA_MESSAGES));
+        result.put("grouped", sbn.isGroup());
+        result.put("group_summary", (notification.flags & Notification.FLAG_GROUP_SUMMARY) != 0);
+        result.put("ongoing", (notification.flags & Notification.FLAG_ONGOING_EVENT) != 0);
+        result.put("auto_cancel", (notification.flags & Notification.FLAG_AUTO_CANCEL) != 0);
+        return result;
     }
 
     private static void writeAtomic(File target, String value) throws java.io.IOException {
