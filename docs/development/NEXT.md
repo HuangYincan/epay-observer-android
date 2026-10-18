@@ -1,5 +1,7 @@
 # 当前交付与后续边界
 
+2026-10-18 SPEC-039准备完成（PR #88）：修复两条容量终态被旧32条校验拒绝的问题，新增完整execute合成回归，50项宿主测试、受影响Android构建/JVM/lint/APK检查及两轴复审通过。唯一AVD保留数据冷启动后，最终产物prepareOnly run5成功；失败run1/3/4及后续审计超时记录均保留。最终四代snapshot与原三个live marker/原文清理/新范围未用复核、监听恢复及四笔账务审计通过。可交付用户本地明确开始的WAITING页，实际120秒/最多2条新窗口Not run；只补模板、不增加New API余额。未知模板/聊天边界、后台#81与真实充值仍未验收。详见[准备报告](../testing/fresh-receipt-template-preparation.md)。
+
 2026-10-18用户进一步确认classification child对应真实扫码收款，已单独保存用户来源标签；不等于平台验签或订单归属。按[SPEC-038](../specs/SPEC-038-alipay-receipt-field-roles.md)完成有限字段角色工具：11项相关合成宿主回归与严格依赖构建/lint/最终APK检查通过。实际准备run1在consent前ADB超时，run2为COMPLETE/0、没有当前通知，清理/三代旧记录/四笔审计通过；新marker已消费，不重开。未获新增字段、生产解析/确认仍关闭；用户表示不记得括号字段，不猜测；按SPEC-039准备用户本地开始的新样本页，明确仅补模板、不增加New API余额。见[实测报告](../testing/alipay-receipt-field-roles.md)。
 
 2026-10-18追加授权已覆盖下文历史的逐次请示限制：用户允许本任务必要采样、模板/类型核验与开发联调自主推进。PR #86已合并`30b208c6`，本地main已同步；#84/#82限定classification实测已COMPLETE/2、脱敏清理和监听恢复成功、两代旧marker/状态与原四笔账务不变。严格依赖AndroidTest构建/lint/最终APK检查及7项相关宿主回归通过；此前被沙箱阻断的旧HTTP测试单项补跑通过。历史child标题已核实固定前缀，但括号/正文未知，完整研究模式均未匹配，不能据此启用真实解析或确认；见[报告](../testing/alipay-active-snapshot.md)。不重置新marker、不把旧通知当付款证据。下一步消除未知字段与聊天伪装边界，再准备受控真实订单；当前不催用户付款。
