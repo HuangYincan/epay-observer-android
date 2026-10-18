@@ -73,9 +73,18 @@ def classify_field_roles(row):
     result = classify_record(row)  # Preserve the exact field/type/privacy gate.
     result['text_template'] = _shape(row['text'], ROLE_TOKENS)
     result['big_text_template'] = _shape(row['big_text'], ROLE_TOKENS)
-    result.update(title_grammar_matches=False, canonical_positive_amount=False,
-                  suffix_public_literal=None, suffix_shape='not_matching_title')
-    match = TITLE_LAYOUT.fullmatch(row['title']) if row['title'] is not None else None
+    result.update(field_role_assessment(row['title'], row['text']))
+    return result
+
+
+def field_role_assessment(title, text):
+    for value, limit in [(title, 256), (text, 1024)]:
+        if value is not None and (not isinstance(value, str) or len(value) > limit):
+            raise ValueError('raw field')
+    result = dict(title_template=fixed_shape(title), text_template=_shape(text, ROLE_TOKENS),
+                  title_grammar_matches=False, canonical_positive_amount=False,
+                  suffix_public_literal=None, suffix_shape='not_matching_title', payment_eligibility=False)
+    match = TITLE_LAYOUT.fullmatch(title) if title is not None else None
     if match is not None:
         amount, suffix = match.groups()
         whole, _, fraction = amount.partition('.')
@@ -91,7 +100,6 @@ def classify_field_roles(row):
                 result['suffix_shape'] = 'masked_name_form'
             else:
                 result['suffix_shape'] = 'unknown_opaque_label'
-    text = row['text']
     result['text_layout'] = ('absent' if text is None else
                             'two_nonempty_tokens' if len(text.split()) == 2 else 'other')
     result['text_contains_mask'] = text is not None and ('*' in text or '＊' in text)

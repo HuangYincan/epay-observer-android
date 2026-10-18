@@ -13,6 +13,6 @@
 - ROLE-03 run1：准备测试进程时ADB超时；尚未准备consent或读取正文，field-roles范围未消费。新APK实际安装完成；撤权、强停、监听与三代旧记录复核成功。失败报告保留。
 - ROLE-03 run2：精确hash相同跳过重装；实际COMPLETE/0、templates=[]。当前列表没有匹配通知，未获得新增字段证据，不能推断通知何时/为何撤下，也不能判通知可达性或支付兼容性通过。field-roles范围已永久消费，不重置或自动重开。
 - 清理与审计：run2宿主/设备原文及临时文件删除、撤权/强停、监听列表恢复，三代旧marker/COMPLETE状态保留；前后独立只读审计仍4订单/4消费/4收入/4topup、总增额30,000,000。
-- ROLE-04：真实新增字段匹配Not exercised，完整解析/聊天伪装边界仍Blocked；未登记线上规则/试验、未部署、未付款/充值。已询问用户括号属于支付方式还是姓名，仅请求类型或公共文案，不请求具体姓名/金额；回答未取得前不猜测。
+- ROLE-04：真实新增字段匹配Not exercised，完整解析/聊天伪装边界仍Blocked；未登记线上规则/试验、未部署、未付款/充值。已询问用户括号属于支付方式还是姓名，用户回复“不记得”；不猜测、不索要具体姓名/金额。后续仅准备SPEC-039用户本地开始的新样本页。
 
 私有证据`/private/tmp/observer-active-snapshot-20261018-field-roles-run1`、`run2`与`/private/tmp/observer-receipt-field-roles-20261018/apk-check.json`。先前真实扫码样本的用户标签位于原classification私有目录的独立user-label.json，原文已删除。旧生命周期、普通消息回调与合成充值验收未重跑。#82/#8/#33/#42及后台#81保持各自证据边界。

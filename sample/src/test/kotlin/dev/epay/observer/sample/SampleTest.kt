@@ -54,6 +54,16 @@ class SampleTest {
         assertEquals(256, saved[0].first!!.length); assertEquals(1024, saved[0].second!!.length)
         assertEquals(SampleGate.Phase.LIMIT, a.snapshot().phase)
     }
+    @Test fun receiptTemplateLimitStopsBeforeAnyThirdFieldRead() {
+        val a = SampleGate({ time }, { true }, { title, text -> saved.add(title to text) }, limit = 2)
+        start(a); post(a); post(a)
+        assertEquals(2, saved.size)
+        assertEquals(SampleGate.Phase.LIMIT, a.snapshot().phase)
+        val before = reads
+        post(a); a.connection(false); a.connection(true); post(a)
+        assertEquals(before, reads)
+        assertFalse(a.start(true))
+    }
     @Test fun contentOrStorageErrorStopsWithoutLeakingException() {
         val a = gate(); start(a)
         a.posted(true, { throw IllegalArgumentException("private") }, { reads++; "never" })

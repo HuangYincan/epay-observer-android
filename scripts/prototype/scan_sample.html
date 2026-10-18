@@ -6,7 +6,7 @@
 :root{font-family:system-ui,sans-serif;color:#183444;background:#eef4f5}*{box-sizing:border-box}body{margin:0;padding:36px 20px}main{max-width:650px;margin:auto}header p{color:#526b75;font-size:15px}h1{font-size:30px;margin:10px 0}section{background:white;border:1px solid #dce7e9;border-radius:20px;padding:28px;margin:24px 0;box-shadow:0 12px 38px #284b5910}#signal{font-size:26px;font-weight:700;margin:0 0 12px}#detail{color:#526b75;line-height:1.7;min-height:3.4em}.metrics{display:flex;gap:30px;margin:22px 0}.metric span{display:block;color:#607680;font-size:14px}.metric strong{display:block;font-size:42px;font-variant-numeric:tabular-nums;margin-top:6px}.actions{display:flex;flex-wrap:wrap;gap:10px}button{font:inherit;border:1px solid #c5d7dc;border-radius:10px;padding:13px 18px;cursor:pointer;background:white;color:#254955}button.primary{background:#176779;color:white;border-color:#176779}button:disabled{opacity:.4;cursor:default}button:focus-visible{outline:3px solid #f2b354;outline-offset:3px}.live{border-color:#4d9b75;background:#f3fcf6}.live #signal{color:#17663c}footer{font-size:14px;color:#607680;line-height:1.8}#mode{color:#9b4e00;font-weight:600}#confirmation{font-size:14px;color:#607680;min-height:1.5em}@media(max-width:480px){body{padding:20px 14px}section{padding:22px}h1{font-size:25px}.metric strong{font-size:36px}}
 </style>
 <main>
-<header><p>仅在这台电脑运行</p><h1>支付宝扫码通知采样</h1><p>先扫码，按 epay-go 收银台显示的应付金额填好，停在最终确认付款前，再开始这一次采样。</p><p id="retry-scope" hidden><strong>上一轮已结束，你反馈尚未付款。这是新增的一次120秒支付宝标题和正文采样，内容仅本机私有脱敏后删除。点“同意并开始这次额外采样”表示同意这一次新增采样；等待或刷新不会开始。</strong></p><p><strong>本轮只采样。观察器尚不会确认真实订单或给 New API 加余额，付款由你自行决定与操作。</strong></p><p id="mode"></p></header>
+<header><p>仅在这台电脑运行</p><h1>支付宝扫码通知采样</h1><p>先扫码，按 epay-go 收银台显示的应付金额填好，停在最终确认付款前，再开始这一次采样。</p><p id="retry-scope" hidden><strong>上一轮已结束，你反馈尚未付款。这是新增的一次120秒支付宝标题和正文采样，内容仅本机私有脱敏后删除。点“同意并开始这次额外采样”表示同意这一次新增采样；等待或刷新不会开始。</strong></p><p><strong>本轮只采样。观察器尚不会确认真实订单或给 New API 加余额，付款由你自行决定与操作。</strong></p><p id="fresh-scope" hidden><strong>开始前请自行确认模拟器支付宝已登录。补充采样：最多120秒、最多2条支付宝标题和正文（可能包含普通消息），仅本机脱敏后删除原文。这次只补齐收款模板，不确认订单、不给New API加余额。点击下方按钮才开始，等待或刷新不会采集。</strong></p><p id="mode"></p></header>
 <section id="panel" aria-live="polite">
 <p id="signal">正在连接本地控制器</p><p id="detail">先不要付款。</p>
 <div class="metrics"><div class="metric"><span>可操作秒数</span><strong id="remaining">—</strong></div><div class="metric"><span>窗口内回调</span><strong id="callbacks">0</strong></div></div>
@@ -37,14 +37,15 @@ function render(){
  const fresh=connected && age<3;
  const live=fresh && state && state.can_send && remaining>0;
  const message=state ? messages[state.state] : ['正在连接本地控制器','先不要付款。'];
- el('signal').textContent=live ? '采样已开始，可以自行扫码' : (fresh ? message[0] : '连接未确认，先不要付款');
+ el('signal').textContent=live ? '采样已开始，可自行确认付款' : (fresh ? message[0] : '连接未确认，先不要付款');
  el('detail').textContent=live ? '你自行确认收款方和金额后再操作付款；完成可点“我已自行付款”，它只记录你的反馈时点。' : (fresh ? message[1] : '等待本地状态恢复。这里不会自动重开观察窗口。');
  el('panel').classList.toggle('live',live);
  el('remaining').textContent=live ? remaining : '—';
  el('callbacks').textContent=state ? state.callbacks : 0;
  el('start').disabled=!(fresh && state && state.can_start);
  el('retry-scope').hidden=!(state && state.unpaid_retry);
- el('start').textContent=state && state.unpaid_retry ? '同意并开始这次额外采样' : '开始这一次采样';
+ el('fresh-scope').hidden=!(state && state.receipt_template);
+ el('start').textContent=state && state.receipt_template ? '同意并开始补充采样' : (state && state.unpaid_retry ? '同意并开始这次额外采样' : '开始这一次采样');
  el('sent').disabled=!(live && !state.user_confirmed);
  el('stop').disabled=!(fresh && state && ['PREPARING','OBSERVING'].includes(state.state));
  el('confirmation').textContent=state && state.user_confirmed ? '已记录你的付款反馈；尚未独立验证平台付款记录。' : '';

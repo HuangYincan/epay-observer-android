@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """SPEC-031: exactly one private emulator window; never print notification content."""
 import argparse
+import hashlib
 from datetime import datetime, timezone
 import json
 import os
@@ -10,9 +11,12 @@ import subprocess
 import sys
 import time
 
+from snapshot_templates import field_role_assessment
+
 STATE_PREFIX = 'INSTRUMENTATION_STATUS: content_sample_state='
 SCAN_MARKER = 'used-scan-payment-v1'
 UNPAID_RETRY_MARKER = 'used-scan-payment-unpaid-retry-v1'
+RECEIPT_TEMPLATE_MARKER = 'used-receipt-template-v1'
 
 
 def state_rows(text):
@@ -86,7 +90,7 @@ def shape(value):
     return ''.join(pieces)
 
 
-def extract(raw_path):
+def extract(raw_path, receipt_template=False):
     if raw_path.stat().st_size > MAX_RAW:
         raise ValueError('raw size limit')
     rows = []
@@ -101,7 +105,10 @@ def extract(raw_path):
                 value = item[field]
                 if value is not None and (not isinstance(value, str) or len(value) > limit):
                     raise ValueError('field bound')
-            rows.append({key + '_template': shape(value) for key, value in item.items()})
+            rows.append(field_role_assessment(item['title'], item['text']) if receipt_template else
+                        {key + '_template': shape(value) for key, value in item.items()})
+            if receipt_template and len(rows) > 2:
+                raise ValueError('sample count limit')
     return rows
 
 
@@ -112,9 +119,9 @@ def private_json(path, value):
         target.write('\n')
 
 
-def process_raw(raw_path, templates_path):
+def process_raw(raw_path, templates_path, receipt_template=False):
     try:
-        rows = extract(raw_path)
+        rows = extract(raw_path, receipt_template)
         private_json(templates_path, rows)
         return len(rows)
     finally:
@@ -133,6 +140,18 @@ class Driver:
     def shell(self, *args):
         return self.adb('shell', *args).decode().strip()
 
+    def ensure_installed(self, apk, package):
+        if package not in {PACKAGE, PACKAGE + '.test'}:
+            raise ValueError('test package required')
+        paths = self.shell('cmd', 'package', 'path', package).splitlines()
+        if len(paths) == 1 and paths[0].startswith('package:'):
+            installed_hash = self.shell('sha256sum', paths[0][8:]).split()[0]
+            if installed_hash == hashlib.sha256(apk.read_bytes()).hexdigest():
+                return 'unchanged_exact_hash'
+        options = ['install', '-r'] + (['-t'] if package == PACKAGE + '.test' else [])
+        self.adb(*options, str(apk), timeout=60)
+        return 'installed'
+
     def copy_private(self, name, destination):
         # No raw content enters captured stdout, exception text, terminal or model output.
         with destination.open('xb') as target:
@@ -143,9 +162,12 @@ class Driver:
         self.shell('run-as', PACKAGE, 'rm', '-f', 'no_backup/samples.jsonl')
         self.shell('run-as', PACKAGE, 'test', '!', '-e', 'no_backup/samples.jsonl')
 
-    def observe_receipt(self, log_path, progress, cancel, unpaid_retry=False):
-        arguments = ['shell', 'am', 'instrument', '-w', '-r', '-e', 'contentSampleConsent',
-                     'scan-payment-unpaid-retry-once-120s-v1' if unpaid_retry else 'scan-payment-once-120s-v1', '-e', 'class',
+    def observe_receipt(self, log_path, progress, cancel, unpaid_retry=False, receipt_template=False):
+        if unpaid_retry and receipt_template:
+            raise ValueError('conflicting scope')
+        consent = ('receipt-template-once-120s-max2-v1' if receipt_template else
+                   'scan-payment-unpaid-retry-once-120s-v1' if unpaid_retry else 'scan-payment-once-120s-v1')
+        arguments = ['shell', 'am', 'instrument', '-w', '-r', '-e', 'contentSampleConsent', consent, '-e', 'class',
                      'dev.epay.observer.sample.ContentSampleTest#sampleOnce',
                      PACKAGE + '.test/androidx.test.runner.AndroidJUnitRunner']
         with log_path.open('xb') as log:
@@ -234,7 +256,10 @@ def execute(args, progress=None, cancel=None):
     if not re.fullmatch(r'emulator-\d+', args.serial):
         raise ValueError('emulator required')
     unpaid_retry = getattr(args, 'unpaid_retry', False)
-    if unpaid_retry and not getattr(args, 'receipt_window', False):
+    receipt_template = getattr(args, 'receipt_template', False)
+    if unpaid_retry and receipt_template:
+        raise ValueError('conflicting scope')
+    if (unpaid_retry or receipt_template) and not getattr(args, 'receipt_window', False):
         raise ValueError('retry requires local scan control')
     os.umask(0o077)
     if args.evidence.resolve().is_relative_to(REPO_ROOT):
@@ -253,6 +278,9 @@ def execute(args, progress=None, cancel=None):
     if unpaid_retry:
         report.update(spec='SPEC-034', issue=79, scope='user-consented-unpaid-scan-retry-title-text',
                       previous_payment_feedback='User reported not paid; not a platform record')
+    if receipt_template:
+        report.update(spec='SPEC-039', issue=82, scope='user-started-fresh-receipt-template-120s-max2',
+                      automatic_recharge=False, limit=2)
     try:
         if driver.shell('getprop', 'ro.kernel.qemu') != '1':
             raise ValueError('emulator required')
@@ -264,14 +292,22 @@ def execute(args, progress=None, cancel=None):
             raise ValueError('unexpected existing sample access')
         # Existing app data and used marker are preserved. Reinstalling cannot reset the window.
         report['audit_before'] = audit(args.lab)
-        driver.adb('install', '-r', str(args.apk), timeout=60)
-        driver.adb('install', '-r', str(args.runner), timeout=60)
+        if receipt_template and not driver.shell('pidof', 'com.eg.android.AlipayGphone'):
+            raise ValueError('source process absent')
+        if receipt_template:
+            report['apk_preparation'] = {
+                'sample': driver.ensure_installed(args.apk, PACKAGE),
+                'runner': driver.ensure_installed(args.runner, PACKAGE + '.test'),
+            }
+        else:
+            driver.adb('install', '-r', str(args.apk), timeout=60)
+            driver.adb('install', '-r', str(args.runner), timeout=60)
         touched = True
         # Verify absence without listing names or printing contents.
-        marker = UNPAID_RETRY_MARKER if unpaid_retry else (SCAN_MARKER if receipt_window else 'used')
+        marker = RECEIPT_TEMPLATE_MARKER if receipt_template else (UNPAID_RETRY_MARKER if unpaid_retry else (SCAN_MARKER if receipt_window else 'used'))
         driver.shell('run-as', PACKAGE, 'test', '!', '-e', 'no_backup/' + marker)
-        if unpaid_retry:
-            for previous in ['used', SCAN_MARKER]:
+        if unpaid_retry or receipt_template:
+            for previous in (['used', SCAN_MARKER, UNPAID_RETRY_MARKER] if receipt_template else ['used', SCAN_MARKER]):
                 driver.shell('run-as', PACKAGE, 'test', '-e', 'no_backup/' + previous)
         if receipt_window:
             if progress is None or cancel is None or cancel.is_set():
@@ -281,7 +317,8 @@ def execute(args, progress=None, cancel=None):
             report['alipay_background_requested'] = True
         driver.shell('cmd', 'notification', 'allow_listener', COMPONENT)
         if receipt_window:
-            driver.observe_receipt(args.evidence / 'instrumentation.txt', progress, cancel, unpaid_retry=unpaid_retry)
+            driver.observe_receipt(args.evidence / 'instrumentation.txt', progress, cancel,
+                                   unpaid_retry=unpaid_retry, receipt_template=receipt_template)
         else:
             with (args.evidence / 'instrumentation.txt').open('xb') as log:
                 driver.adb('shell', 'am', 'instrument', '-w', '-r', '-e', 'contentSampleConsent', 'local-once-120s',
@@ -295,10 +332,12 @@ def execute(args, progress=None, cancel=None):
         driver.copy_private('window.json', args.evidence / 'window.json')
         window = json.loads((args.evidence / 'window.json').read_text())
         validate_window(window)
+        if receipt_template and window['samples'] > 2:
+            raise ValueError('sample count limit')
         report['window'] = window
         if window['samples']:
             driver.copy_private('samples.jsonl', raw)
-            count = process_raw(raw, args.evidence / 'templates.json')
+            count = process_raw(raw, args.evidence / 'templates.json', receipt_template=receipt_template)
             if count != window['samples']:
                 raise ValueError('sample count mismatch')
         else:
