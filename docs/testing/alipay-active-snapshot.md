@@ -1,5 +1,20 @@
 # 现存支付宝通知的私有模板检查
 
+## 最新追加类型核验实测（2026-10-18，#84/#82）
+
+用户明确允许最多2条现存标题/正文和必要类型/样式/分组元数据，并要求本任务后续必要核验自主推进，无需逐次询问。此最新授权覆盖下文历史阶段的许可等待；不自动持续监听、不读通知key/账号、不代付款。
+
+在`30b208c6`基线新增固定classification scope；来源/数量/原子发布沿用SPEC-037。metadata只含白名单category/style及channel存在、消息extra存在、group/summary/ongoing/auto-cancel布尔值，不导出channel/group字符串。宿主保留有限公共固定词并对完整标题模式作研究性匹配，姓名/金额/普通消息仍遮盖；所有结果固定`payment_eligibility=false`。
+
+- 严格依赖、离线AndroidTest构建及sample lint通过；最终APK manifest/dex检查通过：无INTERNET、准备组件DUMP保护、listener系统绑定权限、posted无字段/方法调用、不取key/postTime/group字符串、不使用网络或日志；备份/设备传输全部排除。APK SHA-256为`1d7fcb05c40d9e467c4ef2b1202ef9b56203fe7d2cc13e8bdc12c33ef71a79fb`。
+- 受影响宿主回归7项通过：原4项状态/超时测试，加3项脱敏、全文模式和元数据拒绝测试，均为合成输入。先前扩展宿主检查37通过、1项旧HTTP控制页测试被沙箱拒绝绑定；环境更新后仅补跑该项通过，不重跑旧生命周期或合成充值验收。直接Java静态编译也通过，不替代APK检查。
+- 此前Gradle重试多次被自动审批服务繁忙阻断，均未执行；环境更新后的本次执行成功。唯一AVD仍为emulator-5554；一次`adb shell true`在8秒超时，后续3.262秒返回，再后续qemu/user/listener查询为0.057/0.082/0.111秒。未重启AVD/ADB/支付宝、未改变后台设置；该恢复不证明卡顿根因或后台问题修复。
+- **模拟器真实App历史snapshot：COMPLETE/2，脱敏成功、cleanup_ok=true。** 一条无文本、group_summary=true；另一条是group child，标题骨架为`你已成功收款<number>元（<text>）`、text为未知文本片段、bigText为空。两条category/style均none、messages_present=false；child为auto_cancel=true。摘要不是收款候选；无聊天标志也不证明不能被聊天伪装。
+- child未匹配研究中的任何完整固定标题模式。括号字段与正文含义仍未知，不能把`<text>`当固定方式或已核验动态姓名，不能据前缀启用真实收款解析/自动确认。
+- 宿主/设备原文及临时文件已删、测试listener撤权、测试包强停、监听列表恢复；两代旧marker/COMPLETE状态原样保留。前后独立只读账务审计均为4订单/4消费/4收入/4topup、总增额30,000,000。classification marker也永久保留，不重置或重放历史通知。
+
+私有证据：`/private/tmp/observer-active-snapshot-20261018-classification-run1`（report/templates/accounting-audit）与`/private/tmp/observer-template-classification-20261018`（准备/构建产物检查）。无原文提交公开仓库。实际付款→New API增额仍Not run；#82/#8/#33/#42与后台#81的验收边界不变。下一步先消除未知字段和聊天伪装边界，再登记真实试验规则；当前无需用户付款。
+
 2026-10-18；#84/#82，SPEC-037。用户明确允许一次读取现存最多2条支付宝标题/正文，原文仅本机私有保存，脱敏后删除；未允许继续监听或付款。
 
 Android仅androidTest APK新增受系统绑定权限保护的快照服务，无网络权限，固定来源包/opPkg/UID/当前用户、版本和证书。连接后一次读取activeNotifications且最多2条；posted回调不读字段。服务使用独立永久marker，与旧采样窗口无关。无界面准备组件仅启动测试APK，不打开支付宝。

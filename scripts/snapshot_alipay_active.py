@@ -10,14 +10,17 @@ import subprocess
 import time
 
 from private_content_sample import private_json, shape
+from snapshot_templates import classify_record
 
 PACKAGE = 'dev.epay.observer.sample.debug.test'
 COMPONENT = PACKAGE + '/dev.epay.observer.sample.ActiveSnapshotListener'
 CONSENT = 'active-snapshot-once-max2-v1'
 RECOVERY_CONSENT = 'active-snapshot-recovery-once-max2-v1'
+CLASSIFICATION_CONSENT = 'active-snapshot-classification-once-max2-v1'
 SCOPES = {
     CONSENT: ('active-snapshot', 'used-active-snapshot-max2-v1'),
     RECOVERY_CONSENT: ('active-snapshot-recovery', 'used-active-snapshot-recovery-max2-v1'),
+    CLASSIFICATION_CONSENT: ('active-snapshot-classification', 'used-active-snapshot-classification-max2-v1'),
 }
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -81,6 +84,7 @@ def main():
     before = None
     installed = False
     prepared = False
+    previous_states = {}
     try:
         report['test_apk_sha256'] = hashlib.sha256(apk.read_bytes()).hexdigest()
         report['stage'] = 'listener_preflight'
@@ -104,12 +108,18 @@ def main():
         report['stage'] = 'unused_gate_checks'
         absent = []
         present = []
-        if args.consent == RECOVERY_CONSENT:
-            present.append('no_backup/used-active-snapshot-max2-v1')
-            previous = snapshot_state(call('exec-out', 'run-as', PACKAGE, 'cat', 'files/active-snapshot-status.json'))
+        previous_scopes = []
+        if args.consent in {RECOVERY_CONSENT, CLASSIFICATION_CONSENT}:
+            previous_scopes.append(SCOPES[CONSENT])
+        if args.consent == CLASSIFICATION_CONSENT:
+            previous_scopes.append(SCOPES[RECOVERY_CONSENT])
+        for old_stem, old_marker in previous_scopes:
+            present.append('no_backup/' + old_marker)
+            previous = snapshot_state(call('exec-out', 'run-as', PACKAGE, 'cat', f'files/{old_stem}-status.json'))
             if previous is None or previous['phase'] != 'COMPLETE' or previous['records'] != 2:
                 raise ValueError('previous snapshot metadata')
-            absent.extend(['files/active-snapshot-consent', 'files/active-snapshot-raw.json', 'files/active-snapshot-raw.json.pending'])
+            previous_states[(old_stem, old_marker)] = previous
+            absent.extend([f'files/{old_stem}-consent', f'files/{old_stem}-raw.json', f'files/{old_stem}-raw.json.pending'])
         absent.extend([f'files/{stem}-raw.json', f'files/{stem}-status.json',
                      f'files/{stem}-raw.json.pending', f'files/{stem}-status.json.pending',
                      f'files/{stem}-consent', 'no_backup/' + marker])
@@ -149,6 +159,9 @@ def main():
             raise ValueError('raw count')
         templates = []
         for row in rows:
+            if args.consent == CLASSIFICATION_CONSENT:
+                templates.append(classify_record(row))
+                continue
             if not isinstance(row, dict) or set(row) != {'title', 'text', 'big_text'}:
                 raise ValueError('raw schema')
             for field, limit in [('title', 256), ('text', 1024), ('big_text', 1024)]:
@@ -174,7 +187,9 @@ def main():
                     'device_raw_deleted': lambda: shell('run-as', PACKAGE, 'rm', '-f',
                         f'files/{stem}-raw.json', f'files/{stem}-raw.json.pending',
                         f'files/{stem}-consent', f'files/{stem}-status.json.pending'),
-                    'device_raw_absent': lambda: shell('run-as', PACKAGE, 'test', '!', '-e', f'files/{stem}-raw.json'),
+                    'device_raw_absent': lambda: shell('run-as', PACKAGE, 'sh', '-c', ' && '.join(
+                        'test ! -e ' + shlex.quote(f'files/{stem}-{suffix}')
+                        for suffix in ['raw.json', 'raw.json.pending', 'consent', 'status.json.pending'])),
                 })
             for label, action in actions.items():
                 try:
@@ -192,6 +207,16 @@ def main():
             except Exception:
                 cleanup['listeners_restored'] = False
         report['cleanup'] = cleanup
+        if previous_states:
+            try:
+                for (old_stem, old_marker), previous in previous_states.items():
+                    shell('run-as', PACKAGE, 'test', '-f', 'no_backup/' + old_marker)
+                    current = snapshot_state(call('exec-out', 'run-as', PACKAGE, 'cat', f'files/{old_stem}-status.json'))
+                    if current != previous:
+                        raise ValueError('previous state changed')
+                cleanup['previous_markers_and_states_preserved'] = True
+            except Exception:
+                cleanup['previous_markers_and_states_preserved'] = False
         report['cleanup_ok'] = all(cleanup.values())
         private_json(args.evidence / 'report.json', report)
     print(json.dumps(report, ensure_ascii=False))
