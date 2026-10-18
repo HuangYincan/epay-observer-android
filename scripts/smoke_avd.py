@@ -38,7 +38,7 @@ def instrument(report_path, expected_count, extra):
     if any(marker in output for marker in ['FAILURES!!!', 'INSTRUMENTATION_FAILED', 'shortMsg=']):
         raise SystemExit(f'Instrumentation failure; inspect {report_path}')
 
-instrument(args.report, 43, ['-e', 'notClass', process_class + ',' + pairing_process_class + ',dev.epay.observer.PairingNetworkTest,dev.epay.observer.UploadNetworkTest,dev.epay.observer.BackgroundNetworkTest,dev.epay.observer.RechargeNetworkTest'])
+instrument(args.report, 43, ['-e', 'notClass', process_class + ',' + pairing_process_class + ',dev.epay.observer.PairingNetworkTest,dev.epay.observer.UploadNetworkTest,dev.epay.observer.BackgroundNetworkTest,dev.epay.observer.RechargeNetworkTest,dev.epay.observer.GatewayConnectionNetworkTest'])
 instrument(args.report.with_name(args.report.stem + '-process-prepare.txt'), 1,
     ['-e', 'class', process_class, '-e', 'identityPhase', 'prepare'])
 subprocess.run(adb + ['shell', 'am', 'force-stop', 'dev.epay.observer.fixtureclient.debug'], check=True, timeout=15)

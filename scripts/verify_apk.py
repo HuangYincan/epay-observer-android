@@ -11,7 +11,7 @@ import zipfile
 
 parser = argparse.ArgumentParser()
 parser.add_argument('apk', type=Path)
-parser.add_argument('--variant', choices=['productionRelease', 'fixtureDebug', 'fixtureSender'], required=True)
+parser.add_argument('--variant', choices=['productionRelease', 'productionDebug', 'fixtureDebug', 'fixtureSender'], required=True)
 parser.add_argument('--fixture-ca-sha256', help='Explicit opt-in certificate digest for a local fixtureDebug APK only')
 args = parser.parse_args()
 assert not args.fixture_ca_sha256 or args.variant == 'fixtureDebug'
@@ -28,16 +28,18 @@ manifest = ET.fromstring(subprocess.check_output([str(analyzer), 'manifest', 'pr
 android = '{http://schemas.android.com/apk/res/android}'
 application = manifest.find('application')
 assert application is not None
-production = args.variant == 'productionRelease'
+production = args.variant in {'productionRelease', 'productionDebug'}
+release = args.variant == 'productionRelease'
 sender = args.variant == 'fixtureSender'
-expected_id = 'dev.epay.observer.fixture' if sender else ('dev.epay.observer' if production else 'dev.epay.observer.fixtureclient.debug')
+expected_id = 'dev.epay.observer.fixture' if sender else (
+    ('dev.epay.observer' if release else 'dev.epay.observer.debug') if production else 'dev.epay.observer.fixtureclient.debug')
 assert manifest.attrib['package'] == expected_id
 assert application.get(android + 'allowBackup') == 'false'
 assert application.get(android + 'fullBackupContent') == 'false'
 assert application.get(android + 'usesCleartextTraffic') == 'false'
 assert bool(application.get(android + 'networkSecurityConfig')) == (not sender)
 assert application.get(android + 'dataExtractionRules')
-assert (application.get(android + 'debuggable', 'false') == 'true') == (not production)
+assert (application.get(android + 'debuggable', 'false') == 'true') == (not release)
 sdk_element = manifest.find('uses-sdk')
 assert sdk_element.get(android + 'minSdkVersion') == '29'
 assert sdk_element.get(android + 'targetSdkVersion') == '37'

@@ -21,6 +21,8 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Test isolated prototype helpers
         run: python3 -m unittest discover -s scripts/prototype/tests -p 'test_*.py'
+      - name: Test anonymous connection driver contracts
+        run: python3 -m unittest discover -s scripts/tests -p 'test_gateway_connection.py'
       - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
@@ -38,14 +40,15 @@ jobs:
         run: >-
           ./gradlew --no-daemon --dependency-verification strict
           :fixture:assembleDebug :fixture:lintDebug
-          :app:assembleFixtureDebug :app:assembleProductionRelease
+          :app:assembleFixtureDebug :app:assembleProductionRelease :app:assembleProductionDebug :app:assembleProductionDebugAndroidTest
           :app:testProductionDebugUnitTest :app:testFixtureDebugUnitTest :app:assembleFixtureDebugAndroidTest
-          :app:lintProductionRelease
+          :app:lintProductionRelease :app:lintProductionDebug
           :probe:assembleDebug :probe:testDebugUnitTest :probe:lintDebug :probe:assembleDebugAndroidTest
       - name: Check packaged build isolation
         run: |
           python3 scripts/verify_apk.py fixture/build/outputs/apk/debug/fixture-debug.apk --variant fixtureSender
           python3 scripts/verify_apk.py app/build/outputs/apk/production/release/app-production-release-unsigned.apk --variant productionRelease
+          python3 scripts/verify_apk.py app/build/outputs/apk/production/debug/app-production-debug.apk --variant productionDebug
           python3 scripts/verify_apk.py app/build/outputs/apk/fixture/debug/app-fixture-debug.apk --variant fixtureDebug
           python3 scripts/verify_probe_apk.py probe/build/outputs/apk/debug/probe-debug.apk
           ./gradlew --no-daemon :app:tasks --all > /tmp/observer-tasks.txt
