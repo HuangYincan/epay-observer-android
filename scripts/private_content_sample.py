@@ -225,7 +225,7 @@ def cleanup(driver, raw_path):
     return results
 
 
-def validate_window(window):
+def validate_window(window, capacity=32):
     expected = {'phase', 'samples', 'elapsed_ms', 'started_epoch_ms', 'ended_epoch_ms', 'instrumented_process'}
     if not isinstance(window, dict) or set(window) != expected:
         raise ValueError('window schema')
@@ -234,11 +234,11 @@ def validate_window(window):
     for key in ['samples', 'elapsed_ms', 'started_epoch_ms', 'ended_epoch_ms']:
         if type(window[key]) is not int or window[key] < 0:
             raise ValueError('window field type')
-    if not 0 <= window['samples'] <= 32 or window['ended_epoch_ms'] < window['started_epoch_ms']:
+    if not 0 <= window['samples'] <= capacity or window['ended_epoch_ms'] < window['started_epoch_ms']:
         raise ValueError('window bounds')
     if window['phase'] == 'EXPIRED' and window['elapsed_ms'] < 120000:
         raise ValueError('short window')
-    if window['phase'] == 'LIMIT' and window['samples'] != 32:
+    if window['phase'] == 'LIMIT' and window['samples'] != capacity:
         raise ValueError('capacity mismatch')
 
 
@@ -331,9 +331,7 @@ def execute(args, progress=None, cancel=None):
         driver.shell('am', 'force-stop', PACKAGE)
         driver.copy_private('window.json', args.evidence / 'window.json')
         window = json.loads((args.evidence / 'window.json').read_text())
-        validate_window(window)
-        if receipt_template and window['samples'] > 2:
-            raise ValueError('sample count limit')
+        validate_window(window, capacity=2 if receipt_template else 32)
         report['window'] = window
         if window['samples']:
             driver.copy_private('samples.jsonl', raw)
