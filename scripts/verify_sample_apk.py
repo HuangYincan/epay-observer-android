@@ -60,8 +60,10 @@ for name in classes:
         assert forbidden not in code, (name, forbidden)
     # A launchable status screen has no path to open the content gate. Only androidTest can do so.
     assert 'Ldev/epay/observer/sample/SampleGate;->start(' not in code, name
+    assert 'Ldev/epay/observer/sample/SampleRuntime;->prepareScanPaymentWindow(' not in code, name
     for forbidden in ['->getFilesDir(', '->getCacheDir(', 'Ljava/io/FileWriter;', 'Ljava/io/PrintWriter;']:
         assert forbidden not in code, (name, forbidden)
+    assert 'Ljava/io/File;->delete(' not in code, name
     assert 'Landroid/service/notification/StatusBarNotification;->getId(' not in code
     for method in ['getCharSequence(', '->getNotification(']:
         if method in code:

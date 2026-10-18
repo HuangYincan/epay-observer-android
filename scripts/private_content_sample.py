@@ -8,6 +8,53 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import time
+
+STATE_PREFIX = 'INSTRUMENTATION_STATUS: content_sample_state='
+SCAN_MARKER = 'used-scan-payment-v1'
+
+
+def state_rows(text):
+    rows = []
+    for line in text.splitlines(keepends=True):
+        if not line.endswith('\n') or not line.startswith(STATE_PREFIX):
+            continue
+        if len(line) > 4096:
+            raise ValueError('state size')
+        row = json.loads(line[len(STATE_PREFIX):])
+        expected = {'event', 'phase', 'callbacks', 'elapsed_ms', 'remaining_seconds',
+                    'connected', 'source_matches', 'instrumented_process'}
+        if not isinstance(row, dict) or set(row) != expected:
+            raise ValueError('state schema')
+        if row['event'] not in {'armed', 'sample', 'finished'} or row['phase'] not in {
+                'RUNNING', 'EXPIRED', 'STOPPED', 'DISCONNECTED', 'SOURCE_CHANGED', 'LIMIT', 'ERROR'}:
+            raise ValueError('state phase')
+        for key, maximum in [('callbacks', 32), ('elapsed_ms', 180000), ('remaining_seconds', 120)]:
+            if type(row[key]) is not int or not 0 <= row[key] <= maximum:
+                raise ValueError('state aggregate')
+        for key in ['connected', 'source_matches', 'instrumented_process']:
+            if type(row[key]) is not bool:
+                raise ValueError('state boolean')
+        if not row['instrumented_process']:
+            raise ValueError('instrumentation required')
+        if row['phase'] == 'RUNNING' and not (row['connected'] and row['source_matches']):
+            raise ValueError('running condition changed')
+        if row['phase'] != 'RUNNING' and row['remaining_seconds'] != 0:
+            raise ValueError('terminal countdown')
+        if not rows:
+            if row['event'] != 'armed' or row['phase'] != 'RUNNING':
+                raise ValueError('missing armed state')
+        else:
+            previous = rows[-1]
+            if previous['event'] == 'finished' or row['event'] == 'armed' or any([
+                    row['callbacks'] < previous['callbacks'], row['elapsed_ms'] < previous['elapsed_ms'],
+                    row['remaining_seconds'] > previous['remaining_seconds'],
+                    previous['phase'] != 'RUNNING' and row['phase'] == 'RUNNING']):
+                raise ValueError('nonmonotonic state')
+        if row['event'] == 'finished' and row['phase'] == 'RUNNING':
+            raise ValueError('unfinished window')
+        rows.append(row)
+    return rows
 
 PACKAGE = 'dev.epay.observer.sample.debug'
 COMPONENT = PACKAGE + '/dev.epay.observer.sample.AlipayListener'
@@ -95,6 +142,47 @@ class Driver:
         self.shell('run-as', PACKAGE, 'rm', '-f', 'no_backup/samples.jsonl')
         self.shell('run-as', PACKAGE, 'test', '!', '-e', 'no_backup/samples.jsonl')
 
+    def observe_receipt(self, log_path, progress, cancel):
+        arguments = ['shell', 'am', 'instrument', '-w', '-r', '-e', 'contentSampleConsent',
+                     'scan-payment-once-120s-v1', '-e', 'class',
+                     'dev.epay.observer.sample.ContentSampleTest#sampleOnce',
+                     PACKAGE + '.test/androidx.test.runner.AndroidJUnitRunner']
+        with log_path.open('xb') as log:
+            if cancel.is_set():
+                raise InterruptedError('cancelled before launch')
+            progress({'event': 'launching'})  # Conservative host budget starts before Android startup.
+            if cancel.is_set():
+                raise InterruptedError('cancelled before launch')
+            child = subprocess.Popen(self.prefix + arguments, stdout=log, stderr=subprocess.DEVNULL)
+            deadline = time.monotonic() + 180
+            seen = 0
+            try:
+                while True:
+                    if cancel.is_set():
+                        raise InterruptedError('cancelled')
+                    if time.monotonic() > deadline:
+                        raise TimeoutError('instrumentation timeout')
+                    if log_path.stat().st_size > 262144:
+                        raise ValueError('instrumentation size')
+                    rows = state_rows(log_path.read_text())
+                    for row in rows[seen:]:
+                        progress(row)
+                    seen = len(rows)
+                    if child.poll() is not None:
+                        if child.returncode:
+                            raise ValueError('instrumentation process failed')
+                        if not rows or rows[-1]['event'] != 'finished':
+                            raise ValueError('missing terminal status')
+                        return
+                    cancel.wait(0.2)
+            finally:
+                if child.poll() is None:
+                    child.terminate()
+                    try:
+                        child.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        child.kill(); child.wait(timeout=5)
+
 
 def cleanup(driver, raw_path):
     """Each action runs despite earlier cleanup failures; only fixed labels are reported."""
@@ -141,7 +229,7 @@ def audit(lab):
     return value
 
 
-def execute(args):
+def execute(args, progress=None, cancel=None):
     if not re.fullmatch(r'emulator-\d+', args.serial):
         raise ValueError('emulator required')
     os.umask(0o077)
@@ -155,6 +243,9 @@ def execute(args):
     before_listeners = None
     touched = False
     failed = False
+    receipt_window = getattr(args, 'receipt_window', False)
+    if receipt_window:
+        report.update(spec='SPEC-032', issue=75, scope='user-started-scan-payment-title-text')
     try:
         if driver.shell('getprop', 'ro.kernel.qemu') != '1':
             raise ValueError('emulator required')
@@ -170,12 +261,22 @@ def execute(args):
         driver.adb('install', '-r', str(args.runner), timeout=60)
         touched = True
         # Verify absence without listing names or printing contents.
-        driver.shell('run-as', PACKAGE, 'test', '!', '-e', 'no_backup/used')
+        marker = SCAN_MARKER if receipt_window else 'used'
+        driver.shell('run-as', PACKAGE, 'test', '!', '-e', 'no_backup/' + marker)
+        if receipt_window:
+            if progress is None or cancel is None or cancel.is_set():
+                raise ValueError('local control required')
+            driver.shell('run-as', PACKAGE, 'test', '!', '-e', 'no_backup/samples.jsonl')
+            driver.shell('input', 'keyevent', 'KEYCODE_HOME')
+            report['alipay_background_requested'] = True
         driver.shell('cmd', 'notification', 'allow_listener', COMPONENT)
-        with (args.evidence / 'instrumentation.txt').open('xb') as log:
-            driver.adb('shell', 'am', 'instrument', '-w', '-r', '-e', 'contentSampleConsent', 'local-once-120s',
-                       '-e', 'class', 'dev.epay.observer.sample.ContentSampleTest',
-                       PACKAGE + '.test/androidx.test.runner.AndroidJUnitRunner', timeout=180, stdout=log)
+        if receipt_window:
+            driver.observe_receipt(args.evidence / 'instrumentation.txt', progress, cancel)
+        else:
+            with (args.evidence / 'instrumentation.txt').open('xb') as log:
+                driver.adb('shell', 'am', 'instrument', '-w', '-r', '-e', 'contentSampleConsent', 'local-once-120s',
+                           '-e', 'class', 'dev.epay.observer.sample.ContentSampleTest#sampleOnce',
+                           PACKAGE + '.test/androidx.test.runner.AndroidJUnitRunner', timeout=180, stdout=log)
         if 'OK (1 test)' not in (args.evidence / 'instrumentation.txt').read_text():
             raise ValueError('instrumentation did not pass')
         # Stop callbacks before reading files; raw has never been printed.

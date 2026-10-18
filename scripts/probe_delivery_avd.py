@@ -367,7 +367,7 @@ class AvdDelivery:
                 session.change(state='FAILED', completed=False)
 
 
-def make_server(session, token):
+def make_server(session, token, template_name='probe_delivery.html'):
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):
             pass  # No URL/header/token request logs.
@@ -410,7 +410,7 @@ def make_server(session, token):
                 return
             if self.path == '/':
                 nonce = secrets.token_urlsafe(24)
-                html = (Path(__file__).parent / 'prototype/probe_delivery.html').read_text().replace('{{NONCE}}', nonce)
+                html = (Path(__file__).parent / 'prototype' / template_name).read_text().replace('{{NONCE}}', nonce)
                 self.reply(200, html, html=True, nonce=nonce)
             elif self.path == '/api/state':
                 self.reply(200, session.public())
