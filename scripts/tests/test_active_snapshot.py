@@ -3,9 +3,11 @@ import json
 from pathlib import Path
 import sys
 import unittest
+from unittest import mock
+import subprocess
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from snapshot_alipay_active import snapshot_state
+from snapshot_alipay_active import snapshot_state, wait_for_snapshot
 
 
 class SnapshotStateTest(unittest.TestCase):
@@ -30,6 +32,14 @@ class SnapshotStateTest(unittest.TestCase):
         state = dict(phase='ERROR', records=0, limit=2,
                      historical_snapshot=True, new_notifications_read=False)
         self.assertEqual(snapshot_state(json.dumps(state))['phase'], 'ERROR')
+
+    def test_transient_adb_timeout_does_not_discard_completed_snapshot(self):
+        complete = json.dumps(dict(phase='COMPLETE', records=2, limit=2,
+                                   historical_snapshot=True, new_notifications_read=False)).encode()
+        read = mock.Mock(side_effect=[subprocess.TimeoutExpired('synthetic-metadata', 8), b'{', complete])
+        with mock.patch('snapshot_alipay_active.time.sleep'):
+            self.assertEqual(wait_for_snapshot(read, timeout=1)['records'], 2)
+        self.assertEqual(read.call_count, 3)
 
 
 if __name__ == '__main__':

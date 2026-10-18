@@ -22,6 +22,7 @@ public final class ActiveSnapshotListener extends NotificationListenerService {
     private static final String PACKAGE = "com.eg.android.AlipayGphone";
     private static final String SIGNER = "389b49f7832f53e9017923220aa85e14dfaa4886ecd7428818bf339543cf498a";
     private static final String CONSENT = "active-snapshot-once-max2-v1";
+    private static final String RECOVERY_CONSENT = "active-snapshot-recovery-once-max2-v1";
     private static final Object LOCK = new Object();
 
     @Override public void onNotificationPosted(StatusBarNotification notification) {
@@ -31,16 +32,21 @@ public final class ActiveSnapshotListener extends NotificationListenerService {
     @Override public void onListenerConnected() {
         super.onListenerConnected();
         synchronized (LOCK) {
-            File consent = new File(getFilesDir(), "active-snapshot-consent");
-            File used = new File(getNoBackupFilesDir(), "used-active-snapshot-max2-v1");
-            File raw = new File(getFilesDir(), "active-snapshot-raw.json");
-            File status = new File(getFilesDir(), "active-snapshot-status.json");
+            boolean recovery = new File(getFilesDir(), "active-snapshot-recovery-consent").isFile();
+            String prefix = recovery ? "active-snapshot-recovery" : "active-snapshot";
+            String consentValue = recovery ? RECOVERY_CONSENT : CONSENT;
+            File consent = new File(getFilesDir(), prefix + "-consent");
+            File used = new File(getNoBackupFilesDir(), recovery ?
+                    "used-active-snapshot-recovery-max2-v1" : "used-active-snapshot-max2-v1");
+            File raw = new File(getFilesDir(), prefix + "-raw.json");
+            File status = new File(getFilesDir(), prefix + "-status.json");
             JSONObject report = new JSONObject();
             int read = 0;
             boolean consumed = false;
             try {
                 if (!consent.isFile() || consent.length() > 80 ||
-                        !CONSENT.equals(new String(Files.readAllBytes(consent.toPath()), StandardCharsets.UTF_8).trim())) return;
+                        !consentValue.equals(new String(Files.readAllBytes(consent.toPath()), StandardCharsets.UTF_8).trim())) return;
+                if (recovery && !previousAttemptComplete()) return;
                 // Refuse pending raw data; never overwrite an earlier attempt.
                 if (raw.exists() || status.exists() || !used.createNewFile()) return;
                 consumed = true;
@@ -88,6 +94,19 @@ public final class ActiveSnapshotListener extends NotificationListenerService {
                 }
             }
         }
+    }
+
+    private boolean previousAttemptComplete() throws Exception {
+        if (!new File(getNoBackupFilesDir(), "used-active-snapshot-max2-v1").isFile() ||
+                new File(getFilesDir(), "active-snapshot-consent").exists() ||
+                new File(getFilesDir(), "active-snapshot-raw.json").exists() ||
+                new File(getFilesDir(), "active-snapshot-raw.json.pending").exists()) return false;
+        File status = new File(getFilesDir(), "active-snapshot-status.json");
+        if (!status.isFile() || status.length() > 1024) return false;
+        JSONObject previous = new JSONObject(new String(Files.readAllBytes(status.toPath()), StandardCharsets.UTF_8));
+        return previous.length() == 5 && "COMPLETE".equals(previous.optString("phase")) &&
+                previous.optInt("records", -1) == 2 && previous.optInt("limit", -1) == 2 &&
+                previous.optBoolean("historical_snapshot", false) && !previous.optBoolean("new_notifications_read", true);
     }
 
     private static void writeAtomic(File target, String value) throws java.io.IOException {

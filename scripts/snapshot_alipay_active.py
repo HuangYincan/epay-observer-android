@@ -14,6 +14,11 @@ from private_content_sample import private_json, shape
 PACKAGE = 'dev.epay.observer.sample.debug.test'
 COMPONENT = PACKAGE + '/dev.epay.observer.sample.ActiveSnapshotListener'
 CONSENT = 'active-snapshot-once-max2-v1'
+RECOVERY_CONSENT = 'active-snapshot-recovery-once-max2-v1'
+SCOPES = {
+    CONSENT: ('active-snapshot', 'used-active-snapshot-max2-v1'),
+    RECOVERY_CONSENT: ('active-snapshot-recovery', 'used-active-snapshot-recovery-max2-v1'),
+}
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -33,11 +38,27 @@ def snapshot_state(data):
     return value
 
 
+def wait_for_snapshot(read_status, timeout=30):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            data = read_status()
+        except subprocess.TimeoutExpired:
+            data = None
+        if data is not None:
+            state = snapshot_state(data)
+            if state is not None:
+                return state
+        time.sleep(0.5)
+    raise TimeoutError('snapshot metadata unavailable')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--consent', required=True, choices=[CONSENT])
+    parser.add_argument('--consent', required=True, choices=tuple(SCOPES))
     parser.add_argument('--evidence', type=Path, required=True)
     args = parser.parse_args()
+    stem, marker = SCOPES[args.consent]
     args.evidence.mkdir(mode=0o700, parents=False, exist_ok=False)
     apk = ROOT / 'sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk'
     adb = Path(os.environ.get('ANDROID_HOME', '/Users/acccan/Library/Android/sdk')) / 'platform-tools/adb'
@@ -54,7 +75,7 @@ def main():
         value = shell('settings', 'get', 'secure', 'enabled_notification_listeners')
         return set(value.split(':')) if value and value != 'null' else set()
 
-    report = {'scope': CONSENT, 'historical_only': True, 'limit': 2,
+    report = {'scope': args.consent, 'historical_only': True, 'limit': 2,
               'new_notifications_read': False, 'payment_or_settlement': False}
     raw = args.evidence / 'raw.json'
     before = None
@@ -62,39 +83,57 @@ def main():
     prepared = False
     try:
         report['test_apk_sha256'] = hashlib.sha256(apk.read_bytes()).hexdigest()
+        report['stage'] = 'listener_preflight'
         before = listeners()
         if COMPONENT in before:
             raise RuntimeError('test listener already authorized')
-        report['stage'] = 'install_test_apk'
-        call('install', '-r', '-t', str(apk), timeout=60)
+        report['stage'] = 'verify_installed_test_apk'
+        try:
+            paths = shell('cmd', 'package', 'path', PACKAGE).splitlines()
+        except subprocess.CalledProcessError:
+            paths = []
+        already_installed = False
+        if len(paths) == 1 and paths[0].startswith('package:'):
+            device_hash = shell('sha256sum', paths[0][8:]).split()[0]
+            already_installed = device_hash == report['test_apk_sha256']
+        if not already_installed:
+            report['stage'] = 'install_test_apk'
+            call('install', '-r', '-t', str(apk), timeout=60)
+        report['test_apk_installation'] = 'unchanged_exact_hash' if already_installed else 'installed'
         installed = True
         report['stage'] = 'unused_gate_checks'
-        for name in ['files/active-snapshot-raw.json', 'files/active-snapshot-status.json',
-                     'files/active-snapshot-raw.json.pending', 'files/active-snapshot-status.json.pending',
-                     'files/active-snapshot-consent', 'no_backup/used-active-snapshot-max2-v1']:
-            shell('run-as', PACKAGE, 'test', '!', '-e', name)
+        absent = []
+        present = []
+        if args.consent == RECOVERY_CONSENT:
+            present.append('no_backup/used-active-snapshot-max2-v1')
+            previous = snapshot_state(call('exec-out', 'run-as', PACKAGE, 'cat', 'files/active-snapshot-status.json'))
+            if previous is None or previous['phase'] != 'COMPLETE' or previous['records'] != 2:
+                raise ValueError('previous snapshot metadata')
+            absent.extend(['files/active-snapshot-consent', 'files/active-snapshot-raw.json', 'files/active-snapshot-raw.json.pending'])
+        absent.extend([f'files/{stem}-raw.json', f'files/{stem}-status.json',
+                     f'files/{stem}-raw.json.pending', f'files/{stem}-status.json.pending',
+                     f'files/{stem}-consent', 'no_backup/' + marker])
+        checks = ['test -e ' + shlex.quote(name) for name in present]
+        checks.extend('test ! -e ' + shlex.quote(name) for name in absent)
+        shell('run-as', PACKAGE, 'sh', '-c', ' && '.join(checks))
         # Only this no-display test activity is launched; Alipay is untouched.
         report['stage'] = 'prepare_test_process'
         shell('am', 'start', '-W', '-n', PACKAGE + '/dev.epay.observer.sample.SnapshotPrepareActivity')
         prepared = True
         report['stage'] = 'prepare_consent'
         shell('run-as', PACKAGE, 'sh', '-c',
-              'mkdir -p files && printf %s ' + CONSENT + ' > files/active-snapshot-consent')
+              'mkdir -p files && printf %s ' + args.consent + ' > files/' + stem + '-consent')
         report['stage'] = 'snapshot'
         shell('cmd', 'notification', 'allow_listener', COMPONENT)
-        deadline = time.monotonic() + 30
-        state = None
-        while time.monotonic() < deadline:
+        def read_status():
             result = subprocess.run(prefix + ['exec-out', 'run-as', PACKAGE, 'cat',
-                                    'files/active-snapshot-status.json'], stdout=subprocess.PIPE,
+                                    'files/' + stem + '-status.json'], stdout=subprocess.PIPE,
                                     stderr=subprocess.DEVNULL, timeout=8)
-            if result.returncode == 0:
-                state = snapshot_state(result.stdout)
-                if state is not None:
-                    break
-            time.sleep(0.5)
-        shell('cmd', 'notification', 'disallow_listener', COMPONENT)
-        shell('am', 'force-stop', PACKAGE)
+            return result.stdout if result.returncode == 0 else None
+        state = wait_for_snapshot(read_status)
+        # The collector's permanent marker already prevents any further snapshot;
+        # posted callbacks are empty. Copy the completed private data before
+        # cleanup commands, which can themselves transiently time out.
         if state is None or state.get('phase') != 'COMPLETE' or type(state.get('records')) is not int or not 0 <= state['records'] <= 2:
             raise RuntimeError('snapshot not complete')
         report['snapshot'] = state
@@ -102,7 +141,7 @@ def main():
         # Raw never crosses stdout/logs/model context. Only fixed-word shapes do.
         with raw.open('xb') as target:
             os.chmod(raw, 0o600)
-            call('exec-out', 'run-as', PACKAGE, 'cat', 'files/active-snapshot-raw.json', output=target)
+            call('exec-out', 'run-as', PACKAGE, 'cat', 'files/' + stem + '-raw.json', output=target)
         if raw.stat().st_size > 32768:
             raise ValueError('raw size')
         rows = json.loads(raw.read_bytes())
@@ -133,9 +172,9 @@ def main():
             if prepared:
                 actions.update({
                     'device_raw_deleted': lambda: shell('run-as', PACKAGE, 'rm', '-f',
-                        'files/active-snapshot-raw.json', 'files/active-snapshot-raw.json.pending',
-                        'files/active-snapshot-consent', 'files/active-snapshot-status.json.pending'),
-                    'device_raw_absent': lambda: shell('run-as', PACKAGE, 'test', '!', '-e', 'files/active-snapshot-raw.json'),
+                        f'files/{stem}-raw.json', f'files/{stem}-raw.json.pending',
+                        f'files/{stem}-consent', f'files/{stem}-status.json.pending'),
+                    'device_raw_absent': lambda: shell('run-as', PACKAGE, 'test', '!', '-e', f'files/{stem}-raw.json'),
                 })
             for label, action in actions.items():
                 try:
@@ -145,10 +184,13 @@ def main():
                     cleanup[label] = False
         raw.unlink(missing_ok=True)
         cleanup['host_raw_deleted'] = not raw.exists()
-        try:
-            cleanup['listeners_restored'] = before is not None and listeners() == before
-        except Exception:
-            cleanup['listeners_restored'] = False
+        if before is None and not installed:
+            cleanup['no_listener_mutation_started'] = True
+        else:
+            try:
+                cleanup['listeners_restored'] = listeners() == before
+            except Exception:
+                cleanup['listeners_restored'] = False
         report['cleanup'] = cleanup
         report['cleanup_ok'] = all(cleanup.values())
         private_json(args.evidence / 'report.json', report)

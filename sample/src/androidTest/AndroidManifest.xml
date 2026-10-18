@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <queries><package android:name="com.eg.android.AlipayGphone" /></queries>
-    <application>
+    <application android:allowBackup="false" android:fullBackupContent="false"
+        android:usesCleartextTraffic="false"
+        android:dataExtractionRules="@xml/active_snapshot_extraction_rules">
         <activity
             android:name="dev.epay.observer.sample.SnapshotPrepareActivity"
             android:exported="true"
