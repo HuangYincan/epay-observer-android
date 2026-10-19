@@ -48,6 +48,7 @@ android {
     sourceSets["test"].resources.srcDir(rootProject.file("docs/testing/protocol-v1"))
     sourceSets["test"].resources.srcDir(rootProject.file("docs/testing/parsing-v1"))
     sourceSets["test"].resources.srcDir(rootProject.file("docs/testing/pairing-v1"))
+    sourceSets["test"].resources.srcDir(rootProject.file("docs/testing/pilot-operator-v1"))
 }
 
 kotlin {

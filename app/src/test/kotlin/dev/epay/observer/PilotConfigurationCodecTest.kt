@@ -6,6 +6,16 @@ import org.junit.Test
 
 class PilotConfigurationCodecTest {
     private val input = """{"schema_version":1,"origin":"https://observer.example","environment":"test","device_id":"device","receiver_id":"receiver","binding_version":1,"provider":"alipay","source_class":"notification","parser_version":"alipay-12.12.30-receipt-v1","amount_minor":1234,"server_armed_at_ms":100000,"server_expires_at_ms":400000,"evidence_ref":"synthetic-test-only","template_verified":1,"chat_boundary_verified":1,"identity_policy_approved":1,"amount_policy_approved":1,"newapi_contract_verified":1}"""
+    @Test fun gatewayOperatorGoldenHandoffDecodesWithoutOrderHints() {
+        val bytes = requireNotNull(javaClass.getResourceAsStream("/handoff.json")).use { it.readBytes() }
+        val decoded = PilotConfigurationCodec.decode(bytes)
+        assertEquals(1234L, decoded.amountMinor)
+        assertEquals("test-device", decoded.binding.deviceId)
+        assertEquals(100000L, decoded.serverArmedAt)
+        assertEquals(400000L, decoded.serverExpiresAt)
+        assertTrue(decoded.review.complete())
+        assertFalse(PilotRuntime.hasSession)
+    }
     @Test fun strictHandoffDecodesAndEachUnreviewedFactFailsClosed() {
         assertEquals(1234L,PilotConfigurationCodec.decode(input.toByteArray()).amountMinor)
         for (name in listOf("template_verified","chat_boundary_verified","identity_policy_approved","amount_policy_approved","newapi_contract_verified")) {
