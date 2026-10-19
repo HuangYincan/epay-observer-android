@@ -12,6 +12,7 @@ data class ObservationInput(
     val key: String, val source: SourceIdentity, val postTime: Long,
     val wallTime: Long, val elapsedTime: Long, val restored: Boolean,
     val fields: NotificationFields,
+    val pilotPermit: dev.epay.observer.pilot.PilotPermit? = null,
 )
 data class NotificationObservation(
     val latest: ObservationInput, val firstWallTime: Long, val firstElapsedTime: Long,
@@ -52,7 +53,10 @@ class ObservationJournal(private val capacity: Int = 100) {
     }
 
     @Synchronized fun snapshots(): List<NotificationObservation> = records.values.toList()
+    @Synchronized fun clear() { records.clear() }
 }
+
+data class CapturePermission(val pilotPermit: dev.epay.observer.pilot.PilotPermit? = null)
 
 /** Evaluated before extracting any notification extras. No package-only trust. */
 object SourceBoundary {

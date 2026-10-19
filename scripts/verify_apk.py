@@ -76,7 +76,8 @@ else:
     assert services[0].get(android + 'permission') == 'android.permission.BIND_NOTIFICATION_LISTENER_SERVICE'
     assert services[0].find('intent-filter/action').get(android + 'name') == 'android.service.notification.NotificationListenerService'
 queries = {p.get(android + 'name') for p in manifest.findall('queries/package')}
-assert queries == (set() if production or sender else {'dev.epay.observer.fixture'})
+assert queries == ({'com.eg.android.AlipayGphone'} if args.variant == 'productionDebug' else
+                   set() if production or sender else {'dev.epay.observer.fixture'})
 receivers = application.findall('receiver')
 if sender:
     assert not receivers
@@ -160,6 +161,10 @@ with zipfile.ZipFile(args.apk) as apk:
         for marker in ['dev.epay.observer.fixture', 'fixture-key-a', 'fixture-wx-v1', 'fixture-ali-v1', '微信形态 · 合成收款', '支付宝形态 · 合成到账', '隔离测试环境', '合成流水-仅用于字节验证', 'synthetic-v1', 'identical-pair', 'fixture-key', 'synthetic-group']:
             for encoding in ['utf-8', 'utf-16-le']:
                 assert marker.encode(encoding) not in contents, f'Production contains {marker}'
+        if release:
+            for marker in ['notification-pilot-input.json', 'used-notification-pilot-v1', 'alipay-12.12.30-receipt-v1']:
+                for encoding in ['utf-8', 'utf-16-le']:
+                    assert marker.encode(encoding) not in contents, f'Release contains debug pilot {marker}'
     elif not sender:
         assert b'fixture-local-network-v1' in contents
         assert any('隔离测试环境'.encode(encoding) in contents for encoding in ['utf-8', 'utf-16-le'])

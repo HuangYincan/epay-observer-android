@@ -1,5 +1,7 @@
 # 文档索引
 
+- [SPEC-041：有界真实通知联调接线](specs/SPEC-041-bounded-notification-pilot.md)（#82 / epay-go #26）：补齐默认停止的debug接线与只读准入检查；[验证报告](testing/bounded-notification-pilot.md)区分真实核验与启用。
+
 - [SPEC-040：付款反馈后的现存通知检查](specs/SPEC-040-post-payment-template-snapshot.md)与[实际结果](testing/post-payment-template-snapshot.md)：COMPLETE/2，清理与全监听集合恢复分开记录；保留SPEC-039实际0回调及全部旧标记，不续窗或补确认订单。
 
 - [SPEC-039：用户本地开始的新模板窗口](specs/SPEC-039-fresh-receipt-template-window.md)与[准备状态](testing/fresh-receipt-template-preparation.md)：最多120秒/2条、明确不充值；准备/刷新不采样。

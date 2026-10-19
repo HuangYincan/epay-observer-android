@@ -8,6 +8,9 @@ import java.security.MessageDigest
 
 /** Only compiled into the isolated client. Both APKs must be signed by the same local build key. */
 object SourcePolicy {
+    @Suppress("UNUSED_PARAMETER")
+    fun authorize(source: SourceIdentity, postTime: Long, wall: Long, elapsed: Long, restored: Boolean) = CapturePermission()
+    fun disconnected() { }
     private const val PACKAGE = "dev.epay.observer.fixture"
     fun isCandidate(sbn: StatusBarNotification): Boolean =
         sbn.packageName == PACKAGE && sbn.opPkg == PACKAGE && sbn.user == Process.myUserHandle()
