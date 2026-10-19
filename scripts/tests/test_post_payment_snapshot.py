@@ -19,7 +19,7 @@ SAMPLE_COMPONENT = 'dev.epay.observer.sample.debug/dev.epay.observer.sample.Alip
 
 class PostPaymentSnapshotTest(unittest.TestCase):
     def run_snapshot(self, previous_override=None, missing_live=False, active_sample=False,
-                     restoration_timeouts=0):
+                     restoration_timeouts=0, exact_apk=True, baseline_write_failure=False):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / 'repo'
             apk = root / 'sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk'
@@ -31,8 +31,15 @@ class PostPaymentSnapshotTest(unittest.TestCase):
             def run(arguments, **kwargs):
                 nonlocal granted, listener_reads
                 action = arguments[3:]
-                command = shlex.split(action[1]) if action[0] == 'shell' else action[1:]
+                command = (shlex.split(action[1]) if action[0] == 'shell' else
+                           action[1:] if action[0] == 'exec-out' else action)
                 commands.append(command)
+                if (command[0] == 'install' or command[:2] == ['am', 'start'] or
+                        command[:3] == ['cmd', 'notification', 'allow_listener']):
+                    baseline = evidence / 'listeners-before.json'
+                    self.assertTrue(baseline.is_file(), 'baseline must be durable before mutation')
+                    self.assertEqual(json.loads(baseline.read_text()), [])
+                    self.assertEqual(baseline.stat().st_mode & 0o777, 0o600)
                 output = b''
                 if command[:3] == ['settings', 'get', 'secure']:
                     listener_reads += 1
@@ -42,7 +49,7 @@ class PostPaymentSnapshotTest(unittest.TestCase):
                 elif command[:3] == ['cmd', 'package', 'path']:
                     output = b'package:/synthetic/base.apk\n'
                 elif command[0] == 'sha256sum':
-                    output = hashlib.sha256(apk.read_bytes()).hexdigest().encode() + b' /synthetic/base.apk'
+                    output = (hashlib.sha256(apk.read_bytes()).hexdigest() if exact_apk else 'different').encode() + b' /synthetic/base.apk'
                 elif command[:3] == ['cmd', 'notification', 'allow_listener']:
                     granted = True
                 elif command[:3] == ['cmd', 'notification', 'disallow_listener']:
@@ -71,9 +78,15 @@ class PostPaymentSnapshotTest(unittest.TestCase):
                 if hasattr(target, 'write'):
                     target.write(output); output = None
                 return subprocess.CompletedProcess(arguments, 0, stdout=output)
+            write_json = snapshot.private_json
+            def persist(path, value):
+                if baseline_write_failure and path.name == 'listeners-before.json':
+                    raise OSError('synthetic-baseline-write-failure')
+                write_json(path, value)
             with patch.object(snapshot, 'ROOT', root), patch.object(sys, 'argv',
                     ['snapshot', '--consent', CONSENT, '--evidence', str(evidence)]), \
-                    patch.object(snapshot.subprocess, 'run', side_effect=run), patch('builtins.print'):
+                    patch.object(snapshot.subprocess, 'run', side_effect=run), \
+                    patch.object(snapshot, 'private_json', side_effect=persist), patch('builtins.print'):
                 code = snapshot.main()
             report = json.loads((evidence / 'report.json').read_text())
             templates = (evidence / 'templates.json').read_text() if (evidence / 'templates.json').exists() else None
@@ -113,6 +126,19 @@ class PostPaymentSnapshotTest(unittest.TestCase):
         self.assertTrue(report['cleanup']['listeners_restored'])
         self.assertEqual(report['listener_recheck_error_types'], ['TimeoutExpired'])
         self.assertEqual(sum(command[:3] == ['cmd', 'notification', 'allow_listener'] for command in commands), 1)
+
+    def test_baseline_is_durable_before_installing_changed_test_apk(self):
+        code, report, templates, commands = self.run_snapshot(exact_apk=False)
+        self.assertEqual(code, 0)
+        self.assertTrue(any(command[0] == 'install' for command in commands))
+
+    def test_baseline_write_failure_prevents_device_mutation(self):
+        code, report, templates, commands = self.run_snapshot(exact_apk=False, baseline_write_failure=True)
+        self.assertEqual(code, 1)
+        self.assertEqual(report['stage'], 'listener_preflight')
+        self.assertIsNone(templates)
+        self.assertFalse(any(command[0] == 'install' or command[:2] == ['am', 'start'] or
+            command[:3] == ['cmd', 'notification', 'allow_listener'] for command in commands))
 
     def test_persistent_restoration_timeout_is_failed_without_losing_templates(self):
         code, report, templates, commands = self.run_snapshot(restoration_timeouts=2)

@@ -1,6 +1,6 @@
 # 当前交付与后续边界
 
-2026-10-19 SPEC-040实际COMPLETE/2：空摘要+收款child，完整标题语法/正金额判断匹配，正文有限模板包含转入余额宝；括号角色未知、payment_eligibility=false。原文删除及四代旧记录保留成功，但全监听列表校验false，原cleanup_ok=false保留；后查两内容listener均已撤权，五代marker/status及live marker/原文清理、原四笔审计通过，不能重建原before集合或宣称全恢复。已补未来私有before/after日志及一次元数据超时重查，55项宿主和受影响AndroidTest构建/lint/APK检查、两轴代码审查通过；未重跑新scope。见[实际结果和边界](../testing/post-payment-template-snapshot.md)。不再付款、不续窗，不把历史样本补确认订单。
+2026-10-19 SPEC-040实际COMPLETE/2：空摘要+收款child，完整标题语法/正金额判断匹配，正文有限模板包含转入余额宝；括号角色未知、payment_eligibility=false。原文删除及四代旧记录保留成功，但全监听列表校验false，原cleanup_ok=false保留；后查两内容listener均已撤权，五代marker/status及live marker/原文清理、原四笔审计通过，不能重建原before集合或宣称全恢复。已补未来私有before/after落盘及一次元数据超时重查，57项宿主和受影响AndroidTest构建/lint/APK检查通过；审查发现基线仅在内存的问题已修复，最终复审另记。未重跑新scope。见[实际结果和边界](../testing/post-payment-template-snapshot.md)。不再付款、不续窗，不把历史样本补确认订单。
 
 2026-10-19：SPEC-039实际新窗口已完成EXPIRED/120085ms、0回调/0样本，用户付款反馈在有效窗口内记录，但不当平台验签或订单归属。清理/恢复/原四笔审计通过，marker已消费，不能沿用下文准备时Not run或重开窗口。用户授权代理直接查看模拟器收款账号，首页有App内收款提示，系统通知开关/分类开启；仍无系统模板、根因未知。按[SPEC-040](../specs/SPEC-040-post-payment-template-snapshot.md)准备一次现存最多2条历史模板检查，不再要求付款、不监听新通知；见[实际结果](../testing/fresh-receipt-template-preparation.md)。生产解析/确认仍关闭。
 

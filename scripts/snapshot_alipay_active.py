@@ -96,6 +96,7 @@ def main():
         report['stage'] = 'listener_preflight'
         before = listeners()
         report['listeners_before'] = sorted(before)  # Private recovery metadata, never notification fields.
+        private_json(args.evidence / 'listeners-before.json', report['listeners_before'])
         if COMPONENT in before:
             raise RuntimeError('test listener already authorized')
         if args.consent == POST_PAYMENT_CONSENT:
@@ -221,6 +222,7 @@ def main():
                 try:
                     after = listeners()
                     report['listeners_after'] = sorted(after)
+                    private_json(args.evidence / 'listeners-after.json', report['listeners_after'])
                     cleanup['listeners_restored'] = after == before
                     break
                 except subprocess.TimeoutExpired as error:
