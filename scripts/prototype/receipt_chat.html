@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>支付宝普通消息对照 · 仅本地</title>
+<style nonce="{{NONCE}}">
+:root{font-family:system-ui,sans-serif;color:#183444;background:#eef4f5}*{box-sizing:border-box}body{margin:0;padding:36px 20px}main{max-width:650px;margin:auto}header p{color:#526b75;font-size:15px}h1{font-size:30px;margin:10px 0}section{background:white;border:1px solid #dce7e9;border-radius:20px;padding:28px;margin:24px 0;box-shadow:0 12px 38px #284b5910}#signal{font-size:26px;font-weight:700;margin:0 0 12px}#detail{color:#526b75;line-height:1.7;min-height:3.4em}.metrics{display:flex;gap:30px;margin:22px 0}.metric span{display:block;color:#607680;font-size:14px}.metric strong{display:block;font-size:42px;font-variant-numeric:tabular-nums;margin-top:6px}.actions{display:flex;flex-wrap:wrap;gap:10px}button{font:inherit;border:1px solid #c5d7dc;border-radius:10px;padding:13px 18px;cursor:pointer;background:white;color:#254955}button.primary{background:#176779;color:white;border-color:#176779}button:disabled{opacity:.4;cursor:default}button:focus-visible{outline:3px solid #f2b354;outline-offset:3px}.live{border-color:#4d9b75;background:#f3fcf6}.live #signal{color:#17663c}footer{font-size:14px;color:#607680;line-height:1.8}#mode{color:#9b4e00;font-weight:600}#confirmation{font-size:14px;color:#607680;min-height:1.5em}@media(max-width:480px){body{padding:20px 14px}section{padding:22px}h1{font-size:25px}.metric strong{font-size:36px}}
+</style>
+<main><h1>支付宝普通消息对照</h1><p>这次不用付款。先准备另一个支付宝账号，给模拟器里的收款账号发一条普通聊天消息。</p>
+<p>点击开始即同意本次额外采集：最长120秒，最多1条现存非摘要通知和1条新回调通知的标题、正文、展开正文及有限类型字段，仅本机脱敏后删除原文。页面等待和刷新不采集，不自动重开。</p>
+<p>等下方变绿后，发送这段校验短语：<strong id="phrase"></strong>，再点“我已发送”。不要发送姓名、账号或付款信息。</p>
+<section id="panel"><h2 id="signal">正在连接</h2><p id="detail"></p><p>剩余秒数 <strong id="remaining">—</strong> · 已取样 <strong id="callbacks">0</strong></p>
+<button id="start" disabled>同意并开始这一次对照</button><button id="sent" disabled>我已发送这段普通消息</button><button id="stop" disabled>停止</button><p id="confirmation"></p></section>
+<p id="mode"></p><footer>本次仅补充字段对照，不确认旧订单，不增加New API余额。普通聊天被拒绝不等于所有聊天伪装均已排除。</footer></main>
+<script nonce="{{NONCE}}">
+const token = location.hash.slice(1);
+if (token) sessionStorage.setItem('probeControlToken', token);
+const controlToken = token || sessionStorage.getItem('probeControlToken') || '';
+history.replaceState(null, '', '/');
+const el = id => document.getElementById(id);
+let state = null, received = 0, connected = false, polling = false;
+const messages={WAITING:'准备好另一个支付宝账号后再点击开始',PREPARING:'正在检查，先不要发送',OBSERVING:'等待最新窗口状态，先不要发送',CLEANING:'采集已停，正在分析和清理',FINISHED:'本次已结束，请勿再发送',FAILED:'本次未完成，请等待代理检查',CANCELLED:'本次已取消'};
+function render(){
+ const age=(performance.now()-received)/1000;
+ const fresh=connected && age<3;
+ const remaining=state?Math.max(0,state.remaining_seconds-Math.ceil(age)):0;
+ const live=fresh && state && state.can_send && remaining>0;
+ el('signal').textContent=live?'现在可以发送校验短语':(fresh?messages[state.state]:'连接未确认，先不要发送');
+ el('detail').textContent=live?'用另一个支付宝账号发送下面这段普通聊天，发完点“我已发送”。':'只有绿色提示时才发送，不用付款。';
+ el('phrase').textContent=state?state.phrase:'';
+ el('panel').classList.toggle('live',live);
+ el('remaining').textContent=live?remaining:'—';
+ el('callbacks').textContent=state?state.records:0;
+ el('start').disabled=!(fresh&&state&&state.can_start);
+ el('sent').disabled=!(fresh&&state&&state.can_confirm);
+ el('stop').disabled=!(fresh&&state&&['PREPARING','OBSERVING'].includes(state.state));
+ el('confirmation').textContent=state&&state.user_confirmed?'已记录你的反馈；短语匹配结果由工具独立检查。':'';
+ el('mode').textContent=state&&state.layer==='page_test'?'纯页面检查，不连接模拟器':'';
+}
+async function request(path,method='GET'){
+ const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),2000);
+ try{
+  const response=await fetch(path,{method,headers:{'X-Probe-Token':controlToken},cache:'no-store',signal:controller.signal});
+  if(!response.ok && response.status!==409)throw new Error('unavailable');
+  const next=await response.json();
+  if(!state || next.revision>=state.revision){state=next;received=performance.now();}
+  connected=true;
+ }catch{connected=false;}finally{clearTimeout(timer);render();}
+}
+el('start').onclick=()=>{el('start').disabled=true;request('/api/start','POST');};
+el('sent').onclick=()=>{el('sent').disabled=true;request('/api/sent','POST');};
+el('stop').onclick=()=>request('/api/stop','POST');
+async function poll(){if(polling)return;polling=true;try{await request('/api/state');}finally{polling=false;}}
+setInterval(poll,500);setInterval(render,100);poll();
+</script>
+</html>

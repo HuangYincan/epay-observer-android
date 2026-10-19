@@ -1,6 +1,7 @@
 package dev.epay.observer.pilot
 
 import dev.epay.observer.capture.NotificationObservation
+import dev.epay.observer.capture.NotificationFields
 import dev.epay.observer.parsing.*
 
 /** Syntax derived from redacted research. Only a separately reviewed permit can use it. */
@@ -41,22 +42,29 @@ object AlipayReceiptSyntax {
         if (observation.removed) return ParseResult.Ignored(ParseReason.REMOVED)
         if (observation.everRestored || input.restored) return ParseResult.Unsupported(ParseReason.RESTORED)
         if (observation.revision != 1) return ParseResult.Unsupported(ParseReason.REVISION)
-        val fields = input.fields
+        val result = inspectFields(input.fields, permit.configuration.amountMinor)
+        result.reason?.let { return if (result.ignored) ParseResult.Ignored(it) else ParseResult.Unsupported(it) }
+        return ParseResult.Candidate(Provider.ALIPAY, requireNotNull(result.amountMinor), "CNY", VERSION, permit)
+    }
+
+    /** Field research only: no source, identity, permit, Candidate or delivery authority. */
+    internal data class Inspection(val amountMinor: Long? = null, val reason: ParseReason? = null, val ignored: Boolean = false)
+    internal fun inspectFields(fields: NotificationFields, expectedAmount: Long? = null): Inspection {
         if (fields.unsupported || listOf(fields.title, fields.text, fields.bigText, fields.channel, fields.category,
                 fields.group, fields.template).any { it != null && (it.length > 512 || !clean(it)) })
-            return ParseResult.Unsupported(ParseReason.MALFORMED)
-        if (fields.flags and 0x200 != 0) return ParseResult.Ignored(ParseReason.GROUP)
+            return Inspection(reason = ParseReason.MALFORMED)
+        if (fields.flags and 0x200 != 0) return Inspection(reason = ParseReason.GROUP, ignored = true)
         if (fields.category == "msg" || fields.template?.contains("MessagingStyle") == true)
-            return ParseResult.Ignored(ParseReason.CHAT)
+            return Inspection(reason = ParseReason.CHAT, ignored = true)
         if (fields.flags != 0x10 || fields.group.isNullOrEmpty() || fields.channel.isNullOrEmpty() ||
             fields.category != null || fields.template != null || fields.bigText != null)
-            return ParseResult.Unsupported(ParseReason.STRUCTURE)
-        if (fields.hasAdditionalText) return ParseResult.Unsupported(ParseReason.ADDITIONAL_TEXT)
-        val match = fields.title?.let(title::matchEntire) ?: return ParseResult.Unsupported(ParseReason.TITLE)
-        val amount = MinorAmount.parse(match.groupValues[1]) ?: return ParseResult.Unsupported(ParseReason.AMOUNT)
-        if (amount != permit.configuration.amountMinor) return ParseResult.Unsupported(ParseReason.AMOUNT)
-        val text = fields.text?.takeIf { it.isNotEmpty() } ?: return ParseResult.Unsupported(ParseReason.MISSING_TEXT)
-        if (shape(text) != TEXT_SHAPE) return ParseResult.Unsupported(ParseReason.TEXT)
-        return ParseResult.Candidate(Provider.ALIPAY, amount, "CNY", VERSION, permit)
+            return Inspection(reason = ParseReason.STRUCTURE)
+        if (fields.hasAdditionalText) return Inspection(reason = ParseReason.ADDITIONAL_TEXT)
+        val match = fields.title?.let(title::matchEntire) ?: return Inspection(reason = ParseReason.TITLE)
+        val amount = MinorAmount.parse(match.groupValues[1]) ?: return Inspection(reason = ParseReason.AMOUNT)
+        if (expectedAmount != null && amount != expectedAmount) return Inspection(reason = ParseReason.AMOUNT)
+        val text = fields.text?.takeIf { it.isNotEmpty() } ?: return Inspection(reason = ParseReason.MISSING_TEXT)
+        if (shape(text) != TEXT_SHAPE) return Inspection(reason = ParseReason.TEXT)
+        return Inspection(amountMinor = amount)
     }
 }
