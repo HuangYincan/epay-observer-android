@@ -1,5 +1,7 @@
 # 当前交付与后续边界
 
+2026-10-19：SPEC-039实际新窗口已完成EXPIRED/120085ms、0回调/0样本，用户付款反馈在有效窗口内记录，但不当平台验签或订单归属。清理/恢复/原四笔审计通过，marker已消费，不能沿用下文准备时Not run或重开窗口。用户授权代理直接查看模拟器收款账号，首页有App内收款提示，系统通知开关/分类开启；仍无系统模板、根因未知。按[SPEC-040](../specs/SPEC-040-post-payment-template-snapshot.md)准备一次现存最多2条历史模板检查，不再要求付款、不监听新通知；见[实际结果](../testing/fresh-receipt-template-preparation.md)。生产解析/确认仍关闭。
+
 2026-10-18 SPEC-039准备完成（PR #88）：修复两条容量终态被旧32条校验拒绝的问题，新增完整execute合成回归，50项宿主测试、受影响Android构建/JVM/lint/APK检查及两轴复审通过。唯一AVD保留数据冷启动后，最终产物prepareOnly run5成功；失败run1/3/4及后续审计超时记录均保留。最终四代snapshot与原三个live marker/原文清理/新范围未用复核、监听恢复及四笔账务审计通过。可交付用户本地明确开始的WAITING页，实际120秒/最多2条新窗口Not run；只补模板、不增加New API余额。未知模板/聊天边界、后台#81与真实充值仍未验收。详见[准备报告](../testing/fresh-receipt-template-preparation.md)。
 
 2026-10-18用户进一步确认classification child对应真实扫码收款，已单独保存用户来源标签；不等于平台验签或订单归属。按[SPEC-038](../specs/SPEC-038-alipay-receipt-field-roles.md)完成有限字段角色工具：11项相关合成宿主回归与严格依赖构建/lint/最终APK检查通过。实际准备run1在consent前ADB超时，run2为COMPLETE/0、没有当前通知，清理/三代旧记录/四笔审计通过；新marker已消费，不重开。未获新增字段、生产解析/确认仍关闭；用户表示不记得括号字段，不猜测；按SPEC-039准备用户本地开始的新样本页，明确仅补模板、不增加New API余额。见[实测报告](../testing/alipay-receipt-field-roles.md)。

@@ -22,16 +22,19 @@ public final class ActiveSnapshotListener extends NotificationListenerService {
     private static final String PACKAGE = "com.eg.android.AlipayGphone";
     private static final String SIGNER = "389b49f7832f53e9017923220aa85e14dfaa4886ecd7428818bf339543cf498a";
     private enum Scope {
-        ORIGINAL("active-snapshot", false),
-        RECOVERY("active-snapshot-recovery", false),
-        CLASSIFICATION("active-snapshot-classification", true),
-        FIELD_ROLES("active-snapshot-field-roles", true);
+        ORIGINAL("active-snapshot", false, 2),
+        RECOVERY("active-snapshot-recovery", false, 2),
+        CLASSIFICATION("active-snapshot-classification", true, 2),
+        FIELD_ROLES("active-snapshot-field-roles", true, 0),
+        POST_PAYMENT("active-snapshot-post-payment", true, 0);
 
         final String prefix;
         final boolean includeMetadata;
-        Scope(String prefix, boolean includeMetadata) {
+        final int minimumCompletedRecords;
+        Scope(String prefix, boolean includeMetadata, int minimumCompletedRecords) {
             this.prefix = prefix;
             this.includeMetadata = includeMetadata;
+            this.minimumCompletedRecords = minimumCompletedRecords;
         }
         String consent() { return prefix + "-once-max2-v1"; }
         String marker() { return "used-" + prefix + "-max2-v1"; }
@@ -66,7 +69,7 @@ public final class ActiveSnapshotListener extends NotificationListenerService {
                         !scope.consent().equals(new String(Files.readAllBytes(consent.toPath()), StandardCharsets.UTF_8).trim())) return;
                 for (Scope previous : Scope.values()) {
                     if (previous == scope) break;
-                    if (!previousAttemptComplete(previous.prefix, previous.marker())) return;
+                    if (!previousAttemptComplete(previous)) return;
                 }
                 // Refuse pending raw data; never overwrite an earlier attempt.
                 if (raw.exists() || status.exists() || !used.createNewFile()) return;
@@ -118,16 +121,19 @@ public final class ActiveSnapshotListener extends NotificationListenerService {
         }
     }
 
-    private boolean previousAttemptComplete(String prefix, String marker) throws Exception {
-        if (!new File(getNoBackupFilesDir(), marker).isFile() ||
+    private boolean previousAttemptComplete(Scope scope) throws Exception {
+        String prefix = scope.prefix;
+        if (!new File(getNoBackupFilesDir(), scope.marker()).isFile() ||
                 new File(getFilesDir(), prefix + "-consent").exists() ||
                 new File(getFilesDir(), prefix + "-raw.json").exists() ||
-                new File(getFilesDir(), prefix + "-raw.json.pending").exists()) return false;
+                new File(getFilesDir(), prefix + "-raw.json.pending").exists() ||
+                new File(getFilesDir(), prefix + "-status.json.pending").exists()) return false;
         File status = new File(getFilesDir(), prefix + "-status.json");
         if (!status.isFile() || status.length() > 1024) return false;
         JSONObject previous = new JSONObject(new String(Files.readAllBytes(status.toPath()), StandardCharsets.UTF_8));
         return previous.length() == 5 && "COMPLETE".equals(previous.optString("phase")) &&
-                previous.optInt("records", -1) == 2 && previous.optInt("limit", -1) == 2 &&
+                previous.optInt("records", -1) >= scope.minimumCompletedRecords &&
+                previous.optInt("records", -1) <= 2 && previous.optInt("limit", -1) == 2 &&
                 previous.optBoolean("historical_snapshot", false) && !previous.optBoolean("new_notifications_read", true);
     }
 

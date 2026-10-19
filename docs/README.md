@@ -1,5 +1,7 @@
 # 文档索引
 
+- [SPEC-040：付款反馈后的现存通知检查](specs/SPEC-040-post-payment-template-snapshot.md)：一次最多2条历史模板；保留SPEC-039实际0回调及全部旧标记，不续窗或补确认订单。
+
 - [SPEC-039：用户本地开始的新模板窗口](specs/SPEC-039-fresh-receipt-template-window.md)与[准备状态](testing/fresh-receipt-template-preparation.md)：最多120秒/2条、明确不充值；准备/刷新不采样。
 
 - [SPEC-038：已标注扫码收款样本的本机字段核验](specs/SPEC-038-alipay-receipt-field-roles.md)（#82/#84）：用户确认实际扫码来源；[字段核验工具与实际0条结果](testing/alipay-receipt-field-roles.md)，不升级历史订单。
