@@ -1,6 +1,6 @@
 # 当前交付与后续边界
 
-2026-10-19开发中（#82 / epay-go #32）：按[SPEC-046](../specs/SPEC-046-existing-epay-merchant-contract.md)将既有商户EPay回调核对留在网关operator，Android只核对四项通知事实，双方严格v2拒绝旧/混合handoff；不改New API、不自动转换review或启用规则。本地受影响Go race/CLI、Android严格构建/JVM/lint/最终APK检查通过，见[验证](../testing/existing-epay-contract.md)；独立审查/最终CI另记，普通消息对照仍WAITING。
+2026-10-19开发中（#82 / epay-go #32）：按[SPEC-046](../specs/SPEC-046-existing-epay-merchant-contract.md)将既有商户EPay回调核对留在网关operator，Android只核对四项通知事实，双方严格v2拒绝旧/混合handoff；不改New API、不自动转换review或启用规则。本地受影响Go race/CLI、Android严格构建/JVM/lint/最终APK检查通过，见[验证](../testing/existing-epay-contract.md)；独立两轴审查无阻塞，Android PR #95 / epay-go PR #33最终CI/合并另核验，普通消息对照仍WAITING。
 
 2026-10-19范围纠正（#82，SPEC-036/041/043）：用户重申只能修改epay-go和安卓观察器，New API保持原样。撤回SPEC-044私有候选的线上替换方案，不再等待或请求New API升级许可。下一批在两端补齐真实通知模板/普通消息边界及订单归属，沿用现有EPay商户接口核对签名、金额、持久回调与ACK；新单真实付款后的New API实际余额另验，不能把ACK算作增额。既有五项review不自动改值，历史风险记录保留；如现有接口存在两端无法解决的限制，应具体报告，不以修改New API代替接入。当前不再付款、不补旧单、不启用规则。
 
