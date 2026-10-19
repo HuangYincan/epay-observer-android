@@ -1,6 +1,8 @@
 # 当前交付与后续边界
 
-2026-10-19：按[SPEC-045](../specs/SPEC-045-gateway-schema-upgrade.md) / #82 / epay-go #30完成既有网关backend休眠升级至33d5f08/schema8，rule/pilot保持0。原schema6裸镜像拒8，已准备只适用于零规则/试验的兼容回退并完成实际二进制隔离演练；线上完整配置/旧账务/配对/暂停和其他服务保持。修复同一AVD旧网络DNS后，实际TLS及既有签名health通过，失败记录保留，原四笔增额30M未变。见[实测报告](../testing/gateway-schema-upgrade.md)。New API未改，候选升级确认和SPEC-042用户普通消息对照仍待；真实自动确认仍未启用。
+2026-10-19范围纠正（#82，SPEC-036/041/043）：用户重申只能修改epay-go和安卓观察器，New API保持原样。撤回SPEC-044私有候选的线上替换方案，不再等待或请求New API升级许可。下一批在两端补齐真实通知模板/普通消息边界及订单归属，沿用现有EPay商户接口核对签名、金额、持久回调与ACK；新单真实付款后的New API实际余额另验，不能把ACK算作增额。既有五项review不自动改值，历史风险记录保留；如现有接口存在两端无法解决的限制，应具体报告，不以修改New API代替接入。当前不再付款、不补旧单、不启用规则。
+
+2026-10-19：按[SPEC-045](../specs/SPEC-045-gateway-schema-upgrade.md) / #82 / epay-go #30完成既有网关backend休眠升级至33d5f08/schema8，rule/pilot保持0。原schema6裸镜像拒8，已准备只适用于零规则/试验的兼容回退并完成实际二进制隔离演练；线上完整配置/旧账务/配对/暂停和其他服务保持。修复同一AVD旧网络DNS后，实际TLS及既有签名health通过，失败记录保留，原四笔增额30M未变。见[实测报告](../testing/gateway-schema-upgrade.md)。New API保持原样，SPEC-042用户普通消息对照仍待；真实自动确认仍未启用。
 
 2026-10-19：按[SPEC-044](../specs/SPEC-044-newapi-live-contract-backport.md) / #82完成与线上标注revision一致的独立New API私有修复候选，金额精确比较、状态/quota原子提交及提交后ACK，SQLite/PostgreSQL/MySQL合成race与两轴复审通过。Redis或batch模式写前拒绝，完整缓存兼容未实现；当前线上容器配置符合最小支持范围，但未升级、未改配置、未验证真实增额。见[证据与具体部署/回退范围](../testing/newapi-live-contract-backport.md)。SPEC-042仍等待用户本地开始普通消息对照，不再付款、不补旧单。
 
