@@ -1,5 +1,6 @@
 # 文档索引
 
+- [SPEC-044：New API 实际版本回调契约私有修复](specs/SPEC-044-newapi-live-contract-backport.md)及[验证/部署范围](testing/newapi-live-contract-backport.md)：独立AGPL候选，缓存模式写前拒绝，未修改线上。
 - [SPEC-043：本地试验operator与Android交接](specs/SPEC-043-pilot-operator-handoff.md)及[验证](testing/pilot-operator-handoff.md)：补实际操作入口，不自动批准规则/政策，不上线。
 
 - [SPEC-042：有限收款/聊天对照](specs/SPEC-042-receipt-chat-comparison.md)与[准备报告](testing/receipt-chat-comparison.md)：用户本地开始、最多现存1条+posted1条，不付款、不自动填规则核验位。

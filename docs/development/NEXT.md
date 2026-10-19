@@ -1,5 +1,7 @@
 # 当前交付与后续边界
 
+2026-10-19：按[SPEC-044](../specs/SPEC-044-newapi-live-contract-backport.md) / #82完成与线上标注revision一致的独立New API私有修复候选，金额精确比较、状态/quota原子提交及提交后ACK，SQLite/PostgreSQL/MySQL合成race与两轴复审通过。Redis或batch模式写前拒绝，完整缓存兼容未实现；当前线上容器配置符合最小支持范围，但未升级、未改配置、未验证真实增额。见[证据与具体部署/回退范围](../testing/newapi-live-contract-backport.md)。SPEC-042仍等待用户本地开始普通消息对照，不再付款、不补旧单。
+
 2026-10-19：承接目标“直到真实自动充值”，按[SPEC-043](../specs/SPEC-043-pilot-operator-handoff.md) / #82 / epay-go #28补默认只读本地operator与精确私有handoff，完整review才可显式登记，同请求恢复原窗口不续期。见[验证与真实阻塞](../testing/pilot-operator-handoff.md)。未在线apply，不自动核验政策或线上New API契约；SPEC-042仍等用户开始普通消息对照。
 
 2026-10-19：按[SPEC-042](../specs/SPEC-042-receipt-chat-comparison.md) / #82/#84准备非资金收款/聊天字段对照，独立两槽/120秒/永久marker；生产门控不放宽。无采样AVD准备成功，旧记录/监听集合/四笔账务不变；实际对照Not run，等用户本地开始后自行发送随机普通短语，不再付款。见[准备报告](../testing/receipt-chat-comparison.md)。
