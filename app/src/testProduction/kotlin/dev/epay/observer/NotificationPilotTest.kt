@@ -11,7 +11,7 @@ import org.junit.Test
 class NotificationPilotTest {
     private val binding = BindingSnapshot("https://observer.example", "test", "device", "receiver", 1,
         Provider.ALIPAY, BindingSnapshot.SourceClass.NOTIFICATION)
-    private val review = PilotReview("synthetic-test-only", true, true, true, true, true)
+    private val review = PilotReview("synthetic-test-only", true, true, true, true)
     private val config = PilotConfiguration(binding, 1234, 100_000, 400_000, review)
     private val source = SourceIdentity(PilotAlipaySource.PACKAGE, 0, PilotAlipaySource.VERSION,
         setOf(PilotAlipaySource.CERTIFICATE))
@@ -105,7 +105,7 @@ class NotificationPilotTest {
     @Test fun everyMissingReviewAndWrongScopePreventsStarting() {
         for (bad in listOf(review.copy(templateVerified=false),review.copy(chatBoundaryVerified=false),
             review.copy(identityPolicyApproved=false),review.copy(amountPolicyApproved=false),
-            review.copy(newApiContractVerified=false),review.copy(evidenceReference=""))) {
+            review.copy(evidenceReference=""))) {
             assertTrue(runCatching { NotificationPilot(config.copy(review=bad),100_000,10_000) }.isFailure)
         }
         for (bad in listOf(config.copy(amountMinor=0),config.copy(serverExpiresAt=800_001),
