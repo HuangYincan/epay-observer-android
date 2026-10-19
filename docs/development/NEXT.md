@@ -1,5 +1,7 @@
 # 当前交付与后续边界
 
+2026-10-19：承接目标“直到真实自动充值”，按[SPEC-043](../specs/SPEC-043-pilot-operator-handoff.md) / #82 / epay-go #28补默认只读本地operator与精确私有handoff，完整review才可显式登记，同请求恢复原窗口不续期。见[验证与真实阻塞](../testing/pilot-operator-handoff.md)。未在线apply，不自动核验政策或线上New API契约；SPEC-042仍等用户开始普通消息对照。
+
 2026-10-19：按[SPEC-042](../specs/SPEC-042-receipt-chat-comparison.md) / #82/#84准备非资金收款/聊天字段对照，独立两槽/120秒/永久marker；生产门控不放宽。无采样AVD准备成功，旧记录/监听集合/四笔账务不变；实际对照Not run，等用户本地开始后自行发送随机普通短语，不再付款。见[准备报告](../testing/receipt-chat-comparison.md)。
 
 2026-10-19：按用户“补齐”要求推进[SPEC-041](../specs/SPEC-041-bounded-notification-pilot.md) / #82 / epay-go #26，补productionDebug默认停止的120秒/2条官方来源→严格语法→配对签名outbox及只读网关准入检查。当前历史研究不足以填为规则已核验，review事实缺失拒绝启动；Release/fixture不能arm，不补旧单、不重复付款。网关现网只读结果schema_not_ready，未迁移/启用。验证与尚缺的真实条件见[本批报告](../testing/bounded-notification-pilot.md)。
