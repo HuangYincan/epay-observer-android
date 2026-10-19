@@ -95,6 +95,7 @@ def main():
         report['test_apk_sha256'] = hashlib.sha256(apk.read_bytes()).hexdigest()
         report['stage'] = 'listener_preflight'
         before = listeners()
+        report['listeners_before'] = sorted(before)  # Private recovery metadata, never notification fields.
         if COMPONENT in before:
             raise RuntimeError('test listener already authorized')
         if args.consent == POST_PAYMENT_CONSENT:
@@ -215,10 +216,18 @@ def main():
         if before is None and not installed:
             cleanup['no_listener_mutation_started'] = True
         else:
-            try:
-                cleanup['listeners_restored'] = listeners() == before
-            except Exception:
-                cleanup['listeners_restored'] = False
+            cleanup['listeners_restored'] = False
+            for attempt in range(2):
+                try:
+                    after = listeners()
+                    report['listeners_after'] = sorted(after)
+                    cleanup['listeners_restored'] = after == before
+                    break
+                except subprocess.TimeoutExpired as error:
+                    report.setdefault('listener_recheck_error_types', []).append(type(error).__name__)
+                except Exception as error:
+                    report.setdefault('listener_recheck_error_types', []).append(type(error).__name__)
+                    break
         report['cleanup'] = cleanup
         if previous_states:
             try:
@@ -232,7 +241,8 @@ def main():
                 cleanup['previous_markers_and_states_preserved'] = False
         report['cleanup_ok'] = all(cleanup.values())
         private_json(args.evidence / 'report.json', report)
-    print(json.dumps(report, ensure_ascii=False))
+    print(json.dumps({key: value for key, value in report.items()
+                      if key not in {'listeners_before', 'listeners_after'}}, ensure_ascii=False))
     return 0 if report['result'] != 'failed' and report['cleanup_ok'] else 1
 
 

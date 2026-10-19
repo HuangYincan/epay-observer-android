@@ -18,21 +18,26 @@ SAMPLE_COMPONENT = 'dev.epay.observer.sample.debug/dev.epay.observer.sample.Alip
 
 
 class PostPaymentSnapshotTest(unittest.TestCase):
-    def run_snapshot(self, previous_override=None, missing_live=False, active_sample=False):
+    def run_snapshot(self, previous_override=None, missing_live=False, active_sample=False,
+                     restoration_timeouts=0):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / 'repo'
             apk = root / 'sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk'
             apk.parent.mkdir(parents=True); apk.write_bytes(b'synthetic-test-apk')
             evidence = Path(directory) / 'evidence'
             granted = False
+            listener_reads = 0
             commands = []
             def run(arguments, **kwargs):
-                nonlocal granted
+                nonlocal granted, listener_reads
                 action = arguments[3:]
                 command = shlex.split(action[1]) if action[0] == 'shell' else action[1:]
                 commands.append(command)
                 output = b''
                 if command[:3] == ['settings', 'get', 'secure']:
+                    listener_reads += 1
+                    if 2 <= listener_reads <= restoration_timeouts + 1:
+                        raise subprocess.TimeoutExpired('synthetic-listener-metadata', 15)
                     output = (SAMPLE_COMPONENT if active_sample else snapshot.COMPONENT if granted else 'null').encode()
                 elif command[:3] == ['cmd', 'package', 'path']:
                     output = b'package:/synthetic/base.apk\n'
@@ -83,6 +88,8 @@ class PostPaymentSnapshotTest(unittest.TestCase):
         self.assertFalse(report['payment_or_settlement'])
         self.assertTrue(report['cleanup_ok'])
         self.assertTrue(report['cleanup']['previous_markers_and_states_preserved'])
+        self.assertEqual(report['listeners_before'], [])
+        self.assertEqual(report['listeners_after'], [])
         self.assertEqual(len(json.loads(templates)), 2)
         self.assertEqual(json.loads(templates)[1]['suffix_public_literal'], '余额宝')
         self.assertFalse(json.loads(templates)[1]['payment_eligibility'])
@@ -99,6 +106,23 @@ class PostPaymentSnapshotTest(unittest.TestCase):
                 self.assertEqual(report['stage'], 'unused_gate_checks')
                 self.assertIsNone(templates)
                 self.assertFalse(any('allow_listener' in command for command in commands))
+
+    def test_one_metadata_timeout_can_recheck_without_recollecting_raw(self):
+        code, report, templates, commands = self.run_snapshot(restoration_timeouts=1)
+        self.assertEqual(code, 0)
+        self.assertTrue(report['cleanup']['listeners_restored'])
+        self.assertEqual(report['listener_recheck_error_types'], ['TimeoutExpired'])
+        self.assertEqual(sum(command[:3] == ['cmd', 'notification', 'allow_listener'] for command in commands), 1)
+
+    def test_persistent_restoration_timeout_is_failed_without_losing_templates(self):
+        code, report, templates, commands = self.run_snapshot(restoration_timeouts=2)
+        self.assertEqual(code, 1)
+        self.assertFalse(report['cleanup_ok'])
+        self.assertFalse(report['cleanup']['listeners_restored'])
+        self.assertEqual(report['listeners_before'], [])
+        self.assertEqual(report['listener_recheck_error_types'], ['TimeoutExpired', 'TimeoutExpired'])
+        self.assertEqual(len(json.loads(templates)), 2)
+        self.assertTrue(report['cleanup']['host_raw_deleted'])
 
     def test_live_scope_must_be_closed_and_consumed_before_snapshot(self):
         for options in [dict(missing_live=True), dict(active_sample=True)]:
