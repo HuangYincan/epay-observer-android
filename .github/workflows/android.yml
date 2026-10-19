@@ -53,6 +53,7 @@ jobs:
           python3 scripts/verify_apk.py app/build/outputs/apk/fixture/debug/app-fixture-debug.apk --variant fixtureDebug
           python3 scripts/verify_probe_apk.py probe/build/outputs/apk/debug/probe-debug.apk
           python3 scripts/verify_sample_apk.py sample/build/outputs/apk/debug/sample-debug.apk
+          python3 scripts/verify_comparison_apk.py sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk
           ./gradlew --no-daemon :app:tasks --all > /tmp/observer-tasks.txt
           python3 -c 'from pathlib import Path; s=Path("/tmp/observer-tasks.txt").read_text(); assert "assembleFixtureDebug" in s and "assembleProductionRelease" in s; assert "assembleFixtureRelease" not in s'
           ./gradlew --no-daemon :fixture:tasks --all > /tmp/fixture-tasks.txt

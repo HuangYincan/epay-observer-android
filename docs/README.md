@@ -1,5 +1,7 @@
 # 文档索引
 
+- [SPEC-042：有限收款/聊天对照](specs/SPEC-042-receipt-chat-comparison.md)与[准备报告](testing/receipt-chat-comparison.md)：用户本地开始、最多现存1条+posted1条，不付款、不自动填规则核验位。
+
 - [SPEC-041：有界真实通知联调接线](specs/SPEC-041-bounded-notification-pilot.md)（#82 / epay-go #26）：补齐默认停止的debug接线与只读准入检查；[验证报告](testing/bounded-notification-pilot.md)区分真实核验与启用。
 
 - [SPEC-040：付款反馈后的现存通知检查](specs/SPEC-040-post-payment-template-snapshot.md)与[实际结果](testing/post-payment-template-snapshot.md)：COMPLETE/2，清理与全监听集合恢复分开记录；保留SPEC-039实际0回调及全部旧标记，不续窗或补确认订单。
