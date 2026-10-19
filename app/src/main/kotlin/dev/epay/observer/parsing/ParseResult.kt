@@ -12,7 +12,8 @@ enum class ParseReason(val description: String) {
 }
 sealed interface ParseResult {
     /** Lexical candidate only. No transaction identity, payment proof or delivery side effects. */
-    data class Candidate(val provider: Provider, val amountMinor: Long, val currency: String, val ruleVersion: String) : ParseResult {
+    data class Candidate(val provider: Provider, val amountMinor: Long, val currency: String, val ruleVersion: String,
+                         val pilotPermit: dev.epay.observer.pilot.PilotPermit? = null) : ParseResult {
         val identityUncertain: Boolean get() = true
     }
     data class Ignored(val reason: ParseReason) : ParseResult

@@ -1,5 +1,7 @@
 # 当前交付与后续边界
 
+2026-10-19：按用户“补齐”要求推进[SPEC-041](../specs/SPEC-041-bounded-notification-pilot.md) / #82 / epay-go #26，补productionDebug默认停止的120秒/2条官方来源→严格语法→配对签名outbox及只读网关准入检查。当前历史研究不足以填为规则已核验，review事实缺失拒绝启动；Release/fixture不能arm，不补旧单、不重复付款。网关现网只读结果schema_not_ready，未迁移/启用。验证与尚缺的真实条件见[本批报告](../testing/bounded-notification-pilot.md)。
+
 2026-10-19 SPEC-040实际COMPLETE/2：空摘要+收款child，完整标题语法/正金额判断匹配，正文有限模板包含转入余额宝；括号角色未知、payment_eligibility=false。原文删除及四代旧记录保留成功，但全监听列表校验false，原cleanup_ok=false保留；后查两内容listener均已撤权，五代marker/status及live marker/原文清理、原四笔审计通过，不能重建原before集合或宣称全恢复。已补未来私有before/after落盘及一次元数据超时重查，57项宿主和受影响AndroidTest构建/lint/APK检查通过；审查发现基线仅在内存的问题已修复，最终复审另记。未重跑新scope。见[实际结果和边界](../testing/post-payment-template-snapshot.md)。不再付款、不续窗，不把历史样本补确认订单。
 
 2026-10-19：SPEC-039实际新窗口已完成EXPIRED/120085ms、0回调/0样本，用户付款反馈在有效窗口内记录，但不当平台验签或订单归属。清理/恢复/原四笔审计通过，marker已消费，不能沿用下文准备时Not run或重开窗口。用户授权代理直接查看模拟器收款账号，首页有App内收款提示，系统通知开关/分类开启；仍无系统模板、根因未知。按[SPEC-040](../specs/SPEC-040-post-payment-template-snapshot.md)准备一次现存最多2条历史模板检查，不再要求付款、不监听新通知；见[实际结果](../testing/fresh-receipt-template-preparation.md)。生产解析/确认仍关闭。

@@ -17,11 +17,13 @@ class ObserverListener : NotificationListenerService() {
     }
 
     override fun onListenerDisconnected() {
+        SourcePolicy.disconnected()
         CaptureState.connection(false)
         super.onListenerDisconnected()
     }
 
     override fun onDestroy() {
+        SourcePolicy.disconnected()
         CaptureState.connection(false)
         super.onDestroy()
     }
@@ -40,14 +42,24 @@ class ObserverListener : NotificationListenerService() {
     }
 
     private fun capture(sbn: StatusBarNotification, restored: Boolean) {
+        // Cleanup uses this same looper as a barrier. Fail before extras on an unexpected executor.
+        if (android.os.Looper.myLooper() != android.os.Looper.getMainLooper()) {
+            CaptureState.failure("callback_thread"); return
+        }
         val source = try { SourcePolicy.resolve(this, sbn) } catch (_: android.content.pm.PackageManager.NameNotFoundException) { null }
             catch (_: RuntimeException) { null }
         if (source == null) { CaptureState.reject(); return }
-        val fields = extractFields(sbn.notification)
+        val wall = System.currentTimeMillis()
+        val elapsed = SystemClock.elapsedRealtime()
+        val permission = SourcePolicy.authorize(source, sbn.postTime, wall, elapsed, restored) ?: return
+        val fields = if (permission.pilotPermit == null) extractFields(sbn.notification)
+            else permission.pilotPermit.readFields(System.currentTimeMillis(),SystemClock.elapsedRealtime()) {
+                extractFields(sbn.notification)
+            } ?: return
         val input = ObservationInput(
             key = sbn.key, source = source, postTime = sbn.postTime,
-            wallTime = System.currentTimeMillis(), elapsedTime = SystemClock.elapsedRealtime(),
-            restored = restored, fields = fields,
+            wallTime = wall, elapsedTime = elapsed,
+            restored = restored, fields = fields, pilotPermit = permission.pilotPermit,
         )
         dev.epay.observer.storage.DurableCapture.accept(input)
         CaptureState.journal.record(input)
