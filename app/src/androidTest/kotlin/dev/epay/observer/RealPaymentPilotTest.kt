@@ -14,6 +14,7 @@ import dev.epay.observer.storage.DurableCapture
 import java.io.File
 import java.security.MessageDigest
 import org.json.JSONObject
+import org.json.JSONArray
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Test
@@ -63,9 +64,19 @@ class RealPaymentPilotTest {
             ComponentName(context.packageName,"dev.epay.observer.capture.ObserverListener"))
         val ready = c != null && bound && source && access && CaptureState.connected && !marker.exists() &&
             runCatching { NotificationPilot(c,System.currentTimeMillis(),SystemClock.elapsedRealtime()) }.isSuccess
+        val blockers = JSONArray()
+        if (!input.isFile) blockers.put("handoff_missing") else if (c == null) blockers.put("review_or_handoff_invalid")
+        if (!source) blockers.put("source_mismatch")
+        if (c != null && !bound) blockers.put("binding_mismatch")
+        if (!access) blockers.put("listener_not_granted")
+        if (!CaptureState.connected) blockers.put("listener_not_connected")
+        if (marker.exists()) blockers.put("scope_already_used")
+        if (c != null && runCatching { NotificationPilot(c,System.currentTimeMillis(),SystemClock.elapsedRealtime()) }.isFailure)
+            blockers.put("window_invalid")
         publish(JSONObject().put("phase","PREPARED").put("ready",ready).put("input_present",input.isFile)
             .put("review_ready",c != null).put("source_matches",source).put("marker_used",marker.exists())
-            .put("binding_matches",bound).put("listener_granted",access).put("listener_connected",CaptureState.connected)
+            .put("binding_matches",if(c == null) JSONObject.NULL else bound).put("listener_granted",access)
+            .put("listener_connected",CaptureState.connected).put("blockers",blockers)
             .put("capture_started",false).put("payment_verified",false))
         check(!PilotRuntime.hasSession) // Preparation must never arm or consume the marker.
     }
@@ -97,9 +108,7 @@ class RealPaymentPilotTest {
         } catch (_: Exception) {
             // Only stable aggregates below; no exception data, title/text or account identifiers.
         } finally {
-            PilotRuntime.stop()
-            try { DurableCapture.awaitIdle() } catch (_: Exception) { cleanup = false }
-            CaptureState.journal.clear()
+            cleanup = PilotShutdown.finish({ action -> instrumentation.runOnMainSync(action) }, { DurableCapture.awaitIdle() })
             if (input.exists() && !input.delete()) cleanup = false
             publish(JSONObject().put("phase","FINISHED").put("started",started).put("completed",completed)
                 .put("source_slots",PilotRuntime.readCount()).put("field_reads",PilotRuntime.fieldReadCount()).put("cleanup_ok",cleanup)

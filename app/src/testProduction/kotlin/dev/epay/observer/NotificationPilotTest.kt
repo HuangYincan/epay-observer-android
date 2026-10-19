@@ -95,6 +95,11 @@ class NotificationPilotTest {
         assertNotNull(permit.readFields(100_000,10_000) { fields })
         assertNull(permit.readFields(100_000,10_000) { error("second read") })
         assertEquals(1,p.fieldReadCount())
+        val failed=NotificationPilot(config,100_000,10_000)
+        val failedPermit=failed.admit(source,100_000,100_000,10_000,false)!!
+        assertTrue(runCatching { failedPermit.readFields(100_000,10_000) { error("synthetic-field-error") } }.isFailure)
+        assertNull(failedPermit.readFields(100_000,10_000) { error("retried raw read") })
+        assertEquals(1,failed.fieldReadCount())
     }
 
     @Test fun everyMissingReviewAndWrongScopePreventsStarting() {

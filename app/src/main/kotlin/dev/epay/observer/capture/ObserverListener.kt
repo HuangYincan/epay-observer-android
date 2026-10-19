@@ -42,6 +42,10 @@ class ObserverListener : NotificationListenerService() {
     }
 
     private fun capture(sbn: StatusBarNotification, restored: Boolean) {
+        // Cleanup uses this same looper as a barrier. Fail before extras on an unexpected executor.
+        if (android.os.Looper.myLooper() != android.os.Looper.getMainLooper()) {
+            CaptureState.failure("callback_thread"); return
+        }
         val source = try { SourcePolicy.resolve(this, sbn) } catch (_: android.content.pm.PackageManager.NameNotFoundException) { null }
             catch (_: RuntimeException) { null }
         if (source == null) { CaptureState.reject(); return }
