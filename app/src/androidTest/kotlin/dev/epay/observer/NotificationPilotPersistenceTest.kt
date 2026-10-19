@@ -22,7 +22,7 @@ class NotificationPilotPersistenceTest {
         val binding = BindingSnapshot("https://observer.example","synthetic-test","device","receiver",1,
             Provider.ALIPAY,BindingSnapshot.SourceClass.NOTIFICATION)
         val configuration = PilotConfiguration(binding,1234,100_000,400_000,
-            PilotReview("synthetic-test-only",true,true,true,true,true))
+            PilotReview("synthetic-test-only",true,true,true,true))
         val session = NotificationPilot(configuration,100_000,10_000)
         val source = SourceIdentity(PilotAlipaySource.PACKAGE,0,PilotAlipaySource.VERSION,setOf(PilotAlipaySource.CERTIFICATE))
         val permit = session.admit(source,101_000,101_000,11_000,false)!!

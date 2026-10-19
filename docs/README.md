@@ -1,4 +1,5 @@
 # 文档索引
+- [SPEC-046：既有EPay商户接口与通知准入分层](specs/SPEC-046-existing-epay-merchant-contract.md)：New API保持原样，严格v2交接，ACK与实际增额分开；[验证](testing/existing-epay-contract.md)。
 
 - [SPEC-045：网关schema升级与兼容回退](specs/SPEC-045-gateway-schema-upgrade.md)及[实际休眠升级](testing/gateway-schema-upgrade.md)：schema8/零rule/pilot，既有签名health通过；真实自动充值仍未通过。
 - [SPEC-044：New API 实际版本回调契约私有修复](specs/SPEC-044-newapi-live-contract-backport.md)及[验证/部署范围](testing/newapi-live-contract-backport.md)：独立AGPL候选，缓存模式写前拒绝，未修改线上。

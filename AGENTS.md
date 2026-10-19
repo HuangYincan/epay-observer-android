@@ -2,6 +2,7 @@
 
 ## 已确认的用户要求
 
+- 2026-10-19用户再次明确：只能修改epay-go和安卓观察器，不能修改New API。此前私有New API候选仅为隔离研究、未部署；其线上替换方案撤回，不再作为待授权下一步。按既有New API的EPay商户接口推进网关/观察器兼容，不改其代码、配置、容器或数据库，不手动回调旧单或改余额。回调ACK与实际余额增加分开验收；既有审查事实缺失不自动填1。
 - 仓库归 HuangYincan，公开；本地位于 `/Users/acccan/Repos/huangyincan/epay-observer-android`。
 - 微信和支付宝均为必需；目标是对接 epay-go → New API 自动充值。
 - 先使用安卓模拟器。

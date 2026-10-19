@@ -11,12 +11,12 @@ object PilotConfigurationCodec {
         o.requireFields("schema_version", "origin", "environment", "device_id", "receiver_id", "binding_version",
             "provider", "source_class", "parser_version", "amount_minor", "server_armed_at_ms", "server_expires_at_ms",
             "evidence_ref", "template_verified", "chat_boundary_verified", "identity_policy_approved",
-            "amount_policy_approved", "newapi_contract_verified")
-        require(o.number("schema_version") == 1L && o.text("provider") == "alipay" &&
+            "amount_policy_approved")
+        require(o.number("schema_version") == 2L && o.text("provider") == "alipay" &&
             o.text("source_class") == "notification" && o.text("parser_version") == AlipayReceiptSyntax.VERSION)
         fun verified(name: String): Boolean = o.number(name, 0, 1) == 1L
         val review = PilotReview(o.text("evidence_ref"), verified("template_verified"), verified("chat_boundary_verified"),
-            verified("identity_policy_approved"), verified("amount_policy_approved"), verified("newapi_contract_verified"))
+            verified("identity_policy_approved"), verified("amount_policy_approved"))
         require(review.complete()) { "review_incomplete" }
         val binding = BindingSnapshot(o.text("origin"), o.text("environment"), o.text("device_id"), o.text("receiver_id"),
             o.number("binding_version", 1, Int.MAX_VALUE.toLong()).toInt(), Provider.ALIPAY, BindingSnapshot.SourceClass.NOTIFICATION)

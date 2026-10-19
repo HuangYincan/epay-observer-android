@@ -11,11 +11,10 @@ data class PilotReview(
     val evidenceReference: String,
     val templateVerified: Boolean, val chatBoundaryVerified: Boolean,
     val identityPolicyApproved: Boolean, val amountPolicyApproved: Boolean,
-    val newApiContractVerified: Boolean,
 ) {
     fun complete(): Boolean = Regex("[A-Za-z0-9_-]{1,64}").matches(evidenceReference) &&
         templateVerified && chatBoundaryVerified && identityPolicyApproved &&
-        amountPolicyApproved && newApiContractVerified
+        amountPolicyApproved
 }
 
 data class PilotConfiguration(
