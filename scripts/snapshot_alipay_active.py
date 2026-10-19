@@ -18,11 +18,13 @@ CONSENT = 'active-snapshot-once-max2-v1'
 RECOVERY_CONSENT = 'active-snapshot-recovery-once-max2-v1'
 CLASSIFICATION_CONSENT = 'active-snapshot-classification-once-max2-v1'
 FIELD_ROLES_CONSENT = 'active-snapshot-field-roles-once-max2-v1'
+POST_PAYMENT_CONSENT = 'active-snapshot-post-payment-once-max2-v1'
 SCOPES = {
     CONSENT: ('active-snapshot', 'used-active-snapshot-max2-v1'),
     RECOVERY_CONSENT: ('active-snapshot-recovery', 'used-active-snapshot-recovery-max2-v1'),
     CLASSIFICATION_CONSENT: ('active-snapshot-classification', 'used-active-snapshot-classification-max2-v1'),
     FIELD_ROLES_CONSENT: ('active-snapshot-field-roles', 'used-active-snapshot-field-roles-max2-v1'),
+    POST_PAYMENT_CONSENT: ('active-snapshot-post-payment', 'used-active-snapshot-post-payment-max2-v1'),
 }
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -63,6 +65,8 @@ def main():
     parser.add_argument('--consent', required=True, choices=tuple(SCOPES))
     parser.add_argument('--evidence', type=Path, required=True)
     args = parser.parse_args()
+    if args.evidence.resolve().is_relative_to(ROOT):
+        parser.error('Private evidence must be outside repository')
     stem, marker = SCOPES[args.consent]
     args.evidence.mkdir(mode=0o700, parents=False, exist_ok=False)
     apk = ROOT / 'sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk'
@@ -91,8 +95,15 @@ def main():
         report['test_apk_sha256'] = hashlib.sha256(apk.read_bytes()).hexdigest()
         report['stage'] = 'listener_preflight'
         before = listeners()
+        report['listeners_before'] = sorted(before)  # Private recovery metadata, never notification fields.
+        private_json(args.evidence / 'listeners-before.json', report['listeners_before'])
         if COMPONENT in before:
             raise RuntimeError('test listener already authorized')
+        if args.consent == POST_PAYMENT_CONSENT:
+            if 'dev.epay.observer.sample.debug/dev.epay.observer.sample.AlipayListener' in before:
+                raise RuntimeError('live sample listener still authorized')
+            shell('run-as', 'dev.epay.observer.sample.debug', 'sh', '-c',
+                  'test -f no_backup/used-receipt-template-v1 && test ! -e no_backup/samples.jsonl')
         report['stage'] = 'verify_installed_test_apk'
         try:
             paths = shell('cmd', 'package', 'path', PACKAGE).splitlines()
@@ -110,14 +121,17 @@ def main():
         report['stage'] = 'unused_gate_checks'
         absent = []
         present = []
-        previous_scopes = list(SCOPES.values())[:list(SCOPES).index(args.consent)]
-        for old_stem, old_marker in previous_scopes:
+        previous_scopes = list(SCOPES)[:list(SCOPES).index(args.consent)]
+        for old_consent in previous_scopes:
+            old_stem, old_marker = SCOPES[old_consent]
             present.append('no_backup/' + old_marker)
             previous = snapshot_state(call('exec-out', 'run-as', PACKAGE, 'cat', f'files/{old_stem}-status.json'))
-            if previous is None or previous['phase'] != 'COMPLETE' or previous['records'] != 2:
+            if (previous is None or previous['phase'] != 'COMPLETE' or
+                    (old_consent != FIELD_ROLES_CONSENT and previous['records'] != 2)):
                 raise ValueError('previous snapshot metadata')
             previous_states[(old_stem, old_marker)] = previous
-            absent.extend([f'files/{old_stem}-consent', f'files/{old_stem}-raw.json', f'files/{old_stem}-raw.json.pending'])
+            absent.extend([f'files/{old_stem}-consent', f'files/{old_stem}-raw.json',
+                           f'files/{old_stem}-raw.json.pending', f'files/{old_stem}-status.json.pending'])
         absent.extend([f'files/{stem}-raw.json', f'files/{stem}-status.json',
                      f'files/{stem}-raw.json.pending', f'files/{stem}-status.json.pending',
                      f'files/{stem}-consent', 'no_backup/' + marker])
@@ -157,7 +171,7 @@ def main():
             raise ValueError('raw count')
         templates = []
         for row in rows:
-            if args.consent == FIELD_ROLES_CONSENT:
+            if args.consent in {FIELD_ROLES_CONSENT, POST_PAYMENT_CONSENT}:
                 templates.append(classify_field_roles(row))
                 continue
             if args.consent == CLASSIFICATION_CONSENT:
@@ -203,10 +217,19 @@ def main():
         if before is None and not installed:
             cleanup['no_listener_mutation_started'] = True
         else:
-            try:
-                cleanup['listeners_restored'] = listeners() == before
-            except Exception:
-                cleanup['listeners_restored'] = False
+            cleanup['listeners_restored'] = False
+            for attempt in range(2):
+                try:
+                    after = listeners()
+                    report['listeners_after'] = sorted(after)
+                    private_json(args.evidence / 'listeners-after.json', report['listeners_after'])
+                    cleanup['listeners_restored'] = after == before
+                    break
+                except subprocess.TimeoutExpired as error:
+                    report.setdefault('listener_recheck_error_types', []).append(type(error).__name__)
+                except Exception as error:
+                    report.setdefault('listener_recheck_error_types', []).append(type(error).__name__)
+                    break
         report['cleanup'] = cleanup
         if previous_states:
             try:
@@ -220,7 +243,8 @@ def main():
                 cleanup['previous_markers_and_states_preserved'] = False
         report['cleanup_ok'] = all(cleanup.values())
         private_json(args.evidence / 'report.json', report)
-    print(json.dumps(report, ensure_ascii=False))
+    print(json.dumps({key: value for key, value in report.items()
+                      if key not in {'listeners_before', 'listeners_after'}}, ensure_ascii=False))
     return 0 if report['result'] != 'failed' and report['cleanup_ok'] else 1
 
 
